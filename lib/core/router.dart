@@ -7,6 +7,7 @@ import '../features/calendar/event_edit_screen.dart';
 import '../features/contacts/contact_detail_screen.dart';
 import '../features/contacts/contact_edit_screen.dart';
 import '../features/contacts/contacts_screen.dart';
+import '../features/finance/billable_edit_screen.dart';
 import '../features/finance/finance_screen.dart';
 import '../features/notes/note_edit_screen.dart';
 import '../features/notes/notes_screen.dart';
@@ -118,6 +119,21 @@ GoRouter router(Ref ref) => GoRouter(
               GoRoute(
                 path: '/finance',
                 builder: (context, state) => const FinanceScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => BillableEditScreen(
+                      initialContactId:
+                          state.uri.queryParameters['contactId'],
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => BillableEditScreen(
+                      billableId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ]),
           ],

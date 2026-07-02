@@ -66,6 +66,33 @@
     }
   },
   "createWorkspaceFirst": "Create a workspace first.",
+  "newBillable": "New billable item",
+  "editBillable": "Edit billable item",
+  "typeLabel": "Type",
+  "typeHourly": "Hourly",
+  "typeFixed": "Fixed",
+  "rateLabel": "Rate (€/h)",
+  "durationMinutesLabel": "Duration (min)",
+  "amountLabel": "Amount (€)",
+  "currencyLabel": "Currency",
+  "billableStatusLabel": "Status",
+  "statusUnbilled": "Unbilled",
+  "statusInvoiced": "Invoiced",
+  "statusPaid": "Paid",
+  "emptyBillablesTitle": "No billable items",
+  "emptyBillablesBody": "Add a billable item with the + button.",
+  "financeModuleDisabled": "The finance module is disabled in this workspace.",
+  "deleteBillableTitle": "Delete billable item?",
+  "deleteBillableBody": "\"{title}\" will be removed from your lists.",
+  "@deleteBillableBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "financialSummary": "Financial summary",
+  "invalidDuration": "Enter minutes as a whole number",
   "newContact": "New contact",
   "editContact": "Edit contact",
   "contactName": "Name",

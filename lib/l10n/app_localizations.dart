@@ -412,6 +412,126 @@ abstract class AppLocalizations {
   /// **'Create a workspace first.'**
   String get createWorkspaceFirst;
 
+  /// No description provided for @newBillable.
+  ///
+  /// In en, this message translates to:
+  /// **'New billable item'**
+  String get newBillable;
+
+  /// No description provided for @editBillable.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit billable item'**
+  String get editBillable;
+
+  /// No description provided for @typeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get typeLabel;
+
+  /// No description provided for @typeHourly.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly'**
+  String get typeHourly;
+
+  /// No description provided for @typeFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get typeFixed;
+
+  /// No description provided for @rateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate (€/h)'**
+  String get rateLabel;
+
+  /// No description provided for @durationMinutesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (min)'**
+  String get durationMinutesLabel;
+
+  /// No description provided for @amountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (€)'**
+  String get amountLabel;
+
+  /// No description provided for @currencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currencyLabel;
+
+  /// No description provided for @billableStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get billableStatusLabel;
+
+  /// No description provided for @statusUnbilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Unbilled'**
+  String get statusUnbilled;
+
+  /// No description provided for @statusInvoiced.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoiced'**
+  String get statusInvoiced;
+
+  /// No description provided for @statusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get statusPaid;
+
+  /// No description provided for @emptyBillablesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No billable items'**
+  String get emptyBillablesTitle;
+
+  /// No description provided for @emptyBillablesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a billable item with the + button.'**
+  String get emptyBillablesBody;
+
+  /// No description provided for @financeModuleDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'The finance module is disabled in this workspace.'**
+  String get financeModuleDisabled;
+
+  /// No description provided for @deleteBillableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete billable item?'**
+  String get deleteBillableTitle;
+
+  /// No description provided for @deleteBillableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" will be removed from your lists.'**
+  String deleteBillableBody(String title);
+
+  /// No description provided for @financialSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial summary'**
+  String get financialSummary;
+
+  /// No description provided for @invalidDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter minutes as a whole number'**
+  String get invalidDuration;
+
   /// No description provided for @newContact.
   ///
   /// In en, this message translates to:

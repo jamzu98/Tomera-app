@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
+import '../finance/billable_math.dart';
+import '../finance/finance_providers.dart';
+import '../finance/finance_screen.dart' show billableStatusLabel;
 import 'contact_providers.dart';
 
 class ContactDetailScreen extends ConsumerWidget {
@@ -56,6 +60,9 @@ class ContactDetailScreen extends ConsumerWidget {
     final tasks = ref.watch(tasksForContactProvider(contactId)).value ?? [];
     final events = ref.watch(eventsForContactProvider(contactId)).value ?? [];
     final notes = ref.watch(notesForContactProvider(contactId)).value ?? [];
+    final billables =
+        ref.watch(billablesForContactProvider(contactId)).value ?? [];
+    final totals = ref.watch(contactTotalsProvider(contactId)).value;
 
     Workspace? workspaceOf(String id) =>
         workspaces.where((w) => w.id == id).firstOrNull;
@@ -173,6 +180,67 @@ class ContactDetailScreen extends ConsumerWidget {
                 ),
             ],
           ),
+          _Section(
+            title: l10n.linkedBillables,
+            action: TextButton.icon(
+              icon: const Icon(Icons.add, size: 18),
+              label: Text(l10n.newBillable),
+              onPressed: () =>
+                  context.go('/finance/new?contactId=$contactId'),
+            ),
+            children: [
+              for (final item in billables)
+                ListTile(
+                  dense: true,
+                  leading: const Icon(Icons.receipt_long_outlined, size: 18),
+                  title: Text(item.title),
+                  subtitle: Text(billableStatusLabel(l10n, item.status)),
+                  trailing: Text(
+                    '${formatCents(billableTotalCents(
+                      type: item.type,
+                      rateCents: item.rateCents,
+                      durationMinutes: item.durationMinutes,
+                      amountCents: item.amountCents,
+                    ))} ${item.currency}',
+                  ),
+                  onTap: () => context.go('/finance/${item.id}'),
+                ),
+            ],
+          ),
+          if (totals != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 4),
+              child: Text(
+                l10n.financialSummary,
+                style: theme.textTheme.titleSmall
+                    ?.copyWith(color: theme.colorScheme.primary),
+              ),
+            ),
+            _TotalRow(label: l10n.statusUnbilled, cents: totals.unbilled),
+            _TotalRow(label: l10n.statusInvoiced, cents: totals.invoiced),
+            _TotalRow(label: l10n.statusPaid, cents: totals.paid),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _TotalRow extends StatelessWidget {
+  const _TotalRow({required this.label, required this.cents});
+
+  final String label;
+  final int cents;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Expanded(child: Text(label)),
+          Text('${formatCents(cents)} EUR',
+              style: Theme.of(context).textTheme.titleSmall),
         ],
       ),
     );

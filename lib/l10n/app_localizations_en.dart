@@ -171,6 +171,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWorkspaceFirst => 'Create a workspace first.';
 
   @override
+  String get newBillable => 'New billable item';
+
+  @override
+  String get editBillable => 'Edit billable item';
+
+  @override
+  String get typeLabel => 'Type';
+
+  @override
+  String get typeHourly => 'Hourly';
+
+  @override
+  String get typeFixed => 'Fixed';
+
+  @override
+  String get rateLabel => 'Rate (€/h)';
+
+  @override
+  String get durationMinutesLabel => 'Duration (min)';
+
+  @override
+  String get amountLabel => 'Amount (€)';
+
+  @override
+  String get currencyLabel => 'Currency';
+
+  @override
+  String get billableStatusLabel => 'Status';
+
+  @override
+  String get statusUnbilled => 'Unbilled';
+
+  @override
+  String get statusInvoiced => 'Invoiced';
+
+  @override
+  String get statusPaid => 'Paid';
+
+  @override
+  String get emptyBillablesTitle => 'No billable items';
+
+  @override
+  String get emptyBillablesBody => 'Add a billable item with the + button.';
+
+  @override
+  String get financeModuleDisabled =>
+      'The finance module is disabled in this workspace.';
+
+  @override
+  String get deleteBillableTitle => 'Delete billable item?';
+
+  @override
+  String deleteBillableBody(String title) {
+    return '\"$title\" will be removed from your lists.';
+  }
+
+  @override
+  String get financialSummary => 'Financial summary';
+
+  @override
+  String get invalidDuration => 'Enter minutes as a whole number';
+
+  @override
   String get newContact => 'New contact';
 
   @override
