@@ -10,4 +10,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appTitle => 'Tomera';
+
+  @override
+  String get tabCalendar => 'Calendar';
+
+  @override
+  String get tabTasks => 'Tasks';
+
+  @override
+  String get tabNotes => 'Notes';
+
+  @override
+  String get tabWorkspaces => 'Workspaces';
+
+  @override
+  String get allWorkspaces => 'All workspaces';
 }

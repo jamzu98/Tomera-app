@@ -3,5 +3,13 @@
   "appTitle": "Tomera",
   "@appTitle": {
     "description": "The application name shown in the app bar and task switcher"
+  },
+  "tabCalendar": "Calendar",
+  "tabTasks": "Tasks",
+  "tabNotes": "Notes",
+  "tabWorkspaces": "Workspaces",
+  "allWorkspaces": "All workspaces",
+  "@allWorkspaces": {
+    "description": "Workspace filter option that shows data from every workspace"
   }
 }

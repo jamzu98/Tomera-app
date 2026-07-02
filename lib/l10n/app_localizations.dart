@@ -99,6 +99,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tomera'**
   String get appTitle;
+
+  /// No description provided for @tabCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get tabCalendar;
+
+  /// No description provided for @tabTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get tabTasks;
+
+  /// No description provided for @tabNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get tabNotes;
+
+  /// No description provided for @tabWorkspaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspaces'**
+  String get tabWorkspaces;
+
+  /// Workspace filter option that shows data from every workspace
+  ///
+  /// In en, this message translates to:
+  /// **'All workspaces'**
+  String get allWorkspaces;
 }
 
 class _AppLocalizationsDelegate
