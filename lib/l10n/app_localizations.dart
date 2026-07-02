@@ -220,6 +220,186 @@ abstract class AppLocalizations {
   /// **'Finance'**
   String get moduleFinance;
 
+  /// No description provided for @newTask.
+  ///
+  /// In en, this message translates to:
+  /// **'New task'**
+  String get newTask;
+
+  /// No description provided for @editTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit task'**
+  String get editTask;
+
+  /// No description provided for @taskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get taskTitle;
+
+  /// No description provided for @titleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a title'**
+  String get titleRequired;
+
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get descriptionLabel;
+
+  /// No description provided for @workspaceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace'**
+  String get workspaceLabel;
+
+  /// No description provided for @priorityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priorityLabel;
+
+  /// No description provided for @priorityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get priorityLow;
+
+  /// No description provided for @priorityNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get priorityNormal;
+
+  /// No description provided for @priorityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get priorityHigh;
+
+  /// No description provided for @statusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get statusOpen;
+
+  /// No description provided for @statusInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get statusInProgress;
+
+  /// No description provided for @statusDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get statusDone;
+
+  /// No description provided for @dueDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get dueDateLabel;
+
+  /// No description provided for @dueTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get dueTimeLabel;
+
+  /// No description provided for @clearDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear due date'**
+  String get clearDueDate;
+
+  /// No description provided for @groupByStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get groupByStatus;
+
+  /// No description provided for @groupByDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get groupByDueDate;
+
+  /// No description provided for @filterOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get filterOverdue;
+
+  /// No description provided for @dueSectionOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get dueSectionOverdue;
+
+  /// No description provided for @dueSectionToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dueSectionToday;
+
+  /// No description provided for @dueSectionThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get dueSectionThisWeek;
+
+  /// No description provided for @dueSectionLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get dueSectionLater;
+
+  /// No description provided for @dueSectionNoDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No due date'**
+  String get dueSectionNoDueDate;
+
+  /// No description provided for @emptyTasksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks'**
+  String get emptyTasksTitle;
+
+  /// No description provided for @emptyTasksBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a task with the + button.'**
+  String get emptyTasksBody;
+
+  /// No description provided for @tasksModuleDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'The tasks module is disabled in this workspace.'**
+  String get tasksModuleDisabled;
+
+  /// No description provided for @deleteTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete task?'**
+  String get deleteTaskTitle;
+
+  /// No description provided for @deleteTaskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" will be removed from your lists.'**
+  String deleteTaskBody(String title);
+
+  /// No description provided for @createWorkspaceFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a workspace first.'**
+  String get createWorkspaceFirst;
+
   /// No description provided for @emptyWorkspacesTitle.
   ///
   /// In en, this message translates to:

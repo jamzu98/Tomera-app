@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart' show StreamProvider;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/db/database.dart';
+import '../data/repositories/task_repository.dart';
 import '../data/repositories/workspace_repository.dart';
 
 part 'providers.g.dart';
@@ -21,6 +22,10 @@ AppDatabase appDatabase(Ref ref) {
 @Riverpod(keepAlive: true)
 WorkspaceRepository workspaceRepository(Ref ref) =>
     WorkspaceRepository(ref.watch(appDatabaseProvider).workspaceDao);
+
+@Riverpod(keepAlive: true)
+TaskRepository taskRepository(Ref ref) =>
+    TaskRepository(ref.watch(appDatabaseProvider).taskDao);
 
 /// The workspace the list screens are filtered to; null means all workspaces
 /// (spec §6.1 global view). Kept alive so the choice survives navigation.

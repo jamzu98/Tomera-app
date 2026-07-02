@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/calendar/calendar_screen.dart';
 import '../features/notes/notes_screen.dart';
+import '../features/tasks/task_edit_screen.dart';
 import '../features/tasks/tasks_screen.dart';
 import '../features/workspaces/workspace_edit_screen.dart';
 import '../features/workspaces/workspaces_screen.dart';
@@ -28,6 +29,18 @@ GoRouter router(Ref ref) => GoRouter(
               GoRoute(
                 path: '/tasks',
                 builder: (context, state) => const TasksScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const TaskEditScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => TaskEditScreen(
+                      taskId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ]),
             StatefulShellBranch(routes: [
