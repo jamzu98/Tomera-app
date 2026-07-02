@@ -317,6 +317,110 @@ final class NoteRepositoryProvider
 
 String _$noteRepositoryHash() => r'3c407a457e3ba9d6f2f06e1574a4c6f8f8a0a42d';
 
+/// No-op on web: local reminders are an Android feature (spec Phase 4 treats
+/// web as a companion without notifications).
+
+@ProviderFor(notificationService)
+final notificationServiceProvider = NotificationServiceProvider._();
+
+/// No-op on web: local reminders are an Android feature (spec Phase 4 treats
+/// web as a companion without notifications).
+
+final class NotificationServiceProvider
+    extends
+        $FunctionalProvider<
+          NotificationService,
+          NotificationService,
+          NotificationService
+        >
+    with $Provider<NotificationService> {
+  /// No-op on web: local reminders are an Android feature (spec Phase 4 treats
+  /// web as a companion without notifications).
+  NotificationServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<NotificationService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  NotificationService create(Ref ref) {
+    return notificationService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NotificationService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NotificationService>(value),
+    );
+  }
+}
+
+String _$notificationServiceHash() =>
+    r'd6ba72160723cb4f1fcc0f820901312c797a4f1a';
+
+@ProviderFor(reminderCoordinator)
+final reminderCoordinatorProvider = ReminderCoordinatorProvider._();
+
+final class ReminderCoordinatorProvider
+    extends
+        $FunctionalProvider<
+          ReminderCoordinator,
+          ReminderCoordinator,
+          ReminderCoordinator
+        >
+    with $Provider<ReminderCoordinator> {
+  ReminderCoordinatorProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'reminderCoordinatorProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$reminderCoordinatorHash();
+
+  @$internal
+  @override
+  $ProviderElement<ReminderCoordinator> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ReminderCoordinator create(Ref ref) {
+    return reminderCoordinator(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ReminderCoordinator value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ReminderCoordinator>(value),
+    );
+  }
+}
+
+String _$reminderCoordinatorHash() =>
+    r'bed1f6c21da8f3d4ab06c29f558fabcecacd7ecb';
+
 /// The workspace the list screens are filtered to; null means all workspaces
 /// (spec §6.1 global view). Kept alive so the choice survives navigation.
 

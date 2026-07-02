@@ -45,6 +45,13 @@ final agendaTasksProvider =
   );
 });
 
+/// The active reminder row for an event, if any (edit screen).
+final eventReminderProvider =
+    StreamProvider.autoDispose.family<Reminder?, String>(
+  (ref, eventId) =>
+      ref.watch(reminderCoordinatorProvider).watchEventReminder(eventId),
+);
+
 /// One event by id (edit screen).
 final eventByIdProvider = StreamProvider.autoDispose.family<Event?, String>(
   (ref, id) => ref.watch(eventRepositoryProvider).watchById(id),

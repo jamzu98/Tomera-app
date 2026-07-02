@@ -126,6 +126,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearDueDate => 'Clear due date';
 
   @override
+  String get reminderLabel => 'Reminder';
+
+  @override
+  String get reminderDateLabel => 'Reminder date';
+
+  @override
+  String get clearReminder => 'Clear reminder';
+
+  @override
+  String get remindNone => 'No reminder';
+
+  @override
+  String get remindAtStart => 'At start';
+
+  @override
+  String get remind15m => '15 minutes before';
+
+  @override
+  String get remind1h => '1 hour before';
+
+  @override
+  String get remind1d => '1 day before';
+
+  @override
   String get groupByStatus => 'Status';
 
   @override

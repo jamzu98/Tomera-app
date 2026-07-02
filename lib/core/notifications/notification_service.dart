@@ -1,0 +1,43 @@
+/// Platform-agnostic notification scheduling (spec §6.3).
+///
+/// Implementations: [LocalNotificationService] wraps
+/// flutter_local_notifications on Android; a no-op serves web (spec Phase 4:
+/// no reminders on web) and tests.
+abstract interface class NotificationService {
+  /// Schedules (or replaces) a notification. Times in the past are ignored.
+  Future<void> schedule({
+    required int id,
+    required String title,
+    String? body,
+    required int fireAtMs,
+  });
+
+  Future<void> cancel(int id);
+}
+
+class NoopNotificationService implements NotificationService {
+  const NoopNotificationService();
+
+  @override
+  Future<void> schedule({
+    required int id,
+    required String title,
+    String? body,
+    required int fireAtMs,
+  }) async {}
+
+  @override
+  Future<void> cancel(int id) async {}
+}
+
+/// Deterministic 31-bit notification id from an entity key (FNV-1a). Stable
+/// across launches and platforms so a reminder can be cancelled without
+/// storing the id. Kept positive to fit Android's int32 notification ids.
+int notificationIdFor(String key) {
+  var hash = 0x811C9DC5;
+  for (final code in key.codeUnits) {
+    hash ^= code;
+    hash = (hash * 0x01000193) & 0x7FFFFFFF;
+  }
+  return hash;
+}

@@ -9,6 +9,7 @@ import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
 import 'calendar_providers.dart';
+import 'reminder_offsets.dart';
 
 class EventEditScreen extends ConsumerStatefulWidget {
   const EventEditScreen({super.key, this.eventId, this.initialStartMs});
@@ -33,8 +34,10 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
   late DateTime _start;
   late DateTime _end;
   Set<String> _linkedContactIds = {};
+  ReminderOffset _reminderOffset = ReminderOffset.none;
   bool _initialized = false;
   bool _contactsInitialized = false;
+  bool _reminderInitialized = false;
 
   bool get _isNew => widget.eventId == null;
 
@@ -142,6 +145,11 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
       );
     }
     await repository.setContacts(eventId, _linkedContactIds);
+    await ref.read(reminderCoordinatorProvider).syncEventReminder(
+          eventId: eventId,
+          title: title,
+          fireAtMs: reminderFireAtMs(_reminderOffset, startMs),
+        );
     if (mounted) context.pop();
   }
 
@@ -221,6 +229,7 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
     );
     if (confirmed != true) return;
     await ref.read(eventRepositoryProvider).delete(event.id);
+    await ref.read(reminderCoordinatorProvider).cancelEventReminder(event.id);
     if (mounted) context.pop();
   }
 
@@ -265,14 +274,20 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
     if (!_isNew) {
       final value = ref.watch(eventByIdProvider(widget.eventId!));
       final contactIds = ref.watch(eventContactIdsProvider(widget.eventId!));
+      final reminder = ref.watch(eventReminderProvider(widget.eventId!));
       event = value.value;
-      if (value.isLoading || contactIds.isLoading) {
+      if (value.isLoading || contactIds.isLoading || reminder.isLoading) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
       if (event != null) _initFrom(event);
       if (!_contactsInitialized) {
         _contactsInitialized = true;
         _linkedContactIds = {...contactIds.value ?? const <String>{}};
+      }
+      if (!_reminderInitialized && event != null) {
+        _reminderInitialized = true;
+        _reminderOffset =
+            offsetFromFireAt(reminder.value?.fireAt, event.startsAt);
       }
     }
     _workspaceId ??= ref.read(selectedWorkspaceIdProvider) ??
@@ -362,6 +377,38 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
               onTap: () => _pickDateTime(isStart: false),
             ),
             const SizedBox(height: 8),
+            DropdownButtonFormField<ReminderOffset>(
+              initialValue: _reminderOffset,
+              decoration: InputDecoration(
+                labelText: l10n.reminderLabel,
+                border: const OutlineInputBorder(),
+              ),
+              items: [
+                DropdownMenuItem(
+                  value: ReminderOffset.none,
+                  child: Text(l10n.remindNone),
+                ),
+                DropdownMenuItem(
+                  value: ReminderOffset.atStart,
+                  child: Text(l10n.remindAtStart),
+                ),
+                DropdownMenuItem(
+                  value: ReminderOffset.min15,
+                  child: Text(l10n.remind15m),
+                ),
+                DropdownMenuItem(
+                  value: ReminderOffset.hour1,
+                  child: Text(l10n.remind1h),
+                ),
+                DropdownMenuItem(
+                  value: ReminderOffset.day1,
+                  child: Text(l10n.remind1d),
+                ),
+              ],
+              onChanged: (offset) => setState(() =>
+                  _reminderOffset = offset ?? ReminderOffset.none),
+            ),
+            const SizedBox(height: 16),
             if (ref.watch(allContactsProvider).value case final contacts?
                 when contacts.isNotEmpty) ...[
               Text(l10n.linkedContacts,

@@ -6,6 +6,7 @@ import 'daos/billable_dao.dart';
 import 'daos/contact_dao.dart';
 import 'daos/event_dao.dart';
 import 'daos/note_dao.dart';
+import 'daos/reminder_dao.dart';
 import 'daos/task_dao.dart';
 import 'daos/workspace_dao.dart';
 import 'enums.dart';
@@ -29,7 +30,15 @@ part 'database.g.dart';
     TimerSessions,
     Reminders,
   ],
-  daos: [WorkspaceDao, TaskDao, NoteDao, EventDao, ContactDao, BillableDao],
+  daos: [
+    WorkspaceDao,
+    TaskDao,
+    NoteDao,
+    EventDao,
+    ContactDao,
+    BillableDao,
+    ReminderDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   /// Takes an explicit executor so tests can pass an in-memory database.

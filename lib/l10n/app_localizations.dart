@@ -328,6 +328,54 @@ abstract class AppLocalizations {
   /// **'Clear due date'**
   String get clearDueDate;
 
+  /// No description provided for @reminderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get reminderLabel;
+
+  /// No description provided for @reminderDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder date'**
+  String get reminderDateLabel;
+
+  /// No description provided for @clearReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear reminder'**
+  String get clearReminder;
+
+  /// No description provided for @remindNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminder'**
+  String get remindNone;
+
+  /// No description provided for @remindAtStart.
+  ///
+  /// In en, this message translates to:
+  /// **'At start'**
+  String get remindAtStart;
+
+  /// No description provided for @remind15m.
+  ///
+  /// In en, this message translates to:
+  /// **'15 minutes before'**
+  String get remind15m;
+
+  /// No description provided for @remind1h.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour before'**
+  String get remind1h;
+
+  /// No description provided for @remind1d.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day before'**
+  String get remind1d;
+
   /// No description provided for @groupByStatus.
   ///
   /// In en, this message translates to:

@@ -180,7 +180,13 @@ class _TaskTile extends ConsumerWidget {
           TaskStatus.inProgress => theme.colorScheme.tertiary,
           TaskStatus.done => theme.colorScheme.primary,
         },
-        onPressed: () => ref.read(taskRepositoryProvider).cycleStatus(task),
+        onPressed: () {
+          // Completing a task cancels its pending reminder (spec §6.3).
+          if (task.status == TaskStatus.inProgress) {
+            ref.read(reminderCoordinatorProvider).cancelTaskReminder(task.id);
+          }
+          ref.read(taskRepositoryProvider).cycleStatus(task);
+        },
       ),
       title: Text(
         task.title,

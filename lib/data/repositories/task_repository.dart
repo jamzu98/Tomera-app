@@ -28,6 +28,7 @@ class TaskRepository {
     String? description,
     TaskPriority priority = TaskPriority.normal,
     int? dueAt,
+    int? reminderAt,
     String? contactId,
   }) async {
     final id = newId();
@@ -39,6 +40,7 @@ class TaskRepository {
       description: Value.absentIfNull(description),
       priority: Value(priority),
       dueAt: Value.absentIfNull(dueAt),
+      reminderAt: Value.absentIfNull(reminderAt),
       contactId: Value.absentIfNull(contactId),
       createdAt: now,
       updatedAt: now,
@@ -56,6 +58,7 @@ class TaskRepository {
     TaskPriority? priority,
     Value<String?> description = const Value.absent(),
     Value<int?> dueAt = const Value.absent(),
+    Value<int?> reminderAt = const Value.absent(),
     Value<String?> contactId = const Value.absent(),
   }) =>
       _dao.updateTask(
@@ -67,6 +70,7 @@ class TaskRepository {
           priority: Value.absentIfNull(priority),
           description: description,
           dueAt: dueAt,
+          reminderAt: reminderAt,
           contactId: contactId,
         ),
       );

@@ -29,6 +29,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
   TaskPriority _priority = TaskPriority.normal;
   DateTime? _dueDate;
   TimeOfDay? _dueTime;
+  DateTime? _reminderAt;
   bool _initialized = false;
 
   bool get _isNew => widget.taskId == null;
@@ -55,6 +56,12 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
       _dueDate = DateTime(local.year, local.month, local.day);
       _dueTime = TimeOfDay.fromDateTime(local);
     }
+    final reminderAt = task.reminderAt;
+    if (reminderAt != null) {
+      _reminderAt =
+          DateTime.fromMillisecondsSinceEpoch(reminderAt, isUtc: true)
+              .toLocal();
+    }
   }
 
   int? get _dueAtMs {
@@ -73,27 +80,37 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
     final repository = ref.read(taskRepositoryProvider);
     final title = _titleController.text.trim();
     final description = _descriptionController.text.trim();
+    final reminderAtMs = _reminderAt?.toUtc().millisecondsSinceEpoch;
 
+    final String taskId;
     if (_isNew) {
-      await repository.create(
+      taskId = await repository.create(
         workspaceId: workspaceId,
         title: title,
         description: description.isEmpty ? null : description,
         priority: _priority,
         dueAt: _dueAtMs,
+        reminderAt: reminderAtMs,
         contactId: _contactId,
       );
     } else {
+      taskId = widget.taskId!;
       await repository.update(
-        widget.taskId!,
+        taskId,
         workspaceId: workspaceId,
         title: title,
         priority: _priority,
         description: Value(description.isEmpty ? null : description),
         dueAt: Value(_dueAtMs),
+        reminderAt: Value(reminderAtMs),
         contactId: Value(_contactId),
       );
     }
+    await ref.read(reminderCoordinatorProvider).syncTaskReminder(
+          taskId: taskId,
+          title: title,
+          reminderAtMs: reminderAtMs,
+        );
     if (mounted) context.pop();
   }
 
@@ -118,7 +135,27 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
     );
     if (confirmed != true) return;
     await ref.read(taskRepositoryProvider).delete(task.id);
+    await ref.read(reminderCoordinatorProvider).cancelTaskReminder(task.id);
     if (mounted) context.pop();
+  }
+
+  Future<void> _pickReminder() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _reminderAt ?? _dueDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (date == null || !mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: _reminderAt != null
+          ? TimeOfDay.fromDateTime(_reminderAt!)
+          : const TimeOfDay(hour: 9, minute: 0),
+    );
+    if (time == null) return;
+    setState(() => _reminderAt =
+        DateTime(date.year, date.month, date.day, time.hour, time.minute));
   }
 
   Future<void> _pickDueDate() async {
@@ -293,6 +330,26 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                       _dueDate = null;
                       _dueTime = null;
                     }),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.notifications_outlined),
+                    label: Text(_reminderAt == null
+                        ? l10n.reminderLabel
+                        : DateFormat.yMMMEd().add_Hm().format(_reminderAt!)),
+                    onPressed: _pickReminder,
+                  ),
+                ),
+                if (_reminderAt != null)
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    tooltip: l10n.clearReminder,
+                    onPressed: () => setState(() => _reminderAt = null),
                   ),
               ],
             ),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart' show StreamProvider;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,6 +9,9 @@ import '../data/repositories/event_repository.dart';
 import '../data/repositories/note_repository.dart';
 import '../data/repositories/task_repository.dart';
 import '../data/repositories/workspace_repository.dart';
+import 'notifications/local_notification_service.dart';
+import 'notifications/notification_service.dart';
+import 'notifications/reminder_coordinator.dart';
 
 part 'providers.g.dart';
 
@@ -46,6 +50,18 @@ EventRepository eventRepository(Ref ref) =>
 @Riverpod(keepAlive: true)
 NoteRepository noteRepository(Ref ref) =>
     NoteRepository(ref.watch(appDatabaseProvider).noteDao);
+
+/// No-op on web: local reminders are an Android feature (spec Phase 4 treats
+/// web as a companion without notifications).
+@Riverpod(keepAlive: true)
+NotificationService notificationService(Ref ref) =>
+    kIsWeb ? const NoopNotificationService() : LocalNotificationService();
+
+@Riverpod(keepAlive: true)
+ReminderCoordinator reminderCoordinator(Ref ref) => ReminderCoordinator(
+      ref.watch(notificationServiceProvider),
+      ref.watch(appDatabaseProvider).reminderDao,
+    );
 
 /// The workspace the list screens are filtered to; null means all workspaces
 /// (spec §6.1 global view). Kept alive so the choice survives navigation.
