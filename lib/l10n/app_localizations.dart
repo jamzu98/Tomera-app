@@ -400,6 +400,138 @@ abstract class AppLocalizations {
   /// **'Create a workspace first.'**
   String get createWorkspaceFirst;
 
+  /// No description provided for @newEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'New event'**
+  String get newEvent;
+
+  /// No description provided for @editEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit event'**
+  String get editEvent;
+
+  /// No description provided for @eventTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get eventTitle;
+
+  /// No description provided for @locationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get locationLabel;
+
+  /// No description provided for @allDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All day'**
+  String get allDayLabel;
+
+  /// No description provided for @startsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get startsLabel;
+
+  /// No description provided for @endsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get endsLabel;
+
+  /// No description provided for @endBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'End must be after start'**
+  String get endBeforeStart;
+
+  /// No description provided for @weekView.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get weekView;
+
+  /// No description provided for @agendaView.
+  ///
+  /// In en, this message translates to:
+  /// **'Agenda'**
+  String get agendaView;
+
+  /// No description provided for @todayButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayButton;
+
+  /// No description provided for @previousWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous week'**
+  String get previousWeek;
+
+  /// No description provided for @nextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week'**
+  String get nextWeek;
+
+  /// No description provided for @conflictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule conflict'**
+  String get conflictTitle;
+
+  /// No description provided for @conflictBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This event overlaps with:'**
+  String get conflictBody;
+
+  /// No description provided for @saveAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Save anyway'**
+  String get saveAnyway;
+
+  /// No description provided for @goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get goBack;
+
+  /// No description provided for @emptyAgenda.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing scheduled this week.'**
+  String get emptyAgenda;
+
+  /// No description provided for @taskDueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Task due'**
+  String get taskDueLabel;
+
+  /// No description provided for @calendarModuleDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'The calendar module is disabled in this workspace.'**
+  String get calendarModuleDisabled;
+
+  /// No description provided for @deleteEventTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete event?'**
+  String get deleteEventTitle;
+
+  /// No description provided for @deleteEventBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" will be removed from your calendar.'**
+  String deleteEventBody(String title);
+
   /// No description provided for @newNote.
   ///
   /// In en, this message translates to:

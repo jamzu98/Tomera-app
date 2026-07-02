@@ -139,6 +139,48 @@ final class TaskRepositoryProvider
 
 String _$taskRepositoryHash() => r'80311abd2a68df39185e5ebdcc8212347b91369f';
 
+@ProviderFor(eventRepository)
+final eventRepositoryProvider = EventRepositoryProvider._();
+
+final class EventRepositoryProvider
+    extends
+        $FunctionalProvider<EventRepository, EventRepository, EventRepository>
+    with $Provider<EventRepository> {
+  EventRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'eventRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$eventRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<EventRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  EventRepository create(Ref ref) {
+    return eventRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(EventRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<EventRepository>(value),
+    );
+  }
+}
+
+String _$eventRepositoryHash() => r'a754fe8dd87e8e91d5302266f0607be6ca045ef6';
+
 @ProviderFor(noteRepository)
 final noteRepositoryProvider = NoteRepositoryProvider._();
 

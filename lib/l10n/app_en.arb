@@ -64,6 +64,35 @@
     }
   },
   "createWorkspaceFirst": "Create a workspace first.",
+  "newEvent": "New event",
+  "editEvent": "Edit event",
+  "eventTitle": "Title",
+  "locationLabel": "Location",
+  "allDayLabel": "All day",
+  "startsLabel": "Starts",
+  "endsLabel": "Ends",
+  "endBeforeStart": "End must be after start",
+  "weekView": "Week",
+  "agendaView": "Agenda",
+  "todayButton": "Today",
+  "previousWeek": "Previous week",
+  "nextWeek": "Next week",
+  "conflictTitle": "Schedule conflict",
+  "conflictBody": "This event overlaps with:",
+  "saveAnyway": "Save anyway",
+  "goBack": "Go back",
+  "emptyAgenda": "Nothing scheduled this week.",
+  "taskDueLabel": "Task due",
+  "calendarModuleDisabled": "The calendar module is disabled in this workspace.",
+  "deleteEventTitle": "Delete event?",
+  "deleteEventBody": "\"{title}\" will be removed from your calendar.",
+  "@deleteEventBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "newNote": "New note",
   "editNote": "Edit note",
   "noteTitle": "Title",

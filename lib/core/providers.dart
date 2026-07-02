@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart' show StreamProvider;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/db/database.dart';
+import '../data/repositories/event_repository.dart';
 import '../data/repositories/note_repository.dart';
 import '../data/repositories/task_repository.dart';
 import '../data/repositories/workspace_repository.dart';
@@ -27,6 +28,10 @@ WorkspaceRepository workspaceRepository(Ref ref) =>
 @Riverpod(keepAlive: true)
 TaskRepository taskRepository(Ref ref) =>
     TaskRepository(ref.watch(appDatabaseProvider).taskDao);
+
+@Riverpod(keepAlive: true)
+EventRepository eventRepository(Ref ref) =>
+    EventRepository(ref.watch(appDatabaseProvider).eventDao);
 
 @Riverpod(keepAlive: true)
 NoteRepository noteRepository(Ref ref) =>

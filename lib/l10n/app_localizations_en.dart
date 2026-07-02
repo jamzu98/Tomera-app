@@ -165,6 +165,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWorkspaceFirst => 'Create a workspace first.';
 
   @override
+  String get newEvent => 'New event';
+
+  @override
+  String get editEvent => 'Edit event';
+
+  @override
+  String get eventTitle => 'Title';
+
+  @override
+  String get locationLabel => 'Location';
+
+  @override
+  String get allDayLabel => 'All day';
+
+  @override
+  String get startsLabel => 'Starts';
+
+  @override
+  String get endsLabel => 'Ends';
+
+  @override
+  String get endBeforeStart => 'End must be after start';
+
+  @override
+  String get weekView => 'Week';
+
+  @override
+  String get agendaView => 'Agenda';
+
+  @override
+  String get todayButton => 'Today';
+
+  @override
+  String get previousWeek => 'Previous week';
+
+  @override
+  String get nextWeek => 'Next week';
+
+  @override
+  String get conflictTitle => 'Schedule conflict';
+
+  @override
+  String get conflictBody => 'This event overlaps with:';
+
+  @override
+  String get saveAnyway => 'Save anyway';
+
+  @override
+  String get goBack => 'Go back';
+
+  @override
+  String get emptyAgenda => 'Nothing scheduled this week.';
+
+  @override
+  String get taskDueLabel => 'Task due';
+
+  @override
+  String get calendarModuleDisabled =>
+      'The calendar module is disabled in this workspace.';
+
+  @override
+  String get deleteEventTitle => 'Delete event?';
+
+  @override
+  String deleteEventBody(String title) {
+    return '\"$title\" will be removed from your calendar.';
+  }
+
+  @override
   String get newNote => 'New note';
 
   @override

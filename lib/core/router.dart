@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/calendar/calendar_screen.dart';
+import '../features/calendar/event_edit_screen.dart';
 import '../features/notes/note_edit_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/tasks/task_edit_screen.dart';
@@ -24,6 +25,21 @@ GoRouter router(Ref ref) => GoRouter(
               GoRoute(
                 path: '/calendar',
                 builder: (context, state) => const CalendarScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => EventEditScreen(
+                      initialStartMs: int.tryParse(
+                          state.uri.queryParameters['start'] ?? ''),
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => EventEditScreen(
+                      eventId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ]),
             StatefulShellBranch(routes: [
