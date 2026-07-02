@@ -8,6 +8,7 @@ import 'daos/event_dao.dart';
 import 'daos/note_dao.dart';
 import 'daos/reminder_dao.dart';
 import 'daos/task_dao.dart';
+import 'daos/timer_dao.dart';
 import 'daos/workspace_dao.dart';
 import 'enums.dart';
 import 'tables.dart';
@@ -38,6 +39,7 @@ part 'database.g.dart';
     ContactDao,
     BillableDao,
     ReminderDao,
+    TimerDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {

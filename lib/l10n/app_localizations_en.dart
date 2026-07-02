@@ -195,6 +195,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWorkspaceFirst => 'Create a workspace first.';
 
   @override
+  String get workTimer => 'Work timer';
+
+  @override
+  String get startTimer => 'Start timer';
+
+  @override
+  String get stopTimer => 'Stop';
+
+  @override
+  String get timerRunning => 'Timer running';
+
+  @override
+  String get timerAlreadyRunning => 'A timer is already running.';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

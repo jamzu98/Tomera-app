@@ -37,6 +37,18 @@ final billablesForContactProvider =
       ref.watch(billableRepositoryProvider).watchAll(contactId: contactId),
 );
 
+/// The single running timer session, if any (spec §6.6 v1: one at a time).
+final runningTimerProvider = StreamProvider<TimerSession?>(
+  (ref) => ref.watch(timerRepositoryProvider).watchRunning(),
+);
+
+/// One-second heartbeat for elapsed-time displays. Elapsed is always
+/// recomputed from the session's persisted startedAt, never accumulated.
+final timerTickProvider = StreamProvider.autoDispose<DateTime>(
+  (ref) => Stream<DateTime>.periodic(
+      const Duration(seconds: 1), (_) => DateTime.now()),
+);
+
 /// Unbilled/invoiced/paid totals for a contact (spec §6.5).
 final contactTotalsProvider =
     StreamProvider.autoDispose.family<BillableTotals, String>(

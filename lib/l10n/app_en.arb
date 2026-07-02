@@ -74,6 +74,11 @@
     }
   },
   "createWorkspaceFirst": "Create a workspace first.",
+  "workTimer": "Work timer",
+  "startTimer": "Start timer",
+  "stopTimer": "Stop",
+  "timerRunning": "Timer running",
+  "timerAlreadyRunning": "A timer is already running.",
   "settingsTitle": "Settings",
   "themeLabel": "Theme",
   "themeSystem": "System",

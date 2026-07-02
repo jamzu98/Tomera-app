@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -9,6 +10,7 @@ import '../features/contacts/contact_edit_screen.dart';
 import '../features/contacts/contacts_screen.dart';
 import '../features/finance/billable_edit_screen.dart';
 import '../features/finance/finance_screen.dart';
+import '../features/finance/timer_banner.dart';
 import '../features/notes/note_edit_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -126,6 +128,11 @@ GoRouter router(Ref ref) => GoRouter(
                     builder: (context, state) => BillableEditScreen(
                       initialContactId:
                           state.uri.queryParameters['contactId'],
+                      initialWorkspaceId:
+                          state.uri.queryParameters['workspaceId'],
+                      initialTitle: state.uri.queryParameters['title'],
+                      initialDurationMinutes: int.tryParse(
+                          state.uri.queryParameters['duration'] ?? ''),
                     ),
                   ),
                   GoRoute(
@@ -168,16 +175,21 @@ GoRouter router(Ref ref) => GoRouter(
       ],
     );
 
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.shell});
 
   final StatefulNavigationShell shell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: shell,
+      body: Column(
+        children: [
+          Expanded(child: shell),
+          const TimerBanner(),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
         onDestinationSelected: shell.goBranch,

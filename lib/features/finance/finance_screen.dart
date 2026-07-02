@@ -11,6 +11,7 @@ import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
 import 'billable_math.dart';
 import 'finance_providers.dart';
+import 'timer_card.dart';
 
 class FinanceScreen extends ConsumerStatefulWidget {
   const FinanceScreen({super.key});
@@ -42,6 +43,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
       ),
       body: Column(
         children: [
+          const TimerCard(),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Wrap(

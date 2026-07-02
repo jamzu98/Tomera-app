@@ -12,6 +12,14 @@ abstract interface class NotificationService {
     required int fireAtMs,
   });
 
+  /// Shows a persistent (ongoing) notification with a live chronometer
+  /// counting from [startedAtMs] and a stop action (spec §6.6 work timer).
+  Future<void> showOngoingTimer({
+    required int id,
+    required String title,
+    required int startedAtMs,
+  });
+
   Future<void> cancel(int id);
 }
 
@@ -24,6 +32,13 @@ class NoopNotificationService implements NotificationService {
     required String title,
     String? body,
     required int fireAtMs,
+  }) async {}
+
+  @override
+  Future<void> showOngoingTimer({
+    required int id,
+    required String title,
+    required int startedAtMs,
   }) async {}
 
   @override

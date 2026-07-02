@@ -9,6 +9,15 @@ import 'notification_service.dart';
 /// where permitted, gracefully falling back to inexact scheduling when the
 /// user denies the exact-alarm permission (spec §6.3).
 class LocalNotificationService implements NotificationService {
+  LocalNotificationService({this.onAction});
+
+  static const stopTimerAction = 'stop_timer';
+
+  /// Invoked with the notification action id when the user taps an action
+  /// while the app is alive. After process death the tap merely opens the
+  /// app — correctness never depends on this callback (spec §6.6).
+  final void Function(String actionId)? onAction;
+
   final _plugin = FlutterLocalNotificationsPlugin();
   Future<void>? _initialization;
 
@@ -27,6 +36,10 @@ class LocalNotificationService implements NotificationService {
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
+      onDidReceiveNotificationResponse: (response) {
+        final actionId = response.actionId;
+        if (actionId != null) onAction?.call(actionId);
+      },
     );
   }
 
@@ -70,6 +83,38 @@ class LocalNotificationService implements NotificationService {
       androidScheduleMode: exactAllowed
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle,
+    );
+  }
+
+  @override
+  Future<void> showOngoingTimer({
+    required int id,
+    required String title,
+    required int startedAtMs,
+  }) async {
+    await _ensureInitialized();
+    await _android?.requestNotificationsPermission();
+    await _plugin.show(
+      id: id,
+      title: title,
+      body: null,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          'timer',
+          'Work timer',
+          channelDescription: 'Running work timer',
+          importance: Importance.low,
+          priority: Priority.low,
+          ongoing: true,
+          autoCancel: false,
+          usesChronometer: true,
+          showWhen: true,
+          when: startedAtMs,
+          actions: const [
+            AndroidNotificationAction(stopTimerAction, 'Stop'),
+          ],
+        ),
+      ),
     );
   }
 

@@ -12,13 +12,24 @@ import 'finance_providers.dart';
 import 'finance_screen.dart' show billableStatusLabel;
 
 class BillableEditScreen extends ConsumerStatefulWidget {
-  const BillableEditScreen({super.key, this.billableId, this.initialContactId});
+  const BillableEditScreen({
+    super.key,
+    this.billableId,
+    this.initialContactId,
+    this.initialWorkspaceId,
+    this.initialTitle,
+    this.initialDurationMinutes,
+  });
 
   /// Null when creating a new item.
   final String? billableId;
 
-  /// Pre-selected contact when created from a contact detail screen.
+  /// Pre-selected values when created from a contact detail screen or a
+  /// stopped work timer (spec §6.6). Ignored when editing.
   final String? initialContactId;
+  final String? initialWorkspaceId;
+  final String? initialTitle;
+  final int? initialDurationMinutes;
 
   @override
   ConsumerState<BillableEditScreen> createState() =>
@@ -45,9 +56,18 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
   void initState() {
     super.initState();
     _contactId = widget.initialContactId;
-    if (_isNew && _contactId != null) {
-      // Pre-fill the rate when opened from a contact detail screen too.
-      Future.microtask(() => _onContactChanged(_contactId));
+    if (_isNew) {
+      _workspaceId = widget.initialWorkspaceId;
+      if (widget.initialTitle != null) {
+        _titleController.text = widget.initialTitle!;
+      }
+      if (widget.initialDurationMinutes != null) {
+        _durationController.text = '${widget.initialDurationMinutes}';
+      }
+      if (_contactId != null) {
+        // Pre-fill the rate when opened with a contact pre-selected too.
+        Future.microtask(() => _onContactChanged(_contactId));
+      }
     }
   }
 

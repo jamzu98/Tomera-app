@@ -8,6 +8,7 @@ import '../data/repositories/contact_repository.dart';
 import '../data/repositories/event_repository.dart';
 import '../data/repositories/note_repository.dart';
 import '../data/repositories/task_repository.dart';
+import '../data/repositories/timer_repository.dart';
 import '../data/repositories/workspace_repository.dart';
 import 'notifications/local_notification_service.dart';
 import 'notifications/notification_service.dart';
@@ -52,10 +53,22 @@ NoteRepository noteRepository(Ref ref) =>
     NoteRepository(ref.watch(appDatabaseProvider).noteDao);
 
 /// No-op on web: local reminders are an Android feature (spec Phase 4 treats
-/// web as a companion without notifications).
+/// web as a companion without notifications). The stop action resolves the
+/// timer repository lazily at tap time, so there is no build-time cycle.
 @Riverpod(keepAlive: true)
-NotificationService notificationService(Ref ref) =>
-    kIsWeb ? const NoopNotificationService() : LocalNotificationService();
+NotificationService notificationService(Ref ref) => kIsWeb
+    ? const NoopNotificationService()
+    : LocalNotificationService(onAction: (actionId) {
+        if (actionId == LocalNotificationService.stopTimerAction) {
+          ref.read(timerRepositoryProvider).stopRunning();
+        }
+      });
+
+@Riverpod(keepAlive: true)
+TimerRepository timerRepository(Ref ref) => TimerRepository(
+      ref.watch(appDatabaseProvider).timerDao,
+      ref.watch(notificationServiceProvider),
+    );
 
 @Riverpod(keepAlive: true)
 ReminderCoordinator reminderCoordinator(Ref ref) => ReminderCoordinator(

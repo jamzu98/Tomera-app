@@ -318,13 +318,15 @@ final class NoteRepositoryProvider
 String _$noteRepositoryHash() => r'3c407a457e3ba9d6f2f06e1574a4c6f8f8a0a42d';
 
 /// No-op on web: local reminders are an Android feature (spec Phase 4 treats
-/// web as a companion without notifications).
+/// web as a companion without notifications). The stop action resolves the
+/// timer repository lazily at tap time, so there is no build-time cycle.
 
 @ProviderFor(notificationService)
 final notificationServiceProvider = NotificationServiceProvider._();
 
 /// No-op on web: local reminders are an Android feature (spec Phase 4 treats
-/// web as a companion without notifications).
+/// web as a companion without notifications). The stop action resolves the
+/// timer repository lazily at tap time, so there is no build-time cycle.
 
 final class NotificationServiceProvider
     extends
@@ -335,7 +337,8 @@ final class NotificationServiceProvider
         >
     with $Provider<NotificationService> {
   /// No-op on web: local reminders are an Android feature (spec Phase 4 treats
-  /// web as a companion without notifications).
+  /// web as a companion without notifications). The stop action resolves the
+  /// timer repository lazily at tap time, so there is no build-time cycle.
   NotificationServiceProvider._()
     : super(
         from: null,
@@ -371,7 +374,49 @@ final class NotificationServiceProvider
 }
 
 String _$notificationServiceHash() =>
-    r'd6ba72160723cb4f1fcc0f820901312c797a4f1a';
+    r'8451e83ce1e012c62c4bae4e35583413774c57f4';
+
+@ProviderFor(timerRepository)
+final timerRepositoryProvider = TimerRepositoryProvider._();
+
+final class TimerRepositoryProvider
+    extends
+        $FunctionalProvider<TimerRepository, TimerRepository, TimerRepository>
+    with $Provider<TimerRepository> {
+  TimerRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'timerRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$timerRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<TimerRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  TimerRepository create(Ref ref) {
+    return timerRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TimerRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TimerRepository>(value),
+    );
+  }
+}
+
+String _$timerRepositoryHash() => r'1e37275a2fa0c2539146648468159bc11f06a55f';
 
 @ProviderFor(reminderCoordinator)
 final reminderCoordinatorProvider = ReminderCoordinatorProvider._();

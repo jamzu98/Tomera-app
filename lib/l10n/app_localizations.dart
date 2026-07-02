@@ -460,6 +460,36 @@ abstract class AppLocalizations {
   /// **'Create a workspace first.'**
   String get createWorkspaceFirst;
 
+  /// No description provided for @workTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Work timer'**
+  String get workTimer;
+
+  /// No description provided for @startTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Start timer'**
+  String get startTimer;
+
+  /// No description provided for @stopTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stopTimer;
+
+  /// No description provided for @timerRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer running'**
+  String get timerRunning;
+
+  /// No description provided for @timerAlreadyRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'A timer is already running.'**
+  String get timerAlreadyRunning;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:
