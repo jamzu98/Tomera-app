@@ -37,6 +37,12 @@ final billablesForContactProvider =
       ref.watch(billableRepositoryProvider).watchAll(contactId: contactId),
 );
 
+/// Every live billable across all workspaces — the summary view is the
+/// spec's "monthly overview across workspaces" and ignores the filter.
+final allBillablesProvider = StreamProvider.autoDispose<List<BillableItem>>(
+  (ref) => ref.watch(billableRepositoryProvider).watchAll(),
+);
+
 /// The single running timer session, if any (spec §6.6 v1: one at a time).
 final runningTimerProvider = StreamProvider<TimerSession?>(
   (ref) => ref.watch(timerRepositoryProvider).watchRunning(),

@@ -460,6 +460,60 @@ abstract class AppLocalizations {
   /// **'Create a workspace first.'**
   String get createWorkspaceFirst;
 
+  /// No description provided for @itemsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get itemsTab;
+
+  /// No description provided for @summaryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get summaryTab;
+
+  /// No description provided for @overviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overviewLabel;
+
+  /// No description provided for @byWorkspaceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'By workspace'**
+  String get byWorkspaceLabel;
+
+  /// No description provided for @byContactLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'By contact'**
+  String get byContactLabel;
+
+  /// No description provided for @hoursThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours this month'**
+  String get hoursThisMonth;
+
+  /// No description provided for @invoicedUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoiced, unpaid'**
+  String get invoicedUnpaid;
+
+  /// No description provided for @paidThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid this month'**
+  String get paidThisMonth;
+
+  /// No description provided for @thisMonthButton.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get thisMonthButton;
+
   /// No description provided for @workTimer.
   ///
   /// In en, this message translates to:

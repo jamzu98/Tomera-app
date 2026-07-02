@@ -11,6 +11,7 @@ import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
 import 'billable_math.dart';
 import 'finance_providers.dart';
+import 'summary_view.dart';
 import 'timer_card.dart';
 
 class FinanceScreen extends ConsumerStatefulWidget {
@@ -22,6 +23,7 @@ class FinanceScreen extends ConsumerStatefulWidget {
 
 class _FinanceScreenState extends ConsumerState<FinanceScreen> {
   final Set<BillableStatus> _statusFilter = {...BillableStatus.values};
+  bool _showSummary = false;
 
   @override
   Widget build(BuildContext context) {
@@ -36,34 +38,49 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
         title: Text(l10n.tabFinance),
         actions: const [WorkspaceFilterButton(), WorkspacesButton()],
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: l10n.newBillable,
-        onPressed: () => context.go('/finance/new'),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _showSummary
+          ? null
+          : FloatingActionButton(
+              tooltip: l10n.newBillable,
+              onPressed: () => context.go('/finance/new'),
+              child: const Icon(Icons.add),
+            ),
       body: Column(
         children: [
           const TimerCard(),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Wrap(
-              spacing: 8,
-              children: [
-                for (final status in BillableStatus.values)
-                  FilterChip(
-                    label: Text(billableStatusLabel(l10n, status)),
-                    selected: _statusFilter.contains(status),
-                    onSelected: (selected) => setState(() {
-                      if (selected) {
-                        _statusFilter.add(status);
-                      } else {
-                        _statusFilter.remove(status);
-                      }
-                    }),
-                  ),
+            child: SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(value: false, label: Text(l10n.itemsTab)),
+                ButtonSegment(value: true, label: Text(l10n.summaryTab)),
               ],
+              selected: {_showSummary},
+              onSelectionChanged: (selection) =>
+                  setState(() => _showSummary = selection.first),
             ),
           ),
+          if (!_showSummary)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  for (final status in BillableStatus.values)
+                    FilterChip(
+                      label: Text(billableStatusLabel(l10n, status)),
+                      selected: _statusFilter.contains(status),
+                      onSelected: (selected) => setState(() {
+                        if (selected) {
+                          _statusFilter.add(status);
+                        } else {
+                          _statusFilter.remove(status);
+                        }
+                      }),
+                    ),
+                ],
+              ),
+            ),
           if (moduleDisabled)
             Padding(
               padding: const EdgeInsets.all(16),
@@ -74,17 +91,19 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
               ),
             ),
           Expanded(
-            child: switch (billablesValue) {
-              AsyncValue(value: final items?) when items.isNotEmpty =>
-                _BillableList(
-                  items: items
-                      .where((b) => _statusFilter.contains(b.status))
-                      .toList(),
-                ),
-              AsyncValue(isLoading: true) =>
-                const Center(child: CircularProgressIndicator()),
-              _ => _EmptyState(l10n: l10n),
-            },
+            child: _showSummary
+                ? const SummaryView()
+                : switch (billablesValue) {
+                    AsyncValue(value: final items?) when items.isNotEmpty =>
+                      _BillableList(
+                        items: items
+                            .where((b) => _statusFilter.contains(b.status))
+                            .toList(),
+                      ),
+                    AsyncValue(isLoading: true) =>
+                      const Center(child: CircularProgressIndicator()),
+                    _ => _EmptyState(l10n: l10n),
+                  },
           ),
         ],
       ),

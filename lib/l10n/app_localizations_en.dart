@@ -195,6 +195,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWorkspaceFirst => 'Create a workspace first.';
 
   @override
+  String get itemsTab => 'Items';
+
+  @override
+  String get summaryTab => 'Summary';
+
+  @override
+  String get overviewLabel => 'Overview';
+
+  @override
+  String get byWorkspaceLabel => 'By workspace';
+
+  @override
+  String get byContactLabel => 'By contact';
+
+  @override
+  String get hoursThisMonth => 'Hours this month';
+
+  @override
+  String get invoicedUnpaid => 'Invoiced, unpaid';
+
+  @override
+  String get paidThisMonth => 'Paid this month';
+
+  @override
+  String get thisMonthButton => 'This month';
+
+  @override
   String get workTimer => 'Work timer';
 
   @override
