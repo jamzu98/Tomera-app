@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/providers.dart';
 import '../../core/widgets/workspace_filter_button.dart';
+import '../../core/widgets/workspaces_button.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'task_grouping.dart';
@@ -34,7 +35,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tabTasks),
-        actions: const [WorkspaceFilterButton()],
+        actions: const [WorkspaceFilterButton(), WorkspacesButton()],
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: l10n.newTask,

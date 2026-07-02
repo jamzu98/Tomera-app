@@ -124,6 +124,18 @@ abstract class AppLocalizations {
   /// **'Workspaces'**
   String get tabWorkspaces;
 
+  /// No description provided for @tabContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get tabContacts;
+
+  /// No description provided for @tabFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get tabFinance;
+
   /// Workspace filter option that shows data from every workspace
   ///
   /// In en, this message translates to:

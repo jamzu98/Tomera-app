@@ -24,6 +24,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabWorkspaces => 'Workspaces';
 
   @override
+  String get tabContacts => 'Contacts';
+
+  @override
+  String get tabFinance => 'Finance';
+
+  @override
   String get allWorkspaces => 'All workspaces';
 
   @override

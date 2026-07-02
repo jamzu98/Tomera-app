@@ -8,6 +8,8 @@
   "tabTasks": "Tasks",
   "tabNotes": "Notes",
   "tabWorkspaces": "Workspaces",
+  "tabContacts": "Contacts",
+  "tabFinance": "Finance",
   "allWorkspaces": "All workspaces",
   "@allWorkspaces": {
     "description": "Workspace filter option that shows data from every workspace"

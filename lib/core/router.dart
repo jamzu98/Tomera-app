@@ -4,6 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/calendar/calendar_screen.dart';
 import '../features/calendar/event_edit_screen.dart';
+import '../features/contacts/contacts_screen.dart';
+import '../features/finance/finance_screen.dart';
 import '../features/notes/note_edit_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/tasks/task_edit_screen.dart';
@@ -14,8 +16,11 @@ import '../l10n/app_localizations.dart';
 
 part 'router.g.dart';
 
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
 @Riverpod(keepAlive: true)
 GoRouter router(Ref ref) => GoRouter(
+      navigatorKey: _rootNavigatorKey,
       initialLocation: '/calendar',
       routes: [
         StatefulShellRoute.indexedStack(
@@ -80,22 +85,37 @@ GoRouter router(Ref ref) => GoRouter(
             ]),
             StatefulShellBranch(routes: [
               GoRoute(
-                path: '/workspaces',
-                builder: (context, state) => const WorkspacesScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'new',
-                    builder: (context, state) => const WorkspaceEditScreen(),
-                  ),
-                  GoRoute(
-                    path: ':id',
-                    builder: (context, state) => WorkspaceEditScreen(
-                      workspaceId: state.pathParameters['id']!,
-                    ),
-                  ),
-                ],
+                path: '/contacts',
+                builder: (context, state) => const ContactsScreen(),
               ),
             ]),
+            StatefulShellBranch(routes: [
+              GoRoute(
+                path: '/finance',
+                builder: (context, state) => const FinanceScreen(),
+              ),
+            ]),
+          ],
+        ),
+        // Workspace management lives above the tab shell (spec Phase 2
+        // navigation decision: 5 tabs, workspaces via app bar icon).
+        GoRoute(
+          path: '/workspaces',
+          parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state) => const WorkspacesScreen(),
+          routes: [
+            GoRoute(
+              path: 'new',
+              parentNavigatorKey: _rootNavigatorKey,
+              builder: (context, state) => const WorkspaceEditScreen(),
+            ),
+            GoRoute(
+              path: ':id',
+              parentNavigatorKey: _rootNavigatorKey,
+              builder: (context, state) => WorkspaceEditScreen(
+                workspaceId: state.pathParameters['id']!,
+              ),
+            ),
           ],
         ),
       ],
@@ -131,9 +151,14 @@ class AppShell extends StatelessWidget {
             label: l10n.tabNotes,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.folder_outlined),
-            selectedIcon: const Icon(Icons.folder),
-            label: l10n.tabWorkspaces,
+            icon: const Icon(Icons.people_outline),
+            selectedIcon: const Icon(Icons.people),
+            label: l10n.tabContacts,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.euro_outlined),
+            selectedIcon: const Icon(Icons.euro),
+            label: l10n.tabFinance,
           ),
         ],
       ),

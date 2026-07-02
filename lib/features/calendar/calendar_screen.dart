@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/providers.dart';
 import '../../core/widgets/workspace_filter_button.dart';
+import '../../core/widgets/workspaces_button.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'agenda_view.dart';
@@ -73,6 +74,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             onPressed: () => setState(() => _agenda = !_agenda),
           ),
           const WorkspaceFilterButton(),
+          const WorkspacesButton(),
         ],
       ),
       floatingActionButton: FloatingActionButton(

@@ -20,7 +20,7 @@ class WorkspacesScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.tabWorkspaces)),
       floatingActionButton: FloatingActionButton(
         tooltip: l10n.newWorkspace,
-        onPressed: () => context.go('/workspaces/new'),
+        onPressed: () => context.push('/workspaces/new'),
         child: const Icon(Icons.add),
       ),
       body: switch (workspaces) {
@@ -70,7 +70,7 @@ class _WorkspaceList extends ConsumerWidget {
             index: index,
             child: const Icon(Icons.drag_handle),
           ),
-          onTap: () => context.go('/workspaces/${workspace.id}'),
+          onTap: () => context.push('/workspaces/${workspace.id}'),
         );
       },
     );
