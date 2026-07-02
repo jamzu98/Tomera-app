@@ -17,7 +17,16 @@ class WorkspacesScreen extends ConsumerWidget {
     final workspaces = ref.watch(allWorkspacesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tabWorkspaces)),
+      appBar: AppBar(
+        title: Text(l10n.tabWorkspaces),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: l10n.settingsTitle,
+            onPressed: () => context.push('/settings'),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         tooltip: l10n.newWorkspace,
         onPressed: () => context.push('/workspaces/new'),

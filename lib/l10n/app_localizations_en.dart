@@ -195,6 +195,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWorkspaceFirst => 'Create a workspace first.';
 
   @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get themeLabel => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get roundingLabel => 'Timer duration rounding';
+
+  @override
+  String get roundingNone => 'No rounding';
+
+  @override
+  String roundingOption(int minutes) {
+    return '$minutes minutes, round up';
+  }
+
+  @override
   String get newBillable => 'New billable item';
 
   @override

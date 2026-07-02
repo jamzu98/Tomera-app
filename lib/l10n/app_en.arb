@@ -74,6 +74,21 @@
     }
   },
   "createWorkspaceFirst": "Create a workspace first.",
+  "settingsTitle": "Settings",
+  "themeLabel": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "roundingLabel": "Timer duration rounding",
+  "roundingNone": "No rounding",
+  "roundingOption": "{minutes} minutes, round up",
+  "@roundingOption": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "newBillable": "New billable item",
   "editBillable": "Edit billable item",
   "typeLabel": "Type",

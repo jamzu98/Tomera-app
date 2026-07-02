@@ -10,6 +10,7 @@ import '../features/contacts/contacts_screen.dart';
 import '../features/finance/billable_edit_screen.dart';
 import '../features/finance/finance_screen.dart';
 import '../features/notes/note_edit_screen.dart';
+import '../features/settings/settings_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/tasks/task_edit_screen.dart';
 import '../features/tasks/tasks_screen.dart';
@@ -137,6 +138,11 @@ GoRouter router(Ref ref) => GoRouter(
               ),
             ]),
           ],
+        ),
+        GoRoute(
+          path: '/settings',
+          parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state) => const SettingsScreen(),
         ),
         // Workspace management lives above the tab shell (spec Phase 2
         // navigation decision: 5 tabs, workspaces via app bar icon).

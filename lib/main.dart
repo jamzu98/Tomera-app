@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router.dart';
 import 'core/theme.dart';
+import 'features/settings/settings_providers.dart';
 import 'l10n/app_localizations.dart';
 
 void main() {
@@ -26,7 +27,7 @@ class TomeraApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       theme: buildLightTheme(),
       darkTheme: buildDarkTheme(),
-      themeMode: ThemeMode.system,
+      themeMode: ref.watch(themeModeSettingProvider),
       routerConfig: ref.watch(routerProvider),
     );
   }
