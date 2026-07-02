@@ -6,6 +6,12 @@
       "runtimeExecutable": "flutter",
       "runtimeArgs": ["run", "-d", "web-server", "--web-port", "8765"],
       "port": 8765
+    },
+    {
+      "name": "tomera-web-static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8766", "-d", "build/web"],
+      "port": 8766
     }
   ]
 }

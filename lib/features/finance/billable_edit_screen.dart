@@ -45,6 +45,10 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
   void initState() {
     super.initState();
     _contactId = widget.initialContactId;
+    if (_isNew && _contactId != null) {
+      // Pre-fill the rate when opened from a contact detail screen too.
+      Future.microtask(() => _onContactChanged(_contactId));
+    }
   }
 
   @override
