@@ -37,6 +37,12 @@ final allWorkspacesProvider = StreamProvider.autoDispose<List<Workspace>>(
   (ref) => ref.watch(workspaceRepositoryProvider).watchAll(),
 );
 
+/// One workspace by id (for detail/edit screens).
+final workspaceByIdProvider =
+    StreamProvider.autoDispose.family<Workspace?, String>(
+  (ref, id) => ref.watch(workspaceRepositoryProvider).watchById(id),
+);
+
 /// The currently selected workspace row, or null in the "all" view.
 final selectedWorkspaceProvider = StreamProvider.autoDispose<Workspace?>(
   (ref) {

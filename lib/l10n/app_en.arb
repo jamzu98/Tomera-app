@@ -11,5 +11,31 @@
   "allWorkspaces": "All workspaces",
   "@allWorkspaces": {
     "description": "Workspace filter option that shows data from every workspace"
+  },
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "newWorkspace": "New workspace",
+  "editWorkspace": "Edit workspace",
+  "workspaceName": "Name",
+  "nameRequired": "Enter a name",
+  "colorLabel": "Color",
+  "iconLabel": "Icon",
+  "modulesLabel": "Modules",
+  "moduleCalendar": "Calendar",
+  "moduleTasks": "Tasks",
+  "moduleNotes": "Notes",
+  "moduleContacts": "Contacts",
+  "moduleFinance": "Finance",
+  "emptyWorkspacesTitle": "No workspaces yet",
+  "emptyWorkspacesBody": "Create a workspace to organize your work, e.g. DEV, Teaching or Maintenance.",
+  "deleteWorkspaceTitle": "Delete workspace?",
+  "deleteWorkspaceBody": "\"{name}\" will be hidden everywhere. Its data is kept and nothing is permanently erased.",
+  "@deleteWorkspaceBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

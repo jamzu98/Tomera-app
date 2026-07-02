@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../features/calendar/calendar_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/tasks/tasks_screen.dart';
+import '../features/workspaces/workspace_edit_screen.dart';
 import '../features/workspaces/workspaces_screen.dart';
 import '../l10n/app_localizations.dart';
 
@@ -39,6 +40,18 @@ GoRouter router(Ref ref) => GoRouter(
               GoRoute(
                 path: '/workspaces',
                 builder: (context, state) => const WorkspacesScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const WorkspaceEditScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => WorkspaceEditScreen(
+                      workspaceId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ]),
           ],

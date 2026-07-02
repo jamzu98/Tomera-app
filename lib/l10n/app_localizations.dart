@@ -129,6 +129,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All workspaces'**
   String get allWorkspaces;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @newWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'New workspace'**
+  String get newWorkspace;
+
+  /// No description provided for @editWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit workspace'**
+  String get editWorkspace;
+
+  /// No description provided for @workspaceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get workspaceName;
+
+  /// No description provided for @nameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get nameRequired;
+
+  /// No description provided for @colorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get colorLabel;
+
+  /// No description provided for @iconLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get iconLabel;
+
+  /// No description provided for @modulesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Modules'**
+  String get modulesLabel;
+
+  /// No description provided for @moduleCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get moduleCalendar;
+
+  /// No description provided for @moduleTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get moduleTasks;
+
+  /// No description provided for @moduleNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get moduleNotes;
+
+  /// No description provided for @moduleContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get moduleContacts;
+
+  /// No description provided for @moduleFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get moduleFinance;
+
+  /// No description provided for @emptyWorkspacesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No workspaces yet'**
+  String get emptyWorkspacesTitle;
+
+  /// No description provided for @emptyWorkspacesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a workspace to organize your work, e.g. DEV, Teaching or Maintenance.'**
+  String get emptyWorkspacesBody;
+
+  /// No description provided for @deleteWorkspaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete workspace?'**
+  String get deleteWorkspaceTitle;
+
+  /// No description provided for @deleteWorkspaceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" will be hidden everywhere. Its data is kept and nothing is permanently erased.'**
+  String deleteWorkspaceBody(String name);
 }
 
 class _AppLocalizationsDelegate
