@@ -1054,6 +1054,30 @@ abstract class AppLocalizations {
   /// **'No workspace'**
   String get noWorkspace;
 
+  /// No description provided for @searchNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Search notes'**
+  String get searchNotes;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search…'**
+  String get searchHint;
+
+  /// No description provided for @closeSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Close search'**
+  String get closeSearch;
+
+  /// No description provided for @noSearchResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching notes.'**
+  String get noSearchResults;
+
   /// No description provided for @emptyNotesTitle.
   ///
   /// In en, this message translates to:

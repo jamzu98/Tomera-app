@@ -19,6 +19,7 @@ export 'enums.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
+  include: {'notes_fts.drift'},
   tables: [
     Workspaces,
     Contacts,
@@ -55,10 +56,23 @@ class AppDatabase extends _$AppDatabase {
       ));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            // v2: FTS5 index over notes (spec §6.4), backfilled from
+            // existing rows.
+            await m.createTable(notesFts);
+            await m.createTrigger(notesFtsInsert);
+            await m.createTrigger(notesFtsDelete);
+            await m.createTrigger(notesFtsUpdate);
+            await customStatement(
+                'INSERT INTO notes_fts(rowid, title, body) '
+                'SELECT rowid, title, body FROM notes');
+          }
+        },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },

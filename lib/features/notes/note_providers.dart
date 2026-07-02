@@ -27,6 +27,30 @@ final visibleNotesProvider = StreamProvider.autoDispose<List<Note>>((ref) {
   );
 });
 
+/// FTS search results (spec §6.4), honoring the same visibility rules as
+/// [visibleNotesProvider]: workspace filter, standalone notes, and the
+/// notes module toggle in the all-workspaces view.
+final noteSearchProvider =
+    StreamProvider.autoDispose.family<List<Note>, String>((ref, query) {
+  final results = ref.watch(noteRepositoryProvider).search(query);
+  final workspaceId = ref.watch(selectedWorkspaceIdProvider);
+  if (workspaceId != null) {
+    return results.map(
+        (list) => list.where((n) => n.workspaceId == workspaceId).toList());
+  }
+  final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
+  final enabledIds = {
+    for (final w in workspaces)
+      if (w.enabledModules.contains(ModuleKey.notes)) w.id,
+  };
+  return results.map(
+    (list) => list
+        .where((n) =>
+            n.workspaceId == null || enabledIds.contains(n.workspaceId))
+        .toList(),
+  );
+});
+
 /// One note by id (edit screen).
 final noteByIdProvider = StreamProvider.autoDispose.family<Note?, String>(
   (ref, id) => ref.watch(noteRepositoryProvider).watchById(id),

@@ -43,6 +43,12 @@ class NoteDao extends DatabaseAccessor<AppDatabase> with _$NoteDaoMixin {
   Future<void> softDelete(String id) =>
       updateNote(id, NotesCompanion(deletedAt: Value(utcNowMs())));
 
+  /// FTS5 matches for an already-sanitized MATCH expression, best first.
+  Stream<List<Note>> search(String ftsQuery) => attachedDatabase
+      .searchNotes(ftsQuery)
+      .watch()
+      .map((rows) => [for (final row in rows) row.n]);
+
   /// Live notes attached to a polymorphic parent, newest first.
   Stream<List<Note>> watchByParent(ParentType parentType, String parentId) {
     final query = _active

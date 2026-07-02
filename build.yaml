@@ -1,0 +1,11 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          sql:
+            dialect: sqlite
+            options:
+              # Let drift understand CREATE VIRTUAL TABLE ... USING fts5
+              # (notes_fts.drift) so the table is a managed schema entity.
+              modules: [fts5]

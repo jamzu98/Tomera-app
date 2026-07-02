@@ -503,6 +503,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noWorkspace => 'No workspace';
 
   @override
+  String get searchNotes => 'Search notes';
+
+  @override
+  String get searchHint => 'Search…';
+
+  @override
+  String get closeSearch => 'Close search';
+
+  @override
+  String get noSearchResults => 'No matching notes.';
+
+  @override
   String get emptyNotesTitle => 'No notes';
 
   @override

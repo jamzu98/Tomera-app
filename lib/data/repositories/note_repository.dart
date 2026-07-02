@@ -18,6 +18,20 @@ class NoteRepository {
   Stream<List<Note>> watchByParent(ParentType parentType, String parentId) =>
       _dao.watchByParent(parentType, parentId);
 
+  /// Full-text search (spec §6.4). Raw user input is sanitized into quoted
+  /// prefix terms so FTS5 operators in the input can't break the query.
+  Stream<List<Note>> search(String rawQuery) {
+    final terms = rawQuery
+        .trim()
+        .split(RegExp(r'\s+'))
+        .map((t) => t.replaceAll('"', ''))
+        .where((t) => t.isNotEmpty)
+        .map((t) => '"$t"*')
+        .toList();
+    if (terms.isEmpty) return Stream.value(const []);
+    return _dao.search(terms.join(' '));
+  }
+
   Future<String> create({
     String? workspaceId,
     required String title,

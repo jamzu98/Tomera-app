@@ -663,6 +663,894 @@ class WorkspacesCompanion extends UpdateCompanion<Workspace> {
   }
 }
 
+class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NotesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDirtyMeta = const VerificationMeta(
+    'isDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> isDirty = GeneratedColumn<bool>(
+    'is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _workspaceIdMeta = const VerificationMeta(
+    'workspaceId',
+  );
+  @override
+  late final GeneratedColumn<String> workspaceId = GeneratedColumn<String>(
+    'workspace_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES workspaces (id)',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  @override
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ParentType?, String> parentType =
+      GeneratedColumn<String>(
+        'parent_type',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<ParentType?>($NotesTable.$converterparentTypen);
+  static const VerificationMeta _parentIdMeta = const VerificationMeta(
+    'parentId',
+  );
+  @override
+  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
+    'parent_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ownerId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    isDirty,
+    workspaceId,
+    title,
+    body,
+    parentType,
+    parentId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Note> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('is_dirty')) {
+      context.handle(
+        _isDirtyMeta,
+        isDirty.isAcceptableOrUnknown(data['is_dirty']!, _isDirtyMeta),
+      );
+    }
+    if (data.containsKey('workspace_id')) {
+      context.handle(
+        _workspaceIdMeta,
+        workspaceId.isAcceptableOrUnknown(
+          data['workspace_id']!,
+          _workspaceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+        _bodyMeta,
+        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    if (data.containsKey('parent_id')) {
+      context.handle(
+        _parentIdMeta,
+        parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Note map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Note(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      isDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_dirty'],
+      )!,
+      workspaceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}workspace_id'],
+      ),
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      body: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body'],
+      )!,
+      parentType: $NotesTable.$converterparentTypen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}parent_type'],
+        ),
+      ),
+      parentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}parent_id'],
+      ),
+    );
+  }
+
+  @override
+  $NotesTable createAlias(String alias) {
+    return $NotesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<ParentType, String> $converterparentType =
+      const DbEnumConverter(ParentType.values);
+  static TypeConverter<ParentType?, String?> $converterparentTypen =
+      NullAwareTypeConverter.wrap($converterparentType);
+}
+
+class Note extends DataClass implements Insertable<Note> {
+  final String id;
+  final String? ownerId;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final bool isDirty;
+
+  /// Nullable so a note can exist standalone, outside any workspace.
+  final String? workspaceId;
+  final String title;
+
+  /// Markdown source.
+  final String body;
+  final ParentType? parentType;
+  final String? parentId;
+  const Note({
+    required this.id,
+    this.ownerId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.isDirty,
+    this.workspaceId,
+    required this.title,
+    required this.body,
+    this.parentType,
+    this.parentId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || ownerId != null) {
+      map['owner_id'] = Variable<String>(ownerId);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['is_dirty'] = Variable<bool>(isDirty);
+    if (!nullToAbsent || workspaceId != null) {
+      map['workspace_id'] = Variable<String>(workspaceId);
+    }
+    map['title'] = Variable<String>(title);
+    map['body'] = Variable<String>(body);
+    if (!nullToAbsent || parentType != null) {
+      map['parent_type'] = Variable<String>(
+        $NotesTable.$converterparentTypen.toSql(parentType),
+      );
+    }
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<String>(parentId);
+    }
+    return map;
+  }
+
+  NotesCompanion toCompanion(bool nullToAbsent) {
+    return NotesCompanion(
+      id: Value(id),
+      ownerId: ownerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      isDirty: Value(isDirty),
+      workspaceId: workspaceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(workspaceId),
+      title: Value(title),
+      body: Value(body),
+      parentType: parentType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentType),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
+    );
+  }
+
+  factory Note.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Note(
+      id: serializer.fromJson<String>(json['id']),
+      ownerId: serializer.fromJson<String?>(json['ownerId']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      isDirty: serializer.fromJson<bool>(json['isDirty']),
+      workspaceId: serializer.fromJson<String?>(json['workspaceId']),
+      title: serializer.fromJson<String>(json['title']),
+      body: serializer.fromJson<String>(json['body']),
+      parentType: serializer.fromJson<ParentType?>(json['parentType']),
+      parentId: serializer.fromJson<String?>(json['parentId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ownerId': serializer.toJson<String?>(ownerId),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'isDirty': serializer.toJson<bool>(isDirty),
+      'workspaceId': serializer.toJson<String?>(workspaceId),
+      'title': serializer.toJson<String>(title),
+      'body': serializer.toJson<String>(body),
+      'parentType': serializer.toJson<ParentType?>(parentType),
+      'parentId': serializer.toJson<String?>(parentId),
+    };
+  }
+
+  Note copyWith({
+    String? id,
+    Value<String?> ownerId = const Value.absent(),
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    bool? isDirty,
+    Value<String?> workspaceId = const Value.absent(),
+    String? title,
+    String? body,
+    Value<ParentType?> parentType = const Value.absent(),
+    Value<String?> parentId = const Value.absent(),
+  }) => Note(
+    id: id ?? this.id,
+    ownerId: ownerId.present ? ownerId.value : this.ownerId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    isDirty: isDirty ?? this.isDirty,
+    workspaceId: workspaceId.present ? workspaceId.value : this.workspaceId,
+    title: title ?? this.title,
+    body: body ?? this.body,
+    parentType: parentType.present ? parentType.value : this.parentType,
+    parentId: parentId.present ? parentId.value : this.parentId,
+  );
+  Note copyWithCompanion(NotesCompanion data) {
+    return Note(
+      id: data.id.present ? data.id.value : this.id,
+      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      isDirty: data.isDirty.present ? data.isDirty.value : this.isDirty,
+      workspaceId: data.workspaceId.present
+          ? data.workspaceId.value
+          : this.workspaceId,
+      title: data.title.present ? data.title.value : this.title,
+      body: data.body.present ? data.body.value : this.body,
+      parentType: data.parentType.present
+          ? data.parentType.value
+          : this.parentType,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Note(')
+          ..write('id: $id, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('isDirty: $isDirty, ')
+          ..write('workspaceId: $workspaceId, ')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('parentType: $parentType, ')
+          ..write('parentId: $parentId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    ownerId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    isDirty,
+    workspaceId,
+    title,
+    body,
+    parentType,
+    parentId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Note &&
+          other.id == this.id &&
+          other.ownerId == this.ownerId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.isDirty == this.isDirty &&
+          other.workspaceId == this.workspaceId &&
+          other.title == this.title &&
+          other.body == this.body &&
+          other.parentType == this.parentType &&
+          other.parentId == this.parentId);
+}
+
+class NotesCompanion extends UpdateCompanion<Note> {
+  final Value<String> id;
+  final Value<String?> ownerId;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<bool> isDirty;
+  final Value<String?> workspaceId;
+  final Value<String> title;
+  final Value<String> body;
+  final Value<ParentType?> parentType;
+  final Value<String?> parentId;
+  final Value<int> rowid;
+  const NotesCompanion({
+    this.id = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.isDirty = const Value.absent(),
+    this.workspaceId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.body = const Value.absent(),
+    this.parentType = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NotesCompanion.insert({
+    required String id,
+    this.ownerId = const Value.absent(),
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.isDirty = const Value.absent(),
+    this.workspaceId = const Value.absent(),
+    required String title,
+    required String body,
+    this.parentType = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       title = Value(title),
+       body = Value(body);
+  static Insertable<Note> custom({
+    Expression<String>? id,
+    Expression<String>? ownerId,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<bool>? isDirty,
+    Expression<String>? workspaceId,
+    Expression<String>? title,
+    Expression<String>? body,
+    Expression<String>? parentType,
+    Expression<String>? parentId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownerId != null) 'owner_id': ownerId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (isDirty != null) 'is_dirty': isDirty,
+      if (workspaceId != null) 'workspace_id': workspaceId,
+      if (title != null) 'title': title,
+      if (body != null) 'body': body,
+      if (parentType != null) 'parent_type': parentType,
+      if (parentId != null) 'parent_id': parentId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NotesCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? ownerId,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<bool>? isDirty,
+    Value<String?>? workspaceId,
+    Value<String>? title,
+    Value<String>? body,
+    Value<ParentType?>? parentType,
+    Value<String?>? parentId,
+    Value<int>? rowid,
+  }) {
+    return NotesCompanion(
+      id: id ?? this.id,
+      ownerId: ownerId ?? this.ownerId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      isDirty: isDirty ?? this.isDirty,
+      workspaceId: workspaceId ?? this.workspaceId,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      parentType: parentType ?? this.parentType,
+      parentId: parentId ?? this.parentId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (isDirty.present) {
+      map['is_dirty'] = Variable<bool>(isDirty.value);
+    }
+    if (workspaceId.present) {
+      map['workspace_id'] = Variable<String>(workspaceId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (parentType.present) {
+      map['parent_type'] = Variable<String>(
+        $NotesTable.$converterparentTypen.toSql(parentType.value),
+      );
+    }
+    if (parentId.present) {
+      map['parent_id'] = Variable<String>(parentId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotesCompanion(')
+          ..write('id: $id, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('isDirty: $isDirty, ')
+          ..write('workspaceId: $workspaceId, ')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('parentType: $parentType, ')
+          ..write('parentId: $parentId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class NotesFts extends Table
+    with TableInfo<NotesFts, NotesFt>, VirtualTableInfo<NotesFts, NotesFt> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  NotesFts(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: '',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [title, body];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notes_fts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NotesFt> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+        _bodyMeta,
+        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => const {};
+  @override
+  NotesFt map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NotesFt(
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      body: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body'],
+      )!,
+    );
+  }
+
+  @override
+  NotesFts createAlias(String alias) {
+    return NotesFts(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+  @override
+  String get moduleAndArgs =>
+      'fts5(title, body, content=\'notes\', content_rowid=\'rowid\')';
+}
+
+class NotesFt extends DataClass implements Insertable<NotesFt> {
+  final String title;
+  final String body;
+  const NotesFt({required this.title, required this.body});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['title'] = Variable<String>(title);
+    map['body'] = Variable<String>(body);
+    return map;
+  }
+
+  NotesFtsCompanion toCompanion(bool nullToAbsent) {
+    return NotesFtsCompanion(title: Value(title), body: Value(body));
+  }
+
+  factory NotesFt.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NotesFt(
+      title: serializer.fromJson<String>(json['title']),
+      body: serializer.fromJson<String>(json['body']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'title': serializer.toJson<String>(title),
+      'body': serializer.toJson<String>(body),
+    };
+  }
+
+  NotesFt copyWith({String? title, String? body}) =>
+      NotesFt(title: title ?? this.title, body: body ?? this.body);
+  NotesFt copyWithCompanion(NotesFtsCompanion data) {
+    return NotesFt(
+      title: data.title.present ? data.title.value : this.title,
+      body: data.body.present ? data.body.value : this.body,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotesFt(')
+          ..write('title: $title, ')
+          ..write('body: $body')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(title, body);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NotesFt &&
+          other.title == this.title &&
+          other.body == this.body);
+}
+
+class NotesFtsCompanion extends UpdateCompanion<NotesFt> {
+  final Value<String> title;
+  final Value<String> body;
+  final Value<int> rowid;
+  const NotesFtsCompanion({
+    this.title = const Value.absent(),
+    this.body = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NotesFtsCompanion.insert({
+    required String title,
+    required String body,
+    this.rowid = const Value.absent(),
+  }) : title = Value(title),
+       body = Value(body);
+  static Insertable<NotesFt> custom({
+    Expression<String>? title,
+    Expression<String>? body,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (title != null) 'title': title,
+      if (body != null) 'body': body,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NotesFtsCompanion copyWith({
+    Value<String>? title,
+    Value<String>? body,
+    Value<int>? rowid,
+  }) {
+    return NotesFtsCompanion(
+      title: title ?? this.title,
+      body: body ?? this.body,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotesFtsCompanion(')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -4170,680 +5058,6 @@ class TasksCompanion extends UpdateCompanion<Task> {
   }
 }
 
-class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $NotesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
-    'ownerId',
-  );
-  @override
-  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
-    'owner_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _isDirtyMeta = const VerificationMeta(
-    'isDirty',
-  );
-  @override
-  late final GeneratedColumn<bool> isDirty = GeneratedColumn<bool>(
-    'is_dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _workspaceIdMeta = const VerificationMeta(
-    'workspaceId',
-  );
-  @override
-  late final GeneratedColumn<String> workspaceId = GeneratedColumn<String>(
-    'workspace_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES workspaces (id)',
-    ),
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
-  @override
-  late final GeneratedColumn<String> body = GeneratedColumn<String>(
-    'body',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<ParentType?, String> parentType =
-      GeneratedColumn<String>(
-        'parent_type',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      ).withConverter<ParentType?>($NotesTable.$converterparentTypen);
-  static const VerificationMeta _parentIdMeta = const VerificationMeta(
-    'parentId',
-  );
-  @override
-  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
-    'parent_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    ownerId,
-    createdAt,
-    updatedAt,
-    deletedAt,
-    isDirty,
-    workspaceId,
-    title,
-    body,
-    parentType,
-    parentId,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'notes';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Note> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('owner_id')) {
-      context.handle(
-        _ownerIdMeta,
-        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
-      );
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('is_dirty')) {
-      context.handle(
-        _isDirtyMeta,
-        isDirty.isAcceptableOrUnknown(data['is_dirty']!, _isDirtyMeta),
-      );
-    }
-    if (data.containsKey('workspace_id')) {
-      context.handle(
-        _workspaceIdMeta,
-        workspaceId.isAcceptableOrUnknown(
-          data['workspace_id']!,
-          _workspaceIdMeta,
-        ),
-      );
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('body')) {
-      context.handle(
-        _bodyMeta,
-        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_bodyMeta);
-    }
-    if (data.containsKey('parent_id')) {
-      context.handle(
-        _parentIdMeta,
-        parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Note map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Note(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      ownerId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}owner_id'],
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      isDirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_dirty'],
-      )!,
-      workspaceId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}workspace_id'],
-      ),
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      )!,
-      body: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}body'],
-      )!,
-      parentType: $NotesTable.$converterparentTypen.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}parent_type'],
-        ),
-      ),
-      parentId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}parent_id'],
-      ),
-    );
-  }
-
-  @override
-  $NotesTable createAlias(String alias) {
-    return $NotesTable(attachedDatabase, alias);
-  }
-
-  static TypeConverter<ParentType, String> $converterparentType =
-      const DbEnumConverter(ParentType.values);
-  static TypeConverter<ParentType?, String?> $converterparentTypen =
-      NullAwareTypeConverter.wrap($converterparentType);
-}
-
-class Note extends DataClass implements Insertable<Note> {
-  final String id;
-  final String? ownerId;
-  final int createdAt;
-  final int updatedAt;
-  final int? deletedAt;
-  final bool isDirty;
-
-  /// Nullable so a note can exist standalone, outside any workspace.
-  final String? workspaceId;
-  final String title;
-
-  /// Markdown source.
-  final String body;
-  final ParentType? parentType;
-  final String? parentId;
-  const Note({
-    required this.id,
-    this.ownerId,
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.isDirty,
-    this.workspaceId,
-    required this.title,
-    required this.body,
-    this.parentType,
-    this.parentId,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    if (!nullToAbsent || ownerId != null) {
-      map['owner_id'] = Variable<String>(ownerId);
-    }
-    map['created_at'] = Variable<int>(createdAt);
-    map['updated_at'] = Variable<int>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<int>(deletedAt);
-    }
-    map['is_dirty'] = Variable<bool>(isDirty);
-    if (!nullToAbsent || workspaceId != null) {
-      map['workspace_id'] = Variable<String>(workspaceId);
-    }
-    map['title'] = Variable<String>(title);
-    map['body'] = Variable<String>(body);
-    if (!nullToAbsent || parentType != null) {
-      map['parent_type'] = Variable<String>(
-        $NotesTable.$converterparentTypen.toSql(parentType),
-      );
-    }
-    if (!nullToAbsent || parentId != null) {
-      map['parent_id'] = Variable<String>(parentId);
-    }
-    return map;
-  }
-
-  NotesCompanion toCompanion(bool nullToAbsent) {
-    return NotesCompanion(
-      id: Value(id),
-      ownerId: ownerId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownerId),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      isDirty: Value(isDirty),
-      workspaceId: workspaceId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(workspaceId),
-      title: Value(title),
-      body: Value(body),
-      parentType: parentType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(parentType),
-      parentId: parentId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(parentId),
-    );
-  }
-
-  factory Note.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Note(
-      id: serializer.fromJson<String>(json['id']),
-      ownerId: serializer.fromJson<String?>(json['ownerId']),
-      createdAt: serializer.fromJson<int>(json['createdAt']),
-      updatedAt: serializer.fromJson<int>(json['updatedAt']),
-      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
-      isDirty: serializer.fromJson<bool>(json['isDirty']),
-      workspaceId: serializer.fromJson<String?>(json['workspaceId']),
-      title: serializer.fromJson<String>(json['title']),
-      body: serializer.fromJson<String>(json['body']),
-      parentType: serializer.fromJson<ParentType?>(json['parentType']),
-      parentId: serializer.fromJson<String?>(json['parentId']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'ownerId': serializer.toJson<String?>(ownerId),
-      'createdAt': serializer.toJson<int>(createdAt),
-      'updatedAt': serializer.toJson<int>(updatedAt),
-      'deletedAt': serializer.toJson<int?>(deletedAt),
-      'isDirty': serializer.toJson<bool>(isDirty),
-      'workspaceId': serializer.toJson<String?>(workspaceId),
-      'title': serializer.toJson<String>(title),
-      'body': serializer.toJson<String>(body),
-      'parentType': serializer.toJson<ParentType?>(parentType),
-      'parentId': serializer.toJson<String?>(parentId),
-    };
-  }
-
-  Note copyWith({
-    String? id,
-    Value<String?> ownerId = const Value.absent(),
-    int? createdAt,
-    int? updatedAt,
-    Value<int?> deletedAt = const Value.absent(),
-    bool? isDirty,
-    Value<String?> workspaceId = const Value.absent(),
-    String? title,
-    String? body,
-    Value<ParentType?> parentType = const Value.absent(),
-    Value<String?> parentId = const Value.absent(),
-  }) => Note(
-    id: id ?? this.id,
-    ownerId: ownerId.present ? ownerId.value : this.ownerId,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    isDirty: isDirty ?? this.isDirty,
-    workspaceId: workspaceId.present ? workspaceId.value : this.workspaceId,
-    title: title ?? this.title,
-    body: body ?? this.body,
-    parentType: parentType.present ? parentType.value : this.parentType,
-    parentId: parentId.present ? parentId.value : this.parentId,
-  );
-  Note copyWithCompanion(NotesCompanion data) {
-    return Note(
-      id: data.id.present ? data.id.value : this.id,
-      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      isDirty: data.isDirty.present ? data.isDirty.value : this.isDirty,
-      workspaceId: data.workspaceId.present
-          ? data.workspaceId.value
-          : this.workspaceId,
-      title: data.title.present ? data.title.value : this.title,
-      body: data.body.present ? data.body.value : this.body,
-      parentType: data.parentType.present
-          ? data.parentType.value
-          : this.parentType,
-      parentId: data.parentId.present ? data.parentId.value : this.parentId,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Note(')
-          ..write('id: $id, ')
-          ..write('ownerId: $ownerId, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('isDirty: $isDirty, ')
-          ..write('workspaceId: $workspaceId, ')
-          ..write('title: $title, ')
-          ..write('body: $body, ')
-          ..write('parentType: $parentType, ')
-          ..write('parentId: $parentId')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    ownerId,
-    createdAt,
-    updatedAt,
-    deletedAt,
-    isDirty,
-    workspaceId,
-    title,
-    body,
-    parentType,
-    parentId,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Note &&
-          other.id == this.id &&
-          other.ownerId == this.ownerId &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.isDirty == this.isDirty &&
-          other.workspaceId == this.workspaceId &&
-          other.title == this.title &&
-          other.body == this.body &&
-          other.parentType == this.parentType &&
-          other.parentId == this.parentId);
-}
-
-class NotesCompanion extends UpdateCompanion<Note> {
-  final Value<String> id;
-  final Value<String?> ownerId;
-  final Value<int> createdAt;
-  final Value<int> updatedAt;
-  final Value<int?> deletedAt;
-  final Value<bool> isDirty;
-  final Value<String?> workspaceId;
-  final Value<String> title;
-  final Value<String> body;
-  final Value<ParentType?> parentType;
-  final Value<String?> parentId;
-  final Value<int> rowid;
-  const NotesCompanion({
-    this.id = const Value.absent(),
-    this.ownerId = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.isDirty = const Value.absent(),
-    this.workspaceId = const Value.absent(),
-    this.title = const Value.absent(),
-    this.body = const Value.absent(),
-    this.parentType = const Value.absent(),
-    this.parentId = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  NotesCompanion.insert({
-    required String id,
-    this.ownerId = const Value.absent(),
-    required int createdAt,
-    required int updatedAt,
-    this.deletedAt = const Value.absent(),
-    this.isDirty = const Value.absent(),
-    this.workspaceId = const Value.absent(),
-    required String title,
-    required String body,
-    this.parentType = const Value.absent(),
-    this.parentId = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       createdAt = Value(createdAt),
-       updatedAt = Value(updatedAt),
-       title = Value(title),
-       body = Value(body);
-  static Insertable<Note> custom({
-    Expression<String>? id,
-    Expression<String>? ownerId,
-    Expression<int>? createdAt,
-    Expression<int>? updatedAt,
-    Expression<int>? deletedAt,
-    Expression<bool>? isDirty,
-    Expression<String>? workspaceId,
-    Expression<String>? title,
-    Expression<String>? body,
-    Expression<String>? parentType,
-    Expression<String>? parentId,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (ownerId != null) 'owner_id': ownerId,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (isDirty != null) 'is_dirty': isDirty,
-      if (workspaceId != null) 'workspace_id': workspaceId,
-      if (title != null) 'title': title,
-      if (body != null) 'body': body,
-      if (parentType != null) 'parent_type': parentType,
-      if (parentId != null) 'parent_id': parentId,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  NotesCompanion copyWith({
-    Value<String>? id,
-    Value<String?>? ownerId,
-    Value<int>? createdAt,
-    Value<int>? updatedAt,
-    Value<int?>? deletedAt,
-    Value<bool>? isDirty,
-    Value<String?>? workspaceId,
-    Value<String>? title,
-    Value<String>? body,
-    Value<ParentType?>? parentType,
-    Value<String?>? parentId,
-    Value<int>? rowid,
-  }) {
-    return NotesCompanion(
-      id: id ?? this.id,
-      ownerId: ownerId ?? this.ownerId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      isDirty: isDirty ?? this.isDirty,
-      workspaceId: workspaceId ?? this.workspaceId,
-      title: title ?? this.title,
-      body: body ?? this.body,
-      parentType: parentType ?? this.parentType,
-      parentId: parentId ?? this.parentId,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (ownerId.present) {
-      map['owner_id'] = Variable<String>(ownerId.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<int>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<int>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<int>(deletedAt.value);
-    }
-    if (isDirty.present) {
-      map['is_dirty'] = Variable<bool>(isDirty.value);
-    }
-    if (workspaceId.present) {
-      map['workspace_id'] = Variable<String>(workspaceId.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (body.present) {
-      map['body'] = Variable<String>(body.value);
-    }
-    if (parentType.present) {
-      map['parent_type'] = Variable<String>(
-        $NotesTable.$converterparentTypen.toSql(parentType.value),
-      );
-    }
-    if (parentId.present) {
-      map['parent_id'] = Variable<String>(parentId.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('NotesCompanion(')
-          ..write('id: $id, ')
-          ..write('ownerId: $ownerId, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('isDirty: $isDirty, ')
-          ..write('workspaceId: $workspaceId, ')
-          ..write('title: $title, ')
-          ..write('body: $body, ')
-          ..write('parentType: $parentType, ')
-          ..write('parentId: $parentId, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $BillableItemsTable extends BillableItems
     with TableInfo<$BillableItemsTable, BillableItem> {
   @override
@@ -7126,13 +7340,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $WorkspacesTable workspaces = $WorkspacesTable(this);
+  late final $NotesTable notes = $NotesTable(this);
+  late final NotesFts notesFts = NotesFts(this);
+  late final Trigger notesFtsInsert = Trigger(
+    'CREATE TRIGGER notes_fts_insert AFTER INSERT ON notes BEGIN INSERT INTO notes_fts ("rowid", title, body) VALUES (new."rowid", new.title, new.body);END',
+    'notes_fts_insert',
+  );
+  late final Trigger notesFtsDelete = Trigger(
+    'CREATE TRIGGER notes_fts_delete AFTER DELETE ON notes BEGIN INSERT INTO notes_fts (notes_fts, "rowid", title, body) VALUES (\'delete\', old."rowid", old.title, old.body);END',
+    'notes_fts_delete',
+  );
+  late final Trigger notesFtsUpdate = Trigger(
+    'CREATE TRIGGER notes_fts_update AFTER UPDATE ON notes BEGIN INSERT INTO notes_fts (notes_fts, "rowid", title, body) VALUES (\'delete\', old."rowid", old.title, old.body);INSERT INTO notes_fts ("rowid", title, body) VALUES (new."rowid", new.title, new.body);END',
+    'notes_fts_update',
+  );
   late final $ContactsTable contacts = $ContactsTable(this);
   late final $WorkspaceContactsTable workspaceContacts =
       $WorkspaceContactsTable(this);
   late final $EventsTable events = $EventsTable(this);
   late final $EventContactsTable eventContacts = $EventContactsTable(this);
   late final $TasksTable tasks = $TasksTable(this);
-  late final $NotesTable notes = $NotesTable(this);
   late final $BillableItemsTable billableItems = $BillableItemsTable(this);
   late final $TimerSessionsTable timerSessions = $TimerSessionsTable(this);
   late final $RemindersTable reminders = $RemindersTable(this);
@@ -7144,22 +7371,62 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final BillableDao billableDao = BillableDao(this as AppDatabase);
   late final ReminderDao reminderDao = ReminderDao(this as AppDatabase);
   late final TimerDao timerDao = TimerDao(this as AppDatabase);
+  Selectable<SearchNotesResult> searchNotes(String query) {
+    return customSelect(
+      'SELECT"n"."id" AS "nested_0.id", "n"."owner_id" AS "nested_0.owner_id", "n"."created_at" AS "nested_0.created_at", "n"."updated_at" AS "nested_0.updated_at", "n"."deleted_at" AS "nested_0.deleted_at", "n"."is_dirty" AS "nested_0.is_dirty", "n"."workspace_id" AS "nested_0.workspace_id", "n"."title" AS "nested_0.title", "n"."body" AS "nested_0.body", "n"."parent_type" AS "nested_0.parent_type", "n"."parent_id" AS "nested_0.parent_id" FROM notes_fts INNER JOIN notes AS n ON n."rowid" = notes_fts."rowid" WHERE notes_fts MATCH ?1 AND n.deleted_at IS NULL ORDER BY rank',
+      variables: [Variable<String>(query)],
+      readsFrom: {notesFts, notes},
+    ).asyncMap(
+      (QueryRow row) async => SearchNotesResult(
+        n: await notes.mapFromRow(row, tablePrefix: 'nested_0'),
+      ),
+    );
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     workspaces,
+    notes,
+    notesFts,
+    notesFtsInsert,
+    notesFtsDelete,
+    notesFtsUpdate,
     contacts,
     workspaceContacts,
     events,
     eventContacts,
     tasks,
-    notes,
     billableItems,
     timerSessions,
     reminders,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'notes',
+        limitUpdateKind: UpdateKind.insert,
+      ),
+      result: [TableUpdate('notes_fts', kind: UpdateKind.insert)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'notes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('notes_fts', kind: UpdateKind.insert)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'notes',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('notes_fts', kind: UpdateKind.insert)],
+    ),
+  ]);
 }
 
 typedef $$WorkspacesTableCreateCompanionBuilder =
@@ -7196,6 +7463,25 @@ typedef $$WorkspacesTableUpdateCompanionBuilder =
 final class $$WorkspacesTableReferences
     extends BaseReferences<_$AppDatabase, $WorkspacesTable, Workspace> {
   $$WorkspacesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$NotesTable, List<Note>> _notesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.notes,
+    aliasName: 'workspaces__id__notes__workspace_id',
+  );
+
+  $$NotesTableProcessedTableManager get notesRefs {
+    final manager = $$NotesTableTableManager(
+      $_db,
+      $_db.notes,
+    ).filter((f) => f.workspaceId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_notesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 
   static MultiTypedResultKey<$WorkspaceContactsTable, List<WorkspaceContact>>
   _workspaceContactsRefsTable(_$AppDatabase db) =>
@@ -7251,25 +7537,6 @@ final class $$WorkspacesTableReferences
     ).filter((f) => f.workspaceId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_tasksRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$NotesTable, List<Note>> _notesRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.notes,
-    aliasName: 'workspaces__id__notes__workspace_id',
-  );
-
-  $$NotesTableProcessedTableManager get notesRefs {
-    final manager = $$NotesTableTableManager(
-      $_db,
-      $_db.notes,
-    ).filter((f) => f.workspaceId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_notesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7377,6 +7644,31 @@ class $$WorkspacesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  Expression<bool> notesRefs(
+    Expression<bool> Function($$NotesTableFilterComposer f) f,
+  ) {
+    final $$NotesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.notes,
+      getReferencedColumn: (t) => t.workspaceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NotesTableFilterComposer(
+            $db: $db,
+            $table: $db.notes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<bool> workspaceContactsRefs(
     Expression<bool> Function($$WorkspaceContactsTableFilterComposer f) f,
   ) {
@@ -7443,31 +7735,6 @@ class $$WorkspacesTableFilterComposer
           }) => $$TasksTableFilterComposer(
             $db: $db,
             $table: $db.tasks,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> notesRefs(
-    Expression<bool> Function($$NotesTableFilterComposer f) f,
-  ) {
-    final $$NotesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.notes,
-      getReferencedColumn: (t) => t.workspaceId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$NotesTableFilterComposer(
-            $db: $db,
-            $table: $db.notes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7638,6 +7905,31 @@ class $$WorkspacesTableAnnotationComposer
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
 
+  Expression<T> notesRefs<T extends Object>(
+    Expression<T> Function($$NotesTableAnnotationComposer a) f,
+  ) {
+    final $$NotesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.notes,
+      getReferencedColumn: (t) => t.workspaceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NotesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.notes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> workspaceContactsRefs<T extends Object>(
     Expression<T> Function($$WorkspaceContactsTableAnnotationComposer a) f,
   ) {
@@ -7714,31 +8006,6 @@ class $$WorkspacesTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> notesRefs<T extends Object>(
-    Expression<T> Function($$NotesTableAnnotationComposer a) f,
-  ) {
-    final $$NotesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.notes,
-      getReferencedColumn: (t) => t.workspaceId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$NotesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.notes,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> billableItemsRefs<T extends Object>(
     Expression<T> Function($$BillableItemsTableAnnotationComposer a) f,
   ) {
@@ -7804,10 +8071,10 @@ class $$WorkspacesTableTableManager
           (Workspace, $$WorkspacesTableReferences),
           Workspace,
           PrefetchHooks Function({
+            bool notesRefs,
             bool workspaceContactsRefs,
             bool eventsRefs,
             bool tasksRefs,
-            bool notesRefs,
             bool billableItemsRefs,
             bool timerSessionsRefs,
           })
@@ -7889,26 +8156,47 @@ class $$WorkspacesTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
+                notesRefs = false,
                 workspaceContactsRefs = false,
                 eventsRefs = false,
                 tasksRefs = false,
-                notesRefs = false,
                 billableItemsRefs = false,
                 timerSessionsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (notesRefs) db.notes,
                     if (workspaceContactsRefs) db.workspaceContacts,
                     if (eventsRefs) db.events,
                     if (tasksRefs) db.tasks,
-                    if (notesRefs) db.notes,
                     if (billableItemsRefs) db.billableItems,
                     if (timerSessionsRefs) db.timerSessions,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (notesRefs)
+                        await $_getPrefetchedData<
+                          Workspace,
+                          $WorkspacesTable,
+                          Note
+                        >(
+                          currentTable: table,
+                          referencedTable: $$WorkspacesTableReferences
+                              ._notesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WorkspacesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).notesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.workspaceId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (workspaceContactsRefs)
                         await $_getPrefetchedData<
                           Workspace,
@@ -7966,27 +8254,6 @@ class $$WorkspacesTableTableManager
                                 table,
                                 p0,
                               ).tasksRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.workspaceId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (notesRefs)
-                        await $_getPrefetchedData<
-                          Workspace,
-                          $WorkspacesTable,
-                          Note
-                        >(
-                          currentTable: table,
-                          referencedTable: $$WorkspacesTableReferences
-                              ._notesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$WorkspacesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).notesRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.workspaceId == item.id,
@@ -8056,13 +8323,575 @@ typedef $$WorkspacesTableProcessedTableManager =
       (Workspace, $$WorkspacesTableReferences),
       Workspace,
       PrefetchHooks Function({
+        bool notesRefs,
         bool workspaceContactsRefs,
         bool eventsRefs,
         bool tasksRefs,
-        bool notesRefs,
         bool billableItemsRefs,
         bool timerSessionsRefs,
       })
+    >;
+typedef $$NotesTableCreateCompanionBuilder =
+    NotesCompanion Function({
+      required String id,
+      Value<String?> ownerId,
+      required int createdAt,
+      required int updatedAt,
+      Value<int?> deletedAt,
+      Value<bool> isDirty,
+      Value<String?> workspaceId,
+      required String title,
+      required String body,
+      Value<ParentType?> parentType,
+      Value<String?> parentId,
+      Value<int> rowid,
+    });
+typedef $$NotesTableUpdateCompanionBuilder =
+    NotesCompanion Function({
+      Value<String> id,
+      Value<String?> ownerId,
+      Value<int> createdAt,
+      Value<int> updatedAt,
+      Value<int?> deletedAt,
+      Value<bool> isDirty,
+      Value<String?> workspaceId,
+      Value<String> title,
+      Value<String> body,
+      Value<ParentType?> parentType,
+      Value<String?> parentId,
+      Value<int> rowid,
+    });
+
+final class $$NotesTableReferences
+    extends BaseReferences<_$AppDatabase, $NotesTable, Note> {
+  $$NotesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $WorkspacesTable _workspaceIdTable(_$AppDatabase db) =>
+      db.workspaces.createAlias('notes__workspace_id__workspaces__id');
+
+  $$WorkspacesTableProcessedTableManager? get workspaceId {
+    final $_column = $_itemColumn<String>('workspace_id');
+    if ($_column == null) return null;
+    final manager = $$WorkspacesTableTableManager(
+      $_db,
+      $_db.workspaces,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_workspaceIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$NotesTableFilterComposer extends Composer<_$AppDatabase, $NotesTable> {
+  $$NotesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDirty => $composableBuilder(
+    column: $table.isDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ParentType?, ParentType, String>
+  get parentType => $composableBuilder(
+    column: $table.parentType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get parentId => $composableBuilder(
+    column: $table.parentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$WorkspacesTableFilterComposer get workspaceId {
+    final $$WorkspacesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workspaceId,
+      referencedTable: $db.workspaces,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkspacesTableFilterComposer(
+            $db: $db,
+            $table: $db.workspaces,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NotesTableOrderingComposer
+    extends Composer<_$AppDatabase, $NotesTable> {
+  $$NotesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDirty => $composableBuilder(
+    column: $table.isDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get parentType => $composableBuilder(
+    column: $table.parentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get parentId => $composableBuilder(
+    column: $table.parentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$WorkspacesTableOrderingComposer get workspaceId {
+    final $$WorkspacesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workspaceId,
+      referencedTable: $db.workspaces,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkspacesTableOrderingComposer(
+            $db: $db,
+            $table: $db.workspaces,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NotesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NotesTable> {
+  $$NotesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDirty =>
+      $composableBuilder(column: $table.isDirty, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ParentType?, String> get parentType =>
+      $composableBuilder(
+        column: $table.parentType,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get parentId =>
+      $composableBuilder(column: $table.parentId, builder: (column) => column);
+
+  $$WorkspacesTableAnnotationComposer get workspaceId {
+    final $$WorkspacesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workspaceId,
+      referencedTable: $db.workspaces,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkspacesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.workspaces,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NotesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NotesTable,
+          Note,
+          $$NotesTableFilterComposer,
+          $$NotesTableOrderingComposer,
+          $$NotesTableAnnotationComposer,
+          $$NotesTableCreateCompanionBuilder,
+          $$NotesTableUpdateCompanionBuilder,
+          (Note, $$NotesTableReferences),
+          Note,
+          PrefetchHooks Function({bool workspaceId})
+        > {
+  $$NotesTableTableManager(_$AppDatabase db, $NotesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NotesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NotesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NotesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> ownerId = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> deletedAt = const Value.absent(),
+                Value<bool> isDirty = const Value.absent(),
+                Value<String?> workspaceId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> body = const Value.absent(),
+                Value<ParentType?> parentType = const Value.absent(),
+                Value<String?> parentId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotesCompanion(
+                id: id,
+                ownerId: ownerId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                isDirty: isDirty,
+                workspaceId: workspaceId,
+                title: title,
+                body: body,
+                parentType: parentType,
+                parentId: parentId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> ownerId = const Value.absent(),
+                required int createdAt,
+                required int updatedAt,
+                Value<int?> deletedAt = const Value.absent(),
+                Value<bool> isDirty = const Value.absent(),
+                Value<String?> workspaceId = const Value.absent(),
+                required String title,
+                required String body,
+                Value<ParentType?> parentType = const Value.absent(),
+                Value<String?> parentId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotesCompanion.insert(
+                id: id,
+                ownerId: ownerId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                isDirty: isDirty,
+                workspaceId: workspaceId,
+                title: title,
+                body: body,
+                parentType: parentType,
+                parentId: parentId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$NotesTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback: ({workspaceId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (workspaceId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.workspaceId,
+                                referencedTable: $$NotesTableReferences
+                                    ._workspaceIdTable(db),
+                                referencedColumn: $$NotesTableReferences
+                                    ._workspaceIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$NotesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NotesTable,
+      Note,
+      $$NotesTableFilterComposer,
+      $$NotesTableOrderingComposer,
+      $$NotesTableAnnotationComposer,
+      $$NotesTableCreateCompanionBuilder,
+      $$NotesTableUpdateCompanionBuilder,
+      (Note, $$NotesTableReferences),
+      Note,
+      PrefetchHooks Function({bool workspaceId})
+    >;
+typedef $NotesFtsCreateCompanionBuilder =
+    NotesFtsCompanion Function({
+      required String title,
+      required String body,
+      Value<int> rowid,
+    });
+typedef $NotesFtsUpdateCompanionBuilder =
+    NotesFtsCompanion Function({
+      Value<String> title,
+      Value<String> body,
+      Value<int> rowid,
+    });
+
+class $NotesFtsFilterComposer extends Composer<_$AppDatabase, NotesFts> {
+  $NotesFtsFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $NotesFtsOrderingComposer extends Composer<_$AppDatabase, NotesFts> {
+  $NotesFtsOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $NotesFtsAnnotationComposer extends Composer<_$AppDatabase, NotesFts> {
+  $NotesFtsAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+}
+
+class $NotesFtsTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          NotesFts,
+          NotesFt,
+          $NotesFtsFilterComposer,
+          $NotesFtsOrderingComposer,
+          $NotesFtsAnnotationComposer,
+          $NotesFtsCreateCompanionBuilder,
+          $NotesFtsUpdateCompanionBuilder,
+          (NotesFt, BaseReferences<_$AppDatabase, NotesFts, NotesFt>),
+          NotesFt,
+          PrefetchHooks Function()
+        > {
+  $NotesFtsTableManager(_$AppDatabase db, NotesFts table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $NotesFtsFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $NotesFtsOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $NotesFtsAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> title = const Value.absent(),
+                Value<String> body = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotesFtsCompanion(title: title, body: body, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required String title,
+                required String body,
+                Value<int> rowid = const Value.absent(),
+              }) => NotesFtsCompanion.insert(
+                title: title,
+                body: body,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $NotesFtsProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      NotesFts,
+      NotesFt,
+      $NotesFtsFilterComposer,
+      $NotesFtsOrderingComposer,
+      $NotesFtsAnnotationComposer,
+      $NotesFtsCreateCompanionBuilder,
+      $NotesFtsUpdateCompanionBuilder,
+      (NotesFt, BaseReferences<_$AppDatabase, NotesFts, NotesFt>),
+      NotesFt,
+      PrefetchHooks Function()
     >;
 typedef $$ContactsTableCreateCompanionBuilder =
     ContactsCompanion Function({
@@ -11307,438 +12136,6 @@ typedef $$TasksTableProcessedTableManager =
       Task,
       PrefetchHooks Function({bool workspaceId, bool eventId, bool contactId})
     >;
-typedef $$NotesTableCreateCompanionBuilder =
-    NotesCompanion Function({
-      required String id,
-      Value<String?> ownerId,
-      required int createdAt,
-      required int updatedAt,
-      Value<int?> deletedAt,
-      Value<bool> isDirty,
-      Value<String?> workspaceId,
-      required String title,
-      required String body,
-      Value<ParentType?> parentType,
-      Value<String?> parentId,
-      Value<int> rowid,
-    });
-typedef $$NotesTableUpdateCompanionBuilder =
-    NotesCompanion Function({
-      Value<String> id,
-      Value<String?> ownerId,
-      Value<int> createdAt,
-      Value<int> updatedAt,
-      Value<int?> deletedAt,
-      Value<bool> isDirty,
-      Value<String?> workspaceId,
-      Value<String> title,
-      Value<String> body,
-      Value<ParentType?> parentType,
-      Value<String?> parentId,
-      Value<int> rowid,
-    });
-
-final class $$NotesTableReferences
-    extends BaseReferences<_$AppDatabase, $NotesTable, Note> {
-  $$NotesTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $WorkspacesTable _workspaceIdTable(_$AppDatabase db) =>
-      db.workspaces.createAlias('notes__workspace_id__workspaces__id');
-
-  $$WorkspacesTableProcessedTableManager? get workspaceId {
-    final $_column = $_itemColumn<String>('workspace_id');
-    if ($_column == null) return null;
-    final manager = $$WorkspacesTableTableManager(
-      $_db,
-      $_db.workspaces,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_workspaceIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$NotesTableFilterComposer extends Composer<_$AppDatabase, $NotesTable> {
-  $$NotesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get ownerId => $composableBuilder(
-    column: $table.ownerId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isDirty => $composableBuilder(
-    column: $table.isDirty,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get body => $composableBuilder(
-    column: $table.body,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<ParentType?, ParentType, String>
-  get parentType => $composableBuilder(
-    column: $table.parentType,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<String> get parentId => $composableBuilder(
-    column: $table.parentId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$WorkspacesTableFilterComposer get workspaceId {
-    final $$WorkspacesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.workspaceId,
-      referencedTable: $db.workspaces,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$WorkspacesTableFilterComposer(
-            $db: $db,
-            $table: $db.workspaces,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$NotesTableOrderingComposer
-    extends Composer<_$AppDatabase, $NotesTable> {
-  $$NotesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get ownerId => $composableBuilder(
-    column: $table.ownerId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isDirty => $composableBuilder(
-    column: $table.isDirty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get body => $composableBuilder(
-    column: $table.body,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get parentType => $composableBuilder(
-    column: $table.parentType,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get parentId => $composableBuilder(
-    column: $table.parentId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$WorkspacesTableOrderingComposer get workspaceId {
-    final $$WorkspacesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.workspaceId,
-      referencedTable: $db.workspaces,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$WorkspacesTableOrderingComposer(
-            $db: $db,
-            $table: $db.workspaces,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$NotesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $NotesTable> {
-  $$NotesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get ownerId =>
-      $composableBuilder(column: $table.ownerId, builder: (column) => column);
-
-  GeneratedColumn<int> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<int> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<int> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDirty =>
-      $composableBuilder(column: $table.isDirty, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get body =>
-      $composableBuilder(column: $table.body, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<ParentType?, String> get parentType =>
-      $composableBuilder(
-        column: $table.parentType,
-        builder: (column) => column,
-      );
-
-  GeneratedColumn<String> get parentId =>
-      $composableBuilder(column: $table.parentId, builder: (column) => column);
-
-  $$WorkspacesTableAnnotationComposer get workspaceId {
-    final $$WorkspacesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.workspaceId,
-      referencedTable: $db.workspaces,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$WorkspacesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.workspaces,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$NotesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $NotesTable,
-          Note,
-          $$NotesTableFilterComposer,
-          $$NotesTableOrderingComposer,
-          $$NotesTableAnnotationComposer,
-          $$NotesTableCreateCompanionBuilder,
-          $$NotesTableUpdateCompanionBuilder,
-          (Note, $$NotesTableReferences),
-          Note,
-          PrefetchHooks Function({bool workspaceId})
-        > {
-  $$NotesTableTableManager(_$AppDatabase db, $NotesTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$NotesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$NotesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$NotesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<String?> ownerId = const Value.absent(),
-                Value<int> createdAt = const Value.absent(),
-                Value<int> updatedAt = const Value.absent(),
-                Value<int?> deletedAt = const Value.absent(),
-                Value<bool> isDirty = const Value.absent(),
-                Value<String?> workspaceId = const Value.absent(),
-                Value<String> title = const Value.absent(),
-                Value<String> body = const Value.absent(),
-                Value<ParentType?> parentType = const Value.absent(),
-                Value<String?> parentId = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => NotesCompanion(
-                id: id,
-                ownerId: ownerId,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                isDirty: isDirty,
-                workspaceId: workspaceId,
-                title: title,
-                body: body,
-                parentType: parentType,
-                parentId: parentId,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String id,
-                Value<String?> ownerId = const Value.absent(),
-                required int createdAt,
-                required int updatedAt,
-                Value<int?> deletedAt = const Value.absent(),
-                Value<bool> isDirty = const Value.absent(),
-                Value<String?> workspaceId = const Value.absent(),
-                required String title,
-                required String body,
-                Value<ParentType?> parentType = const Value.absent(),
-                Value<String?> parentId = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => NotesCompanion.insert(
-                id: id,
-                ownerId: ownerId,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                isDirty: isDirty,
-                workspaceId: workspaceId,
-                title: title,
-                body: body,
-                parentType: parentType,
-                parentId: parentId,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) =>
-                    (e.readTable(table), $$NotesTableReferences(db, table, e)),
-              )
-              .toList(),
-          prefetchHooksCallback: ({workspaceId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (workspaceId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.workspaceId,
-                                referencedTable: $$NotesTableReferences
-                                    ._workspaceIdTable(db),
-                                referencedColumn: $$NotesTableReferences
-                                    ._workspaceIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$NotesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $NotesTable,
-      Note,
-      $$NotesTableFilterComposer,
-      $$NotesTableOrderingComposer,
-      $$NotesTableAnnotationComposer,
-      $$NotesTableCreateCompanionBuilder,
-      $$NotesTableUpdateCompanionBuilder,
-      (Note, $$NotesTableReferences),
-      Note,
-      PrefetchHooks Function({bool workspaceId})
-    >;
 typedef $$BillableItemsTableCreateCompanionBuilder =
     BillableItemsCompanion Function({
       required String id,
@@ -13301,6 +13698,10 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$WorkspacesTableTableManager get workspaces =>
       $$WorkspacesTableTableManager(_db, _db.workspaces);
+  $$NotesTableTableManager get notes =>
+      $$NotesTableTableManager(_db, _db.notes);
+  $NotesFtsTableManager get notesFts =>
+      $NotesFtsTableManager(_db, _db.notesFts);
   $$ContactsTableTableManager get contacts =>
       $$ContactsTableTableManager(_db, _db.contacts);
   $$WorkspaceContactsTableTableManager get workspaceContacts =>
@@ -13311,12 +13712,15 @@ class $AppDatabaseManager {
       $$EventContactsTableTableManager(_db, _db.eventContacts);
   $$TasksTableTableManager get tasks =>
       $$TasksTableTableManager(_db, _db.tasks);
-  $$NotesTableTableManager get notes =>
-      $$NotesTableTableManager(_db, _db.notes);
   $$BillableItemsTableTableManager get billableItems =>
       $$BillableItemsTableTableManager(_db, _db.billableItems);
   $$TimerSessionsTableTableManager get timerSessions =>
       $$TimerSessionsTableTableManager(_db, _db.timerSessions);
   $$RemindersTableTableManager get reminders =>
       $$RemindersTableTableManager(_db, _db.reminders);
+}
+
+class SearchNotesResult {
+  final Note n;
+  SearchNotesResult({required this.n});
 }

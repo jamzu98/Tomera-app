@@ -9,13 +9,37 @@ import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'note_providers.dart';
 
-class NotesScreen extends ConsumerWidget {
+class NotesScreen extends ConsumerStatefulWidget {
   const NotesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotesScreen> createState() => _NotesScreenState();
+}
+
+class _NotesScreenState extends ConsumerState<NotesScreen> {
+  final _searchController = TextEditingController();
+  bool _searching = false;
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _closeSearch() => setState(() {
+        _searching = false;
+        _query = '';
+        _searchController.clear();
+      });
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final notesValue = ref.watch(visibleNotesProvider);
+    final searchActive = _searching && _query.trim().isNotEmpty;
+    final notesValue = searchActive
+        ? ref.watch(noteSearchProvider(_query))
+        : ref.watch(visibleNotesProvider);
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
     final selectedWorkspace = ref.watch(selectedWorkspaceProvider).value;
     final moduleDisabled = selectedWorkspace != null &&
@@ -23,8 +47,33 @@ class NotesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.tabNotes),
-        actions: const [WorkspaceFilterButton(), WorkspacesButton()],
+        title: _searching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: l10n.searchHint,
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) => setState(() => _query = value),
+              )
+            : Text(l10n.tabNotes),
+        actions: [
+          if (_searching)
+            IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: l10n.closeSearch,
+              onPressed: _closeSearch,
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: l10n.searchNotes,
+              onPressed: () => setState(() => _searching = true),
+            ),
+          const WorkspaceFilterButton(),
+          const WorkspacesButton(),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: l10n.newNote,
@@ -75,15 +124,18 @@ class NotesScreen extends ConsumerWidget {
               AsyncValue(isLoading: true) =>
                 const Center(child: CircularProgressIndicator()),
               _ => Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(l10n.emptyNotesTitle,
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 8),
-                      Text(l10n.emptyNotesBody),
-                    ],
-                  ),
+                  child: searchActive
+                      ? Text(l10n.noSearchResults)
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(l10n.emptyNotesTitle,
+                                style:
+                                    Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 8),
+                            Text(l10n.emptyNotesBody),
+                          ],
+                        ),
                 ),
             },
           ),
