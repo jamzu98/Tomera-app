@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "appTitle": "Tomera",
+  "@appTitle": {
+    "description": "The application name shown in the app bar and task switcher"
+  }
+}
