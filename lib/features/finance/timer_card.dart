@@ -19,7 +19,7 @@ class TimerCard extends ConsumerWidget {
   Future<void> _stop(BuildContext context, WidgetRef ref,
       TimerSession session) async {
     final elapsed = await ref.read(timerRepositoryProvider).stop(session);
-    final rounding = ref.read(roundingMinutesSettingProvider);
+    final rounding = await RoundingMinutesSetting.loadStored();
     final duration = roundedDurationMinutes(elapsed, rounding);
     if (!context.mounted) return;
     // Hand off to the billable editor pre-filled per spec §6.6; the user can

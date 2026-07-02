@@ -1,14 +1,22 @@
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/debug_seed_stub.dart'
+    if (dart.library.js_interop) 'core/debug_seed_web.dart';
 import 'core/router.dart';
 import 'core/theme.dart';
 import 'features/settings/settings_providers.dart';
 import 'l10n/app_localizations.dart';
 
 void main() {
-  runApp(const ProviderScope(child: TomeraApp()));
+  final container = ProviderContainer();
+  if (kDebugMode && kIsWeb) installDebugSeedHook(container);
+  runApp(UncontrolledProviderScope(
+    container: container,
+    child: const TomeraApp(),
+  ));
 }
 
 class TomeraApp extends ConsumerWidget {

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart' show DatabaseConnection;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -94,6 +96,43 @@ void main() {
     test('quotes in input cannot break the MATCH query', () async {
       await notes.create(title: 'Plain', body: 'text');
       expect(await notes.search('"malformed').first, isEmpty);
+    });
+  });
+
+  group('schema v1 → v2 migration', () {
+    test('creates the FTS index and backfills existing notes', () async {
+      final dir = await Directory.systemTemp.createTemp('tomera_migration');
+      final file = File('${dir.path}/db.sqlite');
+      addTearDown(() => dir.delete(recursive: true));
+
+      // Build a database, then strip it back to a v1 shape: no FTS table,
+      // no triggers, user_version 1 — as a Phase 2 install would look.
+      final v1 = AppDatabase(DatabaseConnection(NativeDatabase(file)));
+      final v1Notes = NoteRepository(v1.noteDao);
+      await v1Notes.create(title: 'Old note', body: 'legacy content');
+      await v1.customStatement('DROP TRIGGER notes_fts_insert');
+      await v1.customStatement('DROP TRIGGER notes_fts_delete');
+      await v1.customStatement('DROP TRIGGER notes_fts_update');
+      await v1.customStatement('DROP TABLE notes_fts');
+      await v1.customStatement('PRAGMA user_version = 1');
+      await v1.close();
+
+      // Reopening at schemaVersion 2 must run onUpgrade.
+      final v2 = AppDatabase(DatabaseConnection(NativeDatabase(file)));
+      addTearDown(v2.close);
+      final v2Notes = NoteRepository(v2.noteDao);
+
+      expect(
+        (await v2Notes.search('legacy').first).single.title,
+        'Old note',
+        reason: 'existing rows must be backfilled into the index',
+      );
+      await v2Notes.create(title: 'New note', body: 'fresh content');
+      expect(
+        await v2Notes.search('fresh').first,
+        hasLength(1),
+        reason: 'recreated triggers must index new rows',
+      );
     });
   });
 }

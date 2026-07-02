@@ -45,10 +45,18 @@ class RoundingMinutesSetting extends _$RoundingMinutesSetting {
     return 0;
   }
 
-  Future<void> _load() async {
+  /// The stored value, awaited. Use this where the answer must be correct
+  /// even if the provider was created a moment ago (e.g. stopping the timer
+  /// right after a cold start) — [build] returns the default until the
+  /// async load lands.
+  static Future<int> loadStored() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getInt(_roundingKey);
-    if (stored != null && roundingOptions.contains(stored)) state = stored;
+    return (stored != null && roundingOptions.contains(stored)) ? stored : 0;
+  }
+
+  Future<void> _load() async {
+    state = await loadStored();
   }
 
   Future<void> set(int minutes) async {

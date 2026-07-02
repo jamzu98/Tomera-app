@@ -111,7 +111,7 @@ final class RoundingMinutesSettingProvider
 }
 
 String _$roundingMinutesSettingHash() =>
-    r'ee66580810451946d440fcff0001f92151e820c0';
+    r'20e1f9cad369fa89fbc1ca3d270f8c8383b9fa97';
 
 /// Work-timer duration rounding in minutes, round up; 0 disables rounding.
 
