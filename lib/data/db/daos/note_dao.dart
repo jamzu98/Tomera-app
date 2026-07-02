@@ -42,4 +42,13 @@ class NoteDao extends DatabaseAccessor<AppDatabase> with _$NoteDaoMixin {
 
   Future<void> softDelete(String id) =>
       updateNote(id, NotesCompanion(deletedAt: Value(utcNowMs())));
+
+  /// Live notes attached to a polymorphic parent, newest first.
+  Stream<List<Note>> watchByParent(ParentType parentType, String parentId) {
+    final query = _active
+      ..where((n) =>
+          n.parentType.equalsValue(parentType) & n.parentId.equals(parentId))
+      ..orderBy([(n) => OrderingTerm.desc(n.updatedAt)]);
+    return query.watch();
+  }
 }

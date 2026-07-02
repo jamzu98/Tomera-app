@@ -66,6 +66,38 @@
     }
   },
   "createWorkspaceFirst": "Create a workspace first.",
+  "newContact": "New contact",
+  "editContact": "Edit contact",
+  "contactName": "Name",
+  "emailLabel": "Email",
+  "phoneLabel": "Phone",
+  "organizationLabel": "Organization",
+  "contactNotesLabel": "Notes",
+  "defaultRateLabel": "Default hourly rate (€)",
+  "invalidAmount": "Enter a valid amount",
+  "rolesLabel": "Workspace roles",
+  "roleHint": "Role, e.g. client",
+  "emptyContactsTitle": "No contacts",
+  "emptyContactsBody": "Add a contact with the + button.",
+  "contactsModuleDisabled": "The contacts module is disabled in this workspace.",
+  "deleteContactTitle": "Delete contact?",
+  "deleteContactBody": "\"{name}\" will be removed from your lists.",
+  "@deleteContactBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contactLabel": "Contact",
+  "noContact": "None",
+  "linkedContacts": "Contacts",
+  "linkedTasks": "Tasks",
+  "linkedEvents": "Events",
+  "linkedNotes": "Notes",
+  "linkedBillables": "Billable items",
+  "addNoteAction": "Add note",
+  "nothingLinkedYet": "Nothing here yet.",
   "newEvent": "New event",
   "editEvent": "Edit event",
   "eventTitle": "Title",

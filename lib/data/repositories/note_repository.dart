@@ -15,10 +15,15 @@ class NoteRepository {
 
   Stream<Note?> watchById(String id) => _dao.watchById(id);
 
+  Stream<List<Note>> watchByParent(ParentType parentType, String parentId) =>
+      _dao.watchByParent(parentType, parentId);
+
   Future<String> create({
     String? workspaceId,
     required String title,
     required String body,
+    ParentType? parentType,
+    String? parentId,
   }) async {
     final id = newId();
     final now = utcNowMs();
@@ -27,6 +32,8 @@ class NoteRepository {
       workspaceId: Value.absentIfNull(workspaceId),
       title: title,
       body: body,
+      parentType: Value.absentIfNull(parentType),
+      parentId: Value.absentIfNull(parentId),
       createdAt: now,
       updatedAt: now,
     ));

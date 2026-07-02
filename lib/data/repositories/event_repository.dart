@@ -88,4 +88,14 @@ class EventRepository {
       );
 
   Future<void> delete(String id) => _dao.softDelete(id);
+
+  /// Contact links (spec §4 EventContact join table).
+  Stream<Set<String>> watchContactIds(String eventId) =>
+      _dao.watchContactIds(eventId);
+
+  Stream<List<Event>> watchForContact(String contactId) =>
+      _dao.watchForContact(contactId);
+
+  Future<void> setContacts(String eventId, Set<String> contactIds) =>
+      _dao.setContacts(eventId, contactIds);
 }

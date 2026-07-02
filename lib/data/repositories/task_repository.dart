@@ -19,12 +19,16 @@ class TaskRepository {
 
   Stream<Task?> watchById(String id) => _dao.watchById(id);
 
+  Stream<List<Task>> watchForContact(String contactId) =>
+      _dao.watchForContact(contactId);
+
   Future<String> create({
     required String workspaceId,
     required String title,
     String? description,
     TaskPriority priority = TaskPriority.normal,
     int? dueAt,
+    String? contactId,
   }) async {
     final id = newId();
     final now = utcNowMs();
@@ -35,6 +39,7 @@ class TaskRepository {
       description: Value.absentIfNull(description),
       priority: Value(priority),
       dueAt: Value.absentIfNull(dueAt),
+      contactId: Value.absentIfNull(contactId),
       createdAt: now,
       updatedAt: now,
     ));
@@ -51,6 +56,7 @@ class TaskRepository {
     TaskPriority? priority,
     Value<String?> description = const Value.absent(),
     Value<int?> dueAt = const Value.absent(),
+    Value<String?> contactId = const Value.absent(),
   }) =>
       _dao.updateTask(
         id,
@@ -61,6 +67,7 @@ class TaskRepository {
           priority: Value.absentIfNull(priority),
           description: description,
           dueAt: dueAt,
+          contactId: contactId,
         ),
       );
 

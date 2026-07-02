@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../core/providers.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
+import '../contacts/contact_providers.dart';
 import 'calendar_providers.dart';
 
 class EventEditScreen extends ConsumerStatefulWidget {
@@ -31,7 +32,9 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
   bool _allDay = false;
   late DateTime _start;
   late DateTime _end;
+  Set<String> _linkedContactIds = {};
   bool _initialized = false;
+  bool _contactsInitialized = false;
 
   bool get _isNew => widget.eventId == null;
 
@@ -114,8 +117,9 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
     final title = _titleController.text.trim();
     final description = _descriptionController.text.trim();
     final location = _locationController.text.trim();
+    final String eventId;
     if (_isNew) {
-      await repository.create(
+      eventId = await repository.create(
         workspaceId: workspaceId,
         title: title,
         description: description.isEmpty ? null : description,
@@ -125,8 +129,9 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
         allDay: _allDay,
       );
     } else {
+      eventId = widget.eventId!;
       await repository.update(
-        widget.eventId!,
+        eventId,
         workspaceId: workspaceId,
         title: title,
         startsAt: startMs,
@@ -136,6 +141,7 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
         location: Value(location.isEmpty ? null : location),
       );
     }
+    await repository.setContacts(eventId, _linkedContactIds);
     if (mounted) context.pop();
   }
 
@@ -258,11 +264,16 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
     Event? event;
     if (!_isNew) {
       final value = ref.watch(eventByIdProvider(widget.eventId!));
+      final contactIds = ref.watch(eventContactIdsProvider(widget.eventId!));
       event = value.value;
-      if (value.isLoading) {
+      if (value.isLoading || contactIds.isLoading) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
       if (event != null) _initFrom(event);
+      if (!_contactsInitialized) {
+        _contactsInitialized = true;
+        _linkedContactIds = {...contactIds.value ?? const <String>{}};
+      }
     }
     _workspaceId ??= ref.read(selectedWorkspaceIdProvider) ??
         (workspaces.isNotEmpty ? workspaces.first.id : null);
@@ -351,6 +362,31 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
               onTap: () => _pickDateTime(isStart: false),
             ),
             const SizedBox(height: 8),
+            if (ref.watch(allContactsProvider).value case final contacts?
+                when contacts.isNotEmpty) ...[
+              Text(l10n.linkedContacts,
+                  style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  for (final contact in contacts)
+                    FilterChip(
+                      label: Text(contact.name),
+                      selected: _linkedContactIds.contains(contact.id),
+                      onSelected: (selected) => setState(() {
+                        if (selected) {
+                          _linkedContactIds.add(contact.id);
+                        } else {
+                          _linkedContactIds.remove(contact.id);
+                        }
+                      }),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
             TextFormField(
               controller: _locationController,
               decoration: InputDecoration(

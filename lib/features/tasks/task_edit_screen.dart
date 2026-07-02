@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../core/providers.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
+import '../contacts/contact_providers.dart';
 import 'task_providers.dart';
 
 class TaskEditScreen extends ConsumerStatefulWidget {
@@ -24,6 +25,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   String? _workspaceId;
+  String? _contactId;
   TaskPriority _priority = TaskPriority.normal;
   DateTime? _dueDate;
   TimeOfDay? _dueTime;
@@ -44,6 +46,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
     _titleController.text = task.title;
     _descriptionController.text = task.description ?? '';
     _workspaceId = task.workspaceId;
+    _contactId = task.contactId;
     _priority = task.priority;
     final dueAt = task.dueAt;
     if (dueAt != null) {
@@ -78,6 +81,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
         description: description.isEmpty ? null : description,
         priority: _priority,
         dueAt: _dueAtMs,
+        contactId: _contactId,
       );
     } else {
       await repository.update(
@@ -87,6 +91,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
         priority: _priority,
         description: Value(description.isEmpty ? null : description),
         dueAt: Value(_dueAtMs),
+        contactId: Value(_contactId),
       );
     }
     if (mounted) context.pop();
@@ -216,6 +221,24 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                   ),
               ],
               onChanged: (id) => setState(() => _workspaceId = id),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String?>(
+              initialValue: _contactId,
+              decoration: InputDecoration(
+                labelText: l10n.contactLabel,
+                border: const OutlineInputBorder(),
+              ),
+              items: [
+                DropdownMenuItem(value: null, child: Text(l10n.noContact)),
+                for (final contact
+                    in ref.watch(allContactsProvider).value ?? <Contact>[])
+                  DropdownMenuItem(
+                    value: contact.id,
+                    child: Text(contact.name),
+                  ),
+              ],
+              onChanged: (id) => setState(() => _contactId = id),
             ),
             const SizedBox(height: 16),
             Text(l10n.priorityLabel,

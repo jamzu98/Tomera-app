@@ -171,6 +171,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWorkspaceFirst => 'Create a workspace first.';
 
   @override
+  String get newContact => 'New contact';
+
+  @override
+  String get editContact => 'Edit contact';
+
+  @override
+  String get contactName => 'Name';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get phoneLabel => 'Phone';
+
+  @override
+  String get organizationLabel => 'Organization';
+
+  @override
+  String get contactNotesLabel => 'Notes';
+
+  @override
+  String get defaultRateLabel => 'Default hourly rate (€)';
+
+  @override
+  String get invalidAmount => 'Enter a valid amount';
+
+  @override
+  String get rolesLabel => 'Workspace roles';
+
+  @override
+  String get roleHint => 'Role, e.g. client';
+
+  @override
+  String get emptyContactsTitle => 'No contacts';
+
+  @override
+  String get emptyContactsBody => 'Add a contact with the + button.';
+
+  @override
+  String get contactsModuleDisabled =>
+      'The contacts module is disabled in this workspace.';
+
+  @override
+  String get deleteContactTitle => 'Delete contact?';
+
+  @override
+  String deleteContactBody(String name) {
+    return '\"$name\" will be removed from your lists.';
+  }
+
+  @override
+  String get contactLabel => 'Contact';
+
+  @override
+  String get noContact => 'None';
+
+  @override
+  String get linkedContacts => 'Contacts';
+
+  @override
+  String get linkedTasks => 'Tasks';
+
+  @override
+  String get linkedEvents => 'Events';
+
+  @override
+  String get linkedNotes => 'Notes';
+
+  @override
+  String get linkedBillables => 'Billable items';
+
+  @override
+  String get addNoteAction => 'Add note';
+
+  @override
+  String get nothingLinkedYet => 'Nothing here yet.';
+
+  @override
   String get newEvent => 'New event';
 
   @override

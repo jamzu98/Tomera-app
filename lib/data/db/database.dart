@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import 'converters.dart';
+import 'daos/contact_dao.dart';
 import 'daos/event_dao.dart';
 import 'daos/note_dao.dart';
 import 'daos/task_dao.dart';
@@ -27,7 +28,7 @@ part 'database.g.dart';
     TimerSessions,
     Reminders,
   ],
-  daos: [WorkspaceDao, TaskDao, NoteDao, EventDao],
+  daos: [WorkspaceDao, TaskDao, NoteDao, EventDao, ContactDao],
 )
 class AppDatabase extends _$AppDatabase {
   /// Takes an explicit executor so tests can pass an in-memory database.

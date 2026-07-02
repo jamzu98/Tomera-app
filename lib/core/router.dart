@@ -4,6 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/calendar/calendar_screen.dart';
 import '../features/calendar/event_edit_screen.dart';
+import '../features/contacts/contact_detail_screen.dart';
+import '../features/contacts/contact_edit_screen.dart';
 import '../features/contacts/contacts_screen.dart';
 import '../features/finance/finance_screen.dart';
 import '../features/notes/note_edit_screen.dart';
@@ -72,7 +74,10 @@ GoRouter router(Ref ref) => GoRouter(
                 routes: [
                   GoRoute(
                     path: 'new',
-                    builder: (context, state) => const NoteEditScreen(),
+                    builder: (context, state) => NoteEditScreen(
+                      parentType: state.uri.queryParameters['parentType'],
+                      parentId: state.uri.queryParameters['parentId'],
+                    ),
                   ),
                   GoRoute(
                     path: ':id',
@@ -87,6 +92,26 @@ GoRouter router(Ref ref) => GoRouter(
               GoRoute(
                 path: '/contacts',
                 builder: (context, state) => const ContactsScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const ContactEditScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => ContactDetailScreen(
+                      contactId: state.pathParameters['id']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) => ContactEditScreen(
+                          contactId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ]),
             StatefulShellBranch(routes: [

@@ -6,7 +6,7 @@ import '../tables.dart';
 
 part 'event_dao.g.dart';
 
-@DriftAccessor(tables: [Events])
+@DriftAccessor(tables: [Events, EventContacts])
 class EventDao extends DatabaseAccessor<AppDatabase> with _$EventDaoMixin {
   EventDao(super.db);
 
@@ -61,4 +61,53 @@ class EventDao extends DatabaseAccessor<AppDatabase> with _$EventDaoMixin {
 
   Future<void> softDelete(String id) =>
       updateEvent(id, EventsCompanion(deletedAt: Value(utcNowMs())));
+
+  /// Ids of contacts linked to [eventId] via active EventContacts rows.
+  Stream<Set<String>> watchContactIds(String eventId) => (select(eventContacts)
+        ..where((r) => r.eventId.equals(eventId) & r.deletedAt.isNull()))
+      .watch()
+      .map((rows) => rows.map((r) => r.contactId).toSet());
+
+  /// Live events linked to [contactId], soonest first.
+  Stream<List<Event>> watchForContact(String contactId) {
+    final query = select(events).join([
+      innerJoin(
+        eventContacts,
+        eventContacts.eventId.equalsExp(events.id) &
+            eventContacts.contactId.equals(contactId) &
+            eventContacts.deletedAt.isNull(),
+      ),
+    ])
+      ..where(events.deletedAt.isNull())
+      ..orderBy([OrderingTerm.desc(events.startsAt)]);
+    return query.map((row) => row.readTable(events)).watch();
+  }
+
+  /// Diffs the active links for [eventId] against [contactIds]: missing rows
+  /// are inserted, removed ones soft-deleted.
+  Future<void> setContacts(String eventId, Set<String> contactIds) async {
+    final now = utcNowMs();
+    final current = await (select(eventContacts)
+          ..where((r) => r.eventId.equals(eventId) & r.deletedAt.isNull()))
+        .get();
+    final currentIds = current.map((r) => r.contactId).toSet();
+
+    for (final link in current.where((r) => !contactIds.contains(r.contactId))) {
+      await (update(eventContacts)..where((r) => r.id.equals(link.id)))
+          .write(EventContactsCompanion(
+        deletedAt: Value(now),
+        updatedAt: Value(now),
+        isDirty: const Value(true),
+      ));
+    }
+    for (final contactId in contactIds.difference(currentIds)) {
+      await into(eventContacts).insert(EventContactsCompanion.insert(
+        id: newId(),
+        eventId: eventId,
+        contactId: contactId,
+        createdAt: now,
+        updatedAt: now,
+      ));
+    }
+  }
 }

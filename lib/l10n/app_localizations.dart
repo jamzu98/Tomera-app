@@ -412,6 +412,156 @@ abstract class AppLocalizations {
   /// **'Create a workspace first.'**
   String get createWorkspaceFirst;
 
+  /// No description provided for @newContact.
+  ///
+  /// In en, this message translates to:
+  /// **'New contact'**
+  String get newContact;
+
+  /// No description provided for @editContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit contact'**
+  String get editContact;
+
+  /// No description provided for @contactName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get contactName;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @phoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phoneLabel;
+
+  /// No description provided for @organizationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization'**
+  String get organizationLabel;
+
+  /// No description provided for @contactNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get contactNotesLabel;
+
+  /// No description provided for @defaultRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default hourly rate (€)'**
+  String get defaultRateLabel;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get invalidAmount;
+
+  /// No description provided for @rolesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace roles'**
+  String get rolesLabel;
+
+  /// No description provided for @roleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Role, e.g. client'**
+  String get roleHint;
+
+  /// No description provided for @emptyContactsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts'**
+  String get emptyContactsTitle;
+
+  /// No description provided for @emptyContactsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a contact with the + button.'**
+  String get emptyContactsBody;
+
+  /// No description provided for @contactsModuleDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'The contacts module is disabled in this workspace.'**
+  String get contactsModuleDisabled;
+
+  /// No description provided for @deleteContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete contact?'**
+  String get deleteContactTitle;
+
+  /// No description provided for @deleteContactBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" will be removed from your lists.'**
+  String deleteContactBody(String name);
+
+  /// No description provided for @contactLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get contactLabel;
+
+  /// No description provided for @noContact.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get noContact;
+
+  /// No description provided for @linkedContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get linkedContacts;
+
+  /// No description provided for @linkedTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get linkedTasks;
+
+  /// No description provided for @linkedEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get linkedEvents;
+
+  /// No description provided for @linkedNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get linkedNotes;
+
+  /// No description provided for @linkedBillables.
+  ///
+  /// In en, this message translates to:
+  /// **'Billable items'**
+  String get linkedBillables;
+
+  /// No description provided for @addNoteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get addNoteAction;
+
+  /// No description provided for @nothingLinkedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet.'**
+  String get nothingLinkedYet;
+
   /// No description provided for @newEvent.
   ///
   /// In en, this message translates to:

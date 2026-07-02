@@ -139,6 +139,53 @@ final class TaskRepositoryProvider
 
 String _$taskRepositoryHash() => r'80311abd2a68df39185e5ebdcc8212347b91369f';
 
+@ProviderFor(contactRepository)
+final contactRepositoryProvider = ContactRepositoryProvider._();
+
+final class ContactRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ContactRepository,
+          ContactRepository,
+          ContactRepository
+        >
+    with $Provider<ContactRepository> {
+  ContactRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'contactRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$contactRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ContactRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ContactRepository create(Ref ref) {
+    return contactRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ContactRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ContactRepository>(value),
+    );
+  }
+}
+
+String _$contactRepositoryHash() => r'1f79b8cb7ebf0e8f52008ec75e46ade1828effa1';
+
 @ProviderFor(eventRepository)
 final eventRepositoryProvider = EventRepositoryProvider._();
 

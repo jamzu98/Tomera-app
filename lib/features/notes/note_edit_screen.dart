@@ -10,10 +10,15 @@ import '../../l10n/app_localizations.dart';
 import 'note_providers.dart';
 
 class NoteEditScreen extends ConsumerStatefulWidget {
-  const NoteEditScreen({super.key, this.noteId});
+  const NoteEditScreen({super.key, this.noteId, this.parentType, this.parentId});
 
   /// Null when creating a new note.
   final String? noteId;
+
+  /// Optional polymorphic parent for a new note (e.g. created from a contact
+  /// detail screen). Ignored when editing.
+  final String? parentType;
+  final String? parentId;
 
   @override
   ConsumerState<NoteEditScreen> createState() => _NoteEditScreenState();
@@ -50,10 +55,15 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
     final title = _titleController.text.trim();
     final body = _bodyController.text;
     if (_isNew) {
+      final parentType = ParentType.values
+          .where((t) => t.dbValue == widget.parentType)
+          .firstOrNull;
       await repository.create(
         workspaceId: _workspaceId,
         title: title,
         body: body,
+        parentType: parentType,
+        parentId: parentType != null ? widget.parentId : null,
       );
     } else {
       await repository.update(
