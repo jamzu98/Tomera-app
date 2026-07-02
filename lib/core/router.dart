@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/calendar/calendar_screen.dart';
+import '../features/notes/note_edit_screen.dart';
 import '../features/notes/notes_screen.dart';
 import '../features/tasks/task_edit_screen.dart';
 import '../features/tasks/tasks_screen.dart';
@@ -47,6 +48,18 @@ GoRouter router(Ref ref) => GoRouter(
               GoRoute(
                 path: '/notes',
                 builder: (context, state) => const NotesScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const NoteEditScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => NoteEditScreen(
+                      noteId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ]),
             StatefulShellBranch(routes: [

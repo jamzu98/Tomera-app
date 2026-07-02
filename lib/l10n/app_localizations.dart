@@ -400,6 +400,78 @@ abstract class AppLocalizations {
   /// **'Create a workspace first.'**
   String get createWorkspaceFirst;
 
+  /// No description provided for @newNote.
+  ///
+  /// In en, this message translates to:
+  /// **'New note'**
+  String get newNote;
+
+  /// No description provided for @editNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get editNote;
+
+  /// No description provided for @noteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get noteTitle;
+
+  /// No description provided for @noteBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write in Markdown…'**
+  String get noteBodyHint;
+
+  /// No description provided for @previewTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get previewTab;
+
+  /// No description provided for @editTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editTab;
+
+  /// No description provided for @noWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'No workspace'**
+  String get noWorkspace;
+
+  /// No description provided for @emptyNotesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes'**
+  String get emptyNotesTitle;
+
+  /// No description provided for @emptyNotesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note with the + button.'**
+  String get emptyNotesBody;
+
+  /// No description provided for @notesModuleDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'The notes module is disabled in this workspace.'**
+  String get notesModuleDisabled;
+
+  /// No description provided for @deleteNoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note?'**
+  String get deleteNoteTitle;
+
+  /// No description provided for @deleteNoteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" will be removed from your lists.'**
+  String deleteNoteBody(String title);
+
   /// No description provided for @emptyWorkspacesTitle.
   ///
   /// In en, this message translates to:

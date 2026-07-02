@@ -165,6 +165,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWorkspaceFirst => 'Create a workspace first.';
 
   @override
+  String get newNote => 'New note';
+
+  @override
+  String get editNote => 'Edit note';
+
+  @override
+  String get noteTitle => 'Title';
+
+  @override
+  String get noteBodyHint => 'Write in Markdown…';
+
+  @override
+  String get previewTab => 'Preview';
+
+  @override
+  String get editTab => 'Edit';
+
+  @override
+  String get noWorkspace => 'No workspace';
+
+  @override
+  String get emptyNotesTitle => 'No notes';
+
+  @override
+  String get emptyNotesBody => 'Add a note with the + button.';
+
+  @override
+  String get notesModuleDisabled =>
+      'The notes module is disabled in this workspace.';
+
+  @override
+  String get deleteNoteTitle => 'Delete note?';
+
+  @override
+  String deleteNoteBody(String title) {
+    return '\"$title\" will be removed from your lists.';
+  }
+
+  @override
   String get emptyWorkspacesTitle => 'No workspaces yet';
 
   @override

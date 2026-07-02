@@ -139,6 +139,47 @@ final class TaskRepositoryProvider
 
 String _$taskRepositoryHash() => r'80311abd2a68df39185e5ebdcc8212347b91369f';
 
+@ProviderFor(noteRepository)
+final noteRepositoryProvider = NoteRepositoryProvider._();
+
+final class NoteRepositoryProvider
+    extends $FunctionalProvider<NoteRepository, NoteRepository, NoteRepository>
+    with $Provider<NoteRepository> {
+  NoteRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'noteRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$noteRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<NoteRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  NoteRepository create(Ref ref) {
+    return noteRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NoteRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NoteRepository>(value),
+    );
+  }
+}
+
+String _$noteRepositoryHash() => r'3c407a457e3ba9d6f2f06e1574a4c6f8f8a0a42d';
+
 /// The workspace the list screens are filtered to; null means all workspaces
 /// (spec §6.1 global view). Kept alive so the choice survives navigation.
 
