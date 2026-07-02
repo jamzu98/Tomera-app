@@ -33,7 +33,13 @@ class AppDatabase extends _$AppDatabase {
   /// Takes an explicit executor so tests can pass an in-memory database.
   AppDatabase(super.e);
 
-  factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'tomera'));
+  factory AppDatabase.open() => AppDatabase(driftDatabase(
+        name: 'tomera',
+        web: DriftWebOptions(
+          sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+          driftWorker: Uri.parse('drift_worker.js'),
+        ),
+      ));
 
   @override
   int get schemaVersion => 1;

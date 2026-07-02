@@ -28,6 +28,7 @@ class WorkspacesScreen extends ConsumerWidget {
           _WorkspaceList(items: items),
         AsyncValue(isLoading: true) =>
           const Center(child: CircularProgressIndicator()),
+        AsyncValue(:final error?) => Center(child: Text('$error')),
         _ => _EmptyState(l10n: l10n),
       },
     );
