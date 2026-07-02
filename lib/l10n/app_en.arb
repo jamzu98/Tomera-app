@@ -74,6 +74,9 @@
     }
   },
   "createWorkspaceFirst": "Create a workspace first.",
+  "exportCsv": "Export CSV",
+  "exportFailed": "Export failed",
+  "nothingToExport": "Nothing to export.",
   "itemsTab": "Items",
   "summaryTab": "Summary",
   "overviewLabel": "Overview",

@@ -1,6 +1,9 @@
+import 'dart:convert' show utf8;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/money.dart';
 import '../../core/providers.dart';
@@ -9,6 +12,7 @@ import '../../core/widgets/workspaces_button.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
+import 'billable_csv.dart';
 import 'billable_math.dart';
 import 'finance_providers.dart';
 import 'summary_view.dart';
@@ -25,6 +29,42 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
   final Set<BillableStatus> _statusFilter = {...BillableStatus.values};
   bool _showSummary = false;
 
+  /// Exports the currently visible (workspace- and status-filtered) items
+  /// through the platform share sheet (spec §6.6).
+  Future<void> _exportCsv() async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final items = (ref.read(visibleBillablesProvider).value ?? [])
+        .where((b) => _statusFilter.contains(b.status))
+        .toList();
+    if (items.isEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.nothingToExport)));
+      return;
+    }
+    final workspaces = ref.read(allWorkspacesProvider).value ?? [];
+    final contacts = ref.read(allContactsProvider).value ?? [];
+    final csv = billablesToCsv(
+      items,
+      workspaceName: (id) =>
+          workspaces.where((w) => w.id == id).firstOrNull?.name ?? id,
+      contactName: (id) =>
+          contacts.where((c) => c.id == id).firstOrNull?.name ?? '',
+    );
+    try {
+      await SharePlus.instance.share(ShareParams(
+        files: [
+          XFile.fromData(
+            utf8.encode(csv),
+            mimeType: 'text/csv',
+          ),
+        ],
+        fileNameOverrides: ['tomera-billables.csv'],
+      ));
+    } on Exception {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.exportFailed)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -36,7 +76,15 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tabFinance),
-        actions: const [WorkspaceFilterButton(), WorkspacesButton()],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.ios_share),
+            tooltip: l10n.exportCsv,
+            onPressed: _exportCsv,
+          ),
+          const WorkspaceFilterButton(),
+          const WorkspacesButton(),
+        ],
       ),
       floatingActionButton: _showSummary
           ? null

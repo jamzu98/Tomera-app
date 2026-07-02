@@ -195,6 +195,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWorkspaceFirst => 'Create a workspace first.';
 
   @override
+  String get exportCsv => 'Export CSV';
+
+  @override
+  String get exportFailed => 'Export failed';
+
+  @override
+  String get nothingToExport => 'Nothing to export.';
+
+  @override
   String get itemsTab => 'Items';
 
   @override
