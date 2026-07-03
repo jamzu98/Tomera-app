@@ -14,14 +14,19 @@ class BillableDao extends DatabaseAccessor<AppDatabase>
   SimpleSelectStatement<$BillableItemsTable, BillableItem> get _active =>
       select(billableItems)..where((b) => b.deletedAt.isNull());
 
-  /// Live billables, newest first, optionally narrowed by workspace/contact.
-  Stream<List<BillableItem>> watchAll({String? workspaceId, String? contactId}) {
+  /// Live billables, newest first, optionally narrowed by workspace,
+  /// contact, or project.
+  Stream<List<BillableItem>> watchAll(
+      {String? workspaceId, String? contactId, String? projectId}) {
     final query = _active;
     if (workspaceId != null) {
       query.where((b) => b.workspaceId.equals(workspaceId));
     }
     if (contactId != null) {
       query.where((b) => b.contactId.equals(contactId));
+    }
+    if (projectId != null) {
+      query.where((b) => b.projectId.equals(projectId));
     }
     query.orderBy([(b) => OrderingTerm.desc(b.createdAt)]);
     return query.watch();

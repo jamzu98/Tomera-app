@@ -12,14 +12,24 @@ class BillableRepository {
   final BillableDao _dao;
 
   Stream<List<BillableItem>> watchAll(
-          {String? workspaceId, String? contactId}) =>
-      _dao.watchAll(workspaceId: workspaceId, contactId: contactId);
+          {String? workspaceId, String? contactId, String? projectId}) =>
+      _dao.watchAll(
+          workspaceId: workspaceId,
+          contactId: contactId,
+          projectId: projectId);
 
   Stream<BillableItem?> watchById(String id) => _dao.watchById(id);
 
   /// Per-status totals for one contact (contact detail screen, spec §6.5).
   Stream<BillableTotals> watchTotalsForContact(String contactId) =>
-      _dao.watchAll(contactId: contactId).map((items) => sumBillableTotals([
+      _totals(_dao.watchAll(contactId: contactId));
+
+  /// Per-status totals for one project (project detail screen).
+  Stream<BillableTotals> watchTotalsForProject(String projectId) =>
+      _totals(_dao.watchAll(projectId: projectId));
+
+  Stream<BillableTotals> _totals(Stream<List<BillableItem>> source) =>
+      source.map((items) => sumBillableTotals([
             for (final item in items)
               (
                 type: item.type,
@@ -34,6 +44,7 @@ class BillableRepository {
     required String workspaceId,
     String? contactId,
     String? eventId,
+    String? projectId,
     required BillableType type,
     required String title,
     String? description,
@@ -50,6 +61,7 @@ class BillableRepository {
       workspaceId: workspaceId,
       contactId: Value.absentIfNull(contactId),
       eventId: Value.absentIfNull(eventId),
+      projectId: Value.absentIfNull(projectId),
       type: type,
       title: title,
       description: Value.absentIfNull(description),
@@ -74,6 +86,7 @@ class BillableRepository {
     String? currency,
     BillableStatus? status,
     Value<String?> contactId = const Value.absent(),
+    Value<String?> projectId = const Value.absent(),
     Value<String?> description = const Value.absent(),
     Value<int?> rateCents = const Value.absent(),
     Value<int?> durationMinutes = const Value.absent(),
@@ -88,6 +101,7 @@ class BillableRepository {
           currency: Value.absentIfNull(currency),
           status: Value.absentIfNull(status),
           contactId: contactId,
+          projectId: projectId,
           description: description,
           rateCents: rateCents,
           durationMinutes: durationMinutes,

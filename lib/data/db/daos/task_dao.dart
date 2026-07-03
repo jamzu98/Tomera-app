@@ -58,6 +58,17 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
   Future<void> softDelete(String id) =>
       updateTask(id, TasksCompanion(deletedAt: Value(utcNowMs())));
 
+  /// Live tasks of one project, soonest due first.
+  Stream<List<Task>> watchForProject(String projectId) {
+    final query = _active
+      ..where((t) => t.projectId.equals(projectId))
+      ..orderBy([
+        (t) => OrderingTerm.asc(t.dueAt, nulls: NullsOrder.last),
+        (t) => OrderingTerm.asc(t.createdAt),
+      ]);
+    return query.watch();
+  }
+
   /// Live tasks linked to [contactId], soonest due first.
   Stream<List<Task>> watchForContact(String contactId) {
     final query = _active

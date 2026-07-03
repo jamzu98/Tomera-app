@@ -6,6 +6,7 @@ part of 'billable_dao.dart';
 mixin _$BillableDaoMixin on DatabaseAccessor<AppDatabase> {
   $WorkspacesTable get workspaces => attachedDatabase.workspaces;
   $ContactsTable get contacts => attachedDatabase.contacts;
+  $ProjectsTable get projects => attachedDatabase.projects;
   $EventsTable get events => attachedDatabase.events;
   $BillableItemsTable get billableItems => attachedDatabase.billableItems;
   BillableDaoManager get managers => BillableDaoManager(this);
@@ -18,6 +19,8 @@ class BillableDaoManager {
       $$WorkspacesTableTableManager(_db.attachedDatabase, _db.workspaces);
   $$ContactsTableTableManager get contacts =>
       $$ContactsTableTableManager(_db.attachedDatabase, _db.contacts);
+  $$ProjectsTableTableManager get projects =>
+      $$ProjectsTableTableManager(_db.attachedDatabase, _db.projects);
   $$EventsTableTableManager get events =>
       $$EventsTableTableManager(_db.attachedDatabase, _db.events);
   $$BillableItemsTableTableManager get billableItems =>

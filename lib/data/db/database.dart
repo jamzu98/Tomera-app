@@ -6,6 +6,7 @@ import 'daos/billable_dao.dart';
 import 'daos/contact_dao.dart';
 import 'daos/event_dao.dart';
 import 'daos/note_dao.dart';
+import 'daos/project_dao.dart';
 import 'daos/reminder_dao.dart';
 import 'daos/task_dao.dart';
 import 'daos/timer_dao.dart';
@@ -24,6 +25,7 @@ part 'database.g.dart';
     Workspaces,
     Contacts,
     WorkspaceContacts,
+    Projects,
     Events,
     EventContacts,
     Tasks,
@@ -41,6 +43,7 @@ part 'database.g.dart';
     BillableDao,
     ReminderDao,
     TimerDao,
+    ProjectDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -56,7 +59,7 @@ class AppDatabase extends _$AppDatabase {
       ));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -71,6 +74,13 @@ class AppDatabase extends _$AppDatabase {
             await customStatement(
                 'INSERT INTO notes_fts(rowid, title, body) '
                 'SELECT rowid, title, body FROM notes');
+          }
+          if (from < 3) {
+            // v3: projects and their links.
+            await m.createTable(projects);
+            await m.addColumn(events, events.projectId);
+            await m.addColumn(tasks, tasks.projectId);
+            await m.addColumn(billableItems, billableItems.projectId);
           }
         },
         beforeOpen: (details) async {

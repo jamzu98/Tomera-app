@@ -70,7 +70,8 @@ enum ParentType implements DbEnum {
   workspace('workspace'),
   event('event'),
   task('task'),
-  contact('contact');
+  contact('contact'),
+  project('project');
 
   const ParentType(this.dbValue);
 

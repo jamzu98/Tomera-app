@@ -99,14 +99,16 @@ void main() {
     });
   });
 
-  group('schema v1 → v2 migration', () {
-    test('creates the FTS index and backfills existing notes', () async {
+  group('schema v1 → current migration', () {
+    test('recreates the FTS index, backfills notes, and adds project links',
+        () async {
       final dir = await Directory.systemTemp.createTemp('tomera_migration');
       final file = File('${dir.path}/db.sqlite');
       addTearDown(() => dir.delete(recursive: true));
 
-      // Build a database, then strip it back to a v1 shape: no FTS table,
-      // no triggers, user_version 1 — as a Phase 2 install would look.
+      // Build a database, then strip it back to a v1 shape (no FTS
+      // artifacts, no v3 projects table or link columns), user_version 1 —
+      // as a Phase 1/2 install would look.
       final v1 = AppDatabase(DatabaseConnection(NativeDatabase(file)));
       final v1Notes = NoteRepository(v1.noteDao);
       await v1Notes.create(title: 'Old note', body: 'legacy content');
@@ -114,24 +116,35 @@ void main() {
       await v1.customStatement('DROP TRIGGER notes_fts_delete');
       await v1.customStatement('DROP TRIGGER notes_fts_update');
       await v1.customStatement('DROP TABLE notes_fts');
+      await v1.customStatement('DROP TABLE projects');
+      await v1.customStatement('ALTER TABLE events DROP COLUMN project_id');
+      await v1.customStatement('ALTER TABLE tasks DROP COLUMN project_id');
+      await v1.customStatement(
+          'ALTER TABLE billable_items DROP COLUMN project_id');
       await v1.customStatement('PRAGMA user_version = 1');
       await v1.close();
 
-      // Reopening at schemaVersion 2 must run onUpgrade.
-      final v2 = AppDatabase(DatabaseConnection(NativeDatabase(file)));
-      addTearDown(v2.close);
-      final v2Notes = NoteRepository(v2.noteDao);
+      // Reopening at the current schemaVersion must run every step.
+      final current = AppDatabase(DatabaseConnection(NativeDatabase(file)));
+      addTearDown(current.close);
+      final currentNotes = NoteRepository(current.noteDao);
 
       expect(
-        (await v2Notes.search('legacy').first).single.title,
+        (await currentNotes.search('legacy').first).single.title,
         'Old note',
         reason: 'existing rows must be backfilled into the index',
       );
-      await v2Notes.create(title: 'New note', body: 'fresh content');
+      await currentNotes.create(title: 'New note', body: 'fresh content');
       expect(
-        await v2Notes.search('fresh').first,
+        await currentNotes.search('fresh').first,
         hasLength(1),
         reason: 'recreated triggers must index new rows',
+      );
+      // v3 additions are usable after the migration.
+      expect(await current.projectDao.watchAll().first, isEmpty);
+      expect(
+        await current.customSelect('SELECT project_id FROM events').get(),
+        isEmpty,
       );
     });
   });

@@ -22,6 +22,9 @@ class TaskRepository {
   Stream<List<Task>> watchForContact(String contactId) =>
       _dao.watchForContact(contactId);
 
+  Stream<List<Task>> watchForProject(String projectId) =>
+      _dao.watchForProject(projectId);
+
   Future<String> create({
     required String workspaceId,
     required String title,
@@ -30,6 +33,7 @@ class TaskRepository {
     int? dueAt,
     int? reminderAt,
     String? contactId,
+    String? projectId,
   }) async {
     final id = newId();
     final now = utcNowMs();
@@ -42,6 +46,7 @@ class TaskRepository {
       dueAt: Value.absentIfNull(dueAt),
       reminderAt: Value.absentIfNull(reminderAt),
       contactId: Value.absentIfNull(contactId),
+      projectId: Value.absentIfNull(projectId),
       createdAt: now,
       updatedAt: now,
     ));
@@ -60,6 +65,7 @@ class TaskRepository {
     Value<int?> dueAt = const Value.absent(),
     Value<int?> reminderAt = const Value.absent(),
     Value<String?> contactId = const Value.absent(),
+    Value<String?> projectId = const Value.absent(),
   }) =>
       _dao.updateTask(
         id,
@@ -72,6 +78,7 @@ class TaskRepository {
           dueAt: dueAt,
           reminderAt: reminderAt,
           contactId: contactId,
+          projectId: projectId,
         ),
       );
 

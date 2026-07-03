@@ -83,6 +83,14 @@ class EventDao extends DatabaseAccessor<AppDatabase> with _$EventDaoMixin {
     return query.map((row) => row.readTable(events)).watch();
   }
 
+  /// Live events of one project, soonest first.
+  Stream<List<Event>> watchForProject(String projectId) {
+    final query = _active
+      ..where((e) => e.projectId.equals(projectId))
+      ..orderBy([(e) => OrderingTerm.asc(e.startsAt)]);
+    return query.watch();
+  }
+
   /// Diffs the active links for [eventId] against [contactIds]: missing rows
   /// are inserted, removed ones soft-deleted.
   Future<void> setContacts(String eventId, Set<String> contactIds) async {

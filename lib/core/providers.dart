@@ -7,6 +7,7 @@ import '../data/repositories/billable_repository.dart';
 import '../data/repositories/contact_repository.dart';
 import '../data/repositories/event_repository.dart';
 import '../data/repositories/note_repository.dart';
+import '../data/repositories/project_repository.dart';
 import '../data/repositories/task_repository.dart';
 import '../data/repositories/timer_repository.dart';
 import '../data/repositories/workspace_repository.dart';
@@ -31,6 +32,10 @@ AppDatabase appDatabase(Ref ref) {
 @Riverpod(keepAlive: true)
 WorkspaceRepository workspaceRepository(Ref ref) =>
     WorkspaceRepository(ref.watch(appDatabaseProvider).workspaceDao);
+
+@Riverpod(keepAlive: true)
+ProjectRepository projectRepository(Ref ref) =>
+    ProjectRepository(ref.watch(appDatabaseProvider).projectDao);
 
 @Riverpod(keepAlive: true)
 TaskRepository taskRepository(Ref ref) =>

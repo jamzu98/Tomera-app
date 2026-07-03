@@ -53,6 +53,20 @@ class WorkspaceContacts extends Table with SyncColumns {
   TextColumn get roleLabel => text().nullable()();
 }
 
+/// Groups related work — a lecture course, a client gig, a maintenance
+/// contract. Events/tasks/billables link via nullable projectId columns;
+/// notes via ParentType.project. Added in schema v3.
+class Projects extends Table with SyncColumns {
+  TextColumn get workspaceId => text().references(Workspaces, #id)();
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+
+  /// ARGB; null inherits the workspace color.
+  IntColumn get color => integer().nullable()();
+  TextColumn get contactId => text().nullable().references(Contacts, #id)();
+  BoolColumn get archived => boolean().withDefault(const Constant(false))();
+}
+
 class Events extends Table with SyncColumns {
   TextColumn get workspaceId => text().references(Workspaces, #id)();
   TextColumn get title => text()();
@@ -64,6 +78,7 @@ class Events extends Table with SyncColumns {
 
   /// RRULE string; column reserved now, recurrence UI comes later.
   TextColumn get rrule => text().nullable()();
+  TextColumn get projectId => text().nullable().references(Projects, #id)();
 }
 
 class EventContacts extends Table with SyncColumns {
@@ -85,6 +100,7 @@ class Tasks extends Table with SyncColumns {
   TextColumn get priority => text()
       .map(const DbEnumConverter(TaskPriority.values))
       .withDefault(const Constant('normal'))();
+  TextColumn get projectId => text().nullable().references(Projects, #id)();
 }
 
 class Notes extends Table with SyncColumns {
@@ -118,6 +134,7 @@ class BillableItems extends Table with SyncColumns {
   TextColumn get status => text()
       .map(const DbEnumConverter(BillableStatus.values))
       .withDefault(const Constant('unbilled'))();
+  TextColumn get projectId => text().nullable().references(Projects, #id)();
 }
 
 class TimerSessions extends Table with SyncColumns {

@@ -98,6 +98,53 @@ final class WorkspaceRepositoryProvider
 String _$workspaceRepositoryHash() =>
     r'a263dbb9d1631cc21c85f131c87fa7b80187f039';
 
+@ProviderFor(projectRepository)
+final projectRepositoryProvider = ProjectRepositoryProvider._();
+
+final class ProjectRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ProjectRepository,
+          ProjectRepository,
+          ProjectRepository
+        >
+    with $Provider<ProjectRepository> {
+  ProjectRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'projectRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$projectRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ProjectRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ProjectRepository create(Ref ref) {
+    return projectRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProjectRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProjectRepository>(value),
+    );
+  }
+}
+
+String _$projectRepositoryHash() => r'57adf7b10e1b8493f84b196ee066dc20551d3242';
+
 @ProviderFor(taskRepository)
 final taskRepositoryProvider = TaskRepositoryProvider._();
 

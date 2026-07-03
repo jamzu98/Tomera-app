@@ -17,6 +17,9 @@ class EventRepository {
 
   Stream<Event?> watchById(String id) => _dao.watchById(id);
 
+  Stream<List<Event>> watchForProject(String projectId) =>
+      _dao.watchForProject(projectId);
+
   /// Conflicting events across ALL workspaces (spec §6.2). The warning is
   /// non-blocking: the caller shows the list and may save anyway.
   Future<List<Event>> findConflicts({
@@ -44,6 +47,7 @@ class EventRepository {
     required int startsAt,
     required int endsAt,
     bool allDay = false,
+    String? projectId,
   }) async {
     final id = newId();
     final now = utcNowMs();
@@ -56,10 +60,33 @@ class EventRepository {
       startsAt: startsAt,
       endsAt: endsAt,
       allDay: Value(allDay),
+      projectId: Value.absentIfNull(projectId),
       createdAt: now,
       updatedAt: now,
     ));
     return id;
+  }
+
+  /// Batch-creates one event per range (project instance creation). All
+  /// share the same title/location/project; each becomes an independent
+  /// event row.
+  Future<void> createMany({
+    required String workspaceId,
+    required String title,
+    String? location,
+    String? projectId,
+    required List<({int startsAt, int endsAt})> ranges,
+  }) async {
+    for (final range in ranges) {
+      await create(
+        workspaceId: workspaceId,
+        title: title,
+        location: location,
+        projectId: projectId,
+        startsAt: range.startsAt,
+        endsAt: range.endsAt,
+      );
+    }
   }
 
   /// Nullable columns take a [Value] so callers can distinguish "leave
@@ -73,6 +100,7 @@ class EventRepository {
     bool? allDay,
     Value<String?> description = const Value.absent(),
     Value<String?> location = const Value.absent(),
+    Value<String?> projectId = const Value.absent(),
   }) =>
       _dao.updateEvent(
         id,
@@ -84,6 +112,7 @@ class EventRepository {
           allDay: Value.absentIfNull(allDay),
           description: description,
           location: location,
+          projectId: projectId,
         ),
       );
 
