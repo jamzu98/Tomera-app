@@ -13,6 +13,7 @@ import '../features/finance/finance_screen.dart';
 import '../features/finance/timer_banner.dart';
 import '../features/notes/note_edit_screen.dart';
 import '../features/notes/notes_screen.dart';
+import '../features/projects/add_instances_screen.dart';
 import '../features/projects/project_detail_screen.dart';
 import '../features/projects/project_edit_screen.dart';
 import '../features/projects/projects_screen.dart';
@@ -59,6 +60,12 @@ GoRouter router(Ref ref) => GoRouter(
                           GoRoute(
                             path: 'edit',
                             builder: (context, state) => ProjectEditScreen(
+                              projectId: state.pathParameters['projectId']!,
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'instances',
+                            builder: (context, state) => AddInstancesScreen(
                               projectId: state.pathParameters['projectId']!,
                             ),
                           ),

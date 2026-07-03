@@ -338,6 +338,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get projectsTitle => 'Projects';
 
   @override
+  String get addInstances => 'Add instances';
+
+  @override
+  String get defaultTimeLabel => 'Default time';
+
+  @override
+  String get applyToAll => 'Apply to all';
+
+  @override
+  String get repeatOnLabel => 'Repeat weekly on';
+
+  @override
+  String get fromLabel => 'From';
+
+  @override
+  String get untilLabel => 'Until';
+
+  @override
+  String get generateDates => 'Generate dates';
+
+  @override
+  String get pickDatesLabel => 'Or pick dates manually';
+
+  @override
+  String get addSelectedDates => 'Add selected dates';
+
+  @override
+  String instancesCount(int count) {
+    return 'Instances ($count)';
+  }
+
+  @override
+  String get addSingleDate => 'Add date';
+
+  @override
+  String get noInstancesYet =>
+      'No dates yet — generate from a pattern or pick dates above.';
+
+  @override
+  String createInstances(int count) {
+    return 'Create $count events';
+  }
+
+  @override
+  String instanceConflicts(int count) {
+    return '$count of the new events overlap existing ones:';
+  }
+
+  @override
   String get newProject => 'New project';
 
   @override

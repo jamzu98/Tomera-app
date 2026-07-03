@@ -117,12 +117,22 @@ class ProjectDetailScreen extends ConsumerWidget {
             ),
           _Section(
             title: l10n.linkedEvents,
-            // The "Add instances" wizard hangs off this button (next step).
-            action: TextButton.icon(
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.newEvent),
-              onPressed: () => context.go(
-                  '/calendar/new?projectId=$projectId'),
+            action: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton.icon(
+                  icon: const Icon(Icons.event_repeat, size: 18),
+                  label: Text(l10n.addInstances),
+                  onPressed: () => context
+                      .go('/calendar/projects/$projectId/instances'),
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(l10n.newEvent),
+                  onPressed: () =>
+                      context.go('/calendar/new?projectId=$projectId'),
+                ),
+              ],
             ),
             children: [
               for (final event in events)

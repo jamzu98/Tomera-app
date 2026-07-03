@@ -736,6 +736,90 @@ abstract class AppLocalizations {
   /// **'Projects'**
   String get projectsTitle;
 
+  /// No description provided for @addInstances.
+  ///
+  /// In en, this message translates to:
+  /// **'Add instances'**
+  String get addInstances;
+
+  /// No description provided for @defaultTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default time'**
+  String get defaultTimeLabel;
+
+  /// No description provided for @applyToAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to all'**
+  String get applyToAll;
+
+  /// No description provided for @repeatOnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat weekly on'**
+  String get repeatOnLabel;
+
+  /// No description provided for @fromLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get fromLabel;
+
+  /// No description provided for @untilLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Until'**
+  String get untilLabel;
+
+  /// No description provided for @generateDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate dates'**
+  String get generateDates;
+
+  /// No description provided for @pickDatesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Or pick dates manually'**
+  String get pickDatesLabel;
+
+  /// No description provided for @addSelectedDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Add selected dates'**
+  String get addSelectedDates;
+
+  /// No description provided for @instancesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Instances ({count})'**
+  String instancesCount(int count);
+
+  /// No description provided for @addSingleDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add date'**
+  String get addSingleDate;
+
+  /// No description provided for @noInstancesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No dates yet — generate from a pattern or pick dates above.'**
+  String get noInstancesYet;
+
+  /// No description provided for @createInstances.
+  ///
+  /// In en, this message translates to:
+  /// **'Create {count} events'**
+  String createInstances(int count);
+
+  /// No description provided for @instanceConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of the new events overlap existing ones:'**
+  String instanceConflicts(int count);
+
   /// No description provided for @newProject.
   ///
   /// In en, this message translates to:

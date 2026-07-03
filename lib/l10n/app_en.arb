@@ -134,6 +134,41 @@
   "financialSummary": "Financial summary",
   "invalidDuration": "Enter minutes as a whole number",
   "projectsTitle": "Projects",
+  "addInstances": "Add instances",
+  "defaultTimeLabel": "Default time",
+  "applyToAll": "Apply to all",
+  "repeatOnLabel": "Repeat weekly on",
+  "fromLabel": "From",
+  "untilLabel": "Until",
+  "generateDates": "Generate dates",
+  "pickDatesLabel": "Or pick dates manually",
+  "addSelectedDates": "Add selected dates",
+  "instancesCount": "Instances ({count})",
+  "@instancesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addSingleDate": "Add date",
+  "noInstancesYet": "No dates yet — generate from a pattern or pick dates above.",
+  "createInstances": "Create {count} events",
+  "@createInstances": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "instanceConflicts": "{count} of the new events overlap existing ones:",
+  "@instanceConflicts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "newProject": "New project",
   "editProject": "Edit project",
   "projectLabel": "Project",
