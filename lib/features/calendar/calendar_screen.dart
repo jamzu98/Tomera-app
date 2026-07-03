@@ -73,6 +73,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             tooltip: _agenda ? l10n.weekView : l10n.agendaView,
             onPressed: () => setState(() => _agenda = !_agenda),
           ),
+          IconButton(
+            icon: const Icon(Icons.topic_outlined),
+            tooltip: l10n.projectsTitle,
+            onPressed: () => context.go('/calendar/projects'),
+          ),
           const WorkspaceFilterButton(),
           const WorkspacesButton(),
         ],

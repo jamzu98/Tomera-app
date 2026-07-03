@@ -13,6 +13,9 @@ import '../features/finance/finance_screen.dart';
 import '../features/finance/timer_banner.dart';
 import '../features/notes/note_edit_screen.dart';
 import '../features/notes/notes_screen.dart';
+import '../features/projects/project_detail_screen.dart';
+import '../features/projects/project_edit_screen.dart';
+import '../features/projects/projects_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/tasks/task_edit_screen.dart';
 import '../features/tasks/tasks_screen.dart';
@@ -37,11 +40,39 @@ GoRouter router(Ref ref) => GoRouter(
                 path: '/calendar',
                 builder: (context, state) => const CalendarScreen(),
                 routes: [
+                  // Literal segment must precede the ':id' matcher below.
+                  GoRoute(
+                    path: 'projects',
+                    builder: (context, state) => const ProjectsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (context, state) =>
+                            const ProjectEditScreen(),
+                      ),
+                      GoRoute(
+                        path: ':projectId',
+                        builder: (context, state) => ProjectDetailScreen(
+                          projectId: state.pathParameters['projectId']!,
+                        ),
+                        routes: [
+                          GoRoute(
+                            path: 'edit',
+                            builder: (context, state) => ProjectEditScreen(
+                              projectId: state.pathParameters['projectId']!,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                   GoRoute(
                     path: 'new',
                     builder: (context, state) => EventEditScreen(
                       initialStartMs: int.tryParse(
                           state.uri.queryParameters['start'] ?? ''),
+                      initialProjectId:
+                          state.uri.queryParameters['projectId'],
                     ),
                   ),
                   GoRoute(
@@ -60,7 +91,10 @@ GoRouter router(Ref ref) => GoRouter(
                 routes: [
                   GoRoute(
                     path: 'new',
-                    builder: (context, state) => const TaskEditScreen(),
+                    builder: (context, state) => TaskEditScreen(
+                      initialProjectId:
+                          state.uri.queryParameters['projectId'],
+                    ),
                   ),
                   GoRoute(
                     path: ':id',
@@ -133,6 +167,8 @@ GoRouter router(Ref ref) => GoRouter(
                       initialTitle: state.uri.queryParameters['title'],
                       initialDurationMinutes: int.tryParse(
                           state.uri.queryParameters['duration'] ?? ''),
+                      initialProjectId:
+                          state.uri.queryParameters['projectId'],
                     ),
                   ),
                   GoRoute(

@@ -133,6 +133,25 @@
   },
   "financialSummary": "Financial summary",
   "invalidDuration": "Enter minutes as a whole number",
+  "projectsTitle": "Projects",
+  "newProject": "New project",
+  "editProject": "Edit project",
+  "projectLabel": "Project",
+  "noProject": "None",
+  "archivedLabel": "Archived",
+  "showArchived": "Show archived",
+  "useWorkspaceColor": "Workspace color",
+  "emptyProjectsTitle": "No projects",
+  "emptyProjectsBody": "Group a course, a client gig or any recurring work with the + button.",
+  "deleteProjectTitle": "Delete project?",
+  "deleteProjectBody": "\"{name}\" will be removed. Its events, tasks and billables are kept.",
+  "@deleteProjectBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "newContact": "New contact",
   "editContact": "Edit contact",
   "contactName": "Name",

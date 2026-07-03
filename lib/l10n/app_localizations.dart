@@ -730,6 +730,78 @@ abstract class AppLocalizations {
   /// **'Enter minutes as a whole number'**
   String get invalidDuration;
 
+  /// No description provided for @projectsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get projectsTitle;
+
+  /// No description provided for @newProject.
+  ///
+  /// In en, this message translates to:
+  /// **'New project'**
+  String get newProject;
+
+  /// No description provided for @editProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit project'**
+  String get editProject;
+
+  /// No description provided for @projectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get projectLabel;
+
+  /// No description provided for @noProject.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get noProject;
+
+  /// No description provided for @archivedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get archivedLabel;
+
+  /// No description provided for @showArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Show archived'**
+  String get showArchived;
+
+  /// No description provided for @useWorkspaceColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace color'**
+  String get useWorkspaceColor;
+
+  /// No description provided for @emptyProjectsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No projects'**
+  String get emptyProjectsTitle;
+
+  /// No description provided for @emptyProjectsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Group a course, a client gig or any recurring work with the + button.'**
+  String get emptyProjectsBody;
+
+  /// No description provided for @deleteProjectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete project?'**
+  String get deleteProjectTitle;
+
+  /// No description provided for @deleteProjectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" will be removed. Its events, tasks and billables are kept.'**
+  String deleteProjectBody(String name);
+
   /// No description provided for @newContact.
   ///
   /// In en, this message translates to:

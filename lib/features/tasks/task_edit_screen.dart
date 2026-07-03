@@ -8,13 +8,17 @@ import '../../core/providers.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
+import '../projects/project_providers.dart';
 import 'task_providers.dart';
 
 class TaskEditScreen extends ConsumerStatefulWidget {
-  const TaskEditScreen({super.key, this.taskId});
+  const TaskEditScreen({super.key, this.taskId, this.initialProjectId});
 
   /// Null when creating a new task.
   final String? taskId;
+
+  /// Pre-selected project when created from a project detail screen.
+  final String? initialProjectId;
 
   @override
   ConsumerState<TaskEditScreen> createState() => _TaskEditScreenState();
@@ -26,7 +30,14 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
   final _descriptionController = TextEditingController();
   String? _workspaceId;
   String? _contactId;
+  String? _projectId;
   TaskPriority _priority = TaskPriority.normal;
+
+  @override
+  void initState() {
+    super.initState();
+    _projectId = widget.initialProjectId;
+  }
   DateTime? _dueDate;
   TimeOfDay? _dueTime;
   DateTime? _reminderAt;
@@ -48,6 +59,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
     _descriptionController.text = task.description ?? '';
     _workspaceId = task.workspaceId;
     _contactId = task.contactId;
+    _projectId = task.projectId;
     _priority = task.priority;
     final dueAt = task.dueAt;
     if (dueAt != null) {
@@ -92,6 +104,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
         dueAt: _dueAtMs,
         reminderAt: reminderAtMs,
         contactId: _contactId,
+        projectId: _projectId,
       );
     } else {
       taskId = widget.taskId!;
@@ -104,6 +117,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
         dueAt: Value(_dueAtMs),
         reminderAt: Value(reminderAtMs),
         contactId: Value(_contactId),
+        projectId: Value(_projectId),
       );
     }
     await ref.read(reminderCoordinatorProvider).syncTaskReminder(
@@ -276,6 +290,24 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                   ),
               ],
               onChanged: (id) => setState(() => _contactId = id),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String?>(
+              initialValue: _projectId,
+              decoration: InputDecoration(
+                labelText: l10n.projectLabel,
+                border: const OutlineInputBorder(),
+              ),
+              items: [
+                DropdownMenuItem(value: null, child: Text(l10n.noProject)),
+                for (final project
+                    in ref.watch(allProjectsProvider).value ?? <Project>[])
+                  DropdownMenuItem(
+                    value: project.id,
+                    child: Text(project.name),
+                  ),
+              ],
+              onChanged: (id) => setState(() => _projectId = id),
             ),
             const SizedBox(height: 16),
             Text(l10n.priorityLabel,

@@ -8,6 +8,7 @@ import '../../core/providers.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
+import '../projects/project_providers.dart';
 import 'finance_providers.dart';
 import 'finance_screen.dart' show billableStatusLabel;
 
@@ -19,6 +20,7 @@ class BillableEditScreen extends ConsumerStatefulWidget {
     this.initialWorkspaceId,
     this.initialTitle,
     this.initialDurationMinutes,
+    this.initialProjectId,
   });
 
   /// Null when creating a new item.
@@ -30,6 +32,7 @@ class BillableEditScreen extends ConsumerStatefulWidget {
   final String? initialWorkspaceId;
   final String? initialTitle;
   final int? initialDurationMinutes;
+  final String? initialProjectId;
 
   @override
   ConsumerState<BillableEditScreen> createState() =>
@@ -46,6 +49,7 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
   final _currencyController = TextEditingController(text: 'EUR');
   String? _workspaceId;
   String? _contactId;
+  String? _projectId;
   BillableType _type = BillableType.hourly;
   BillableStatus _status = BillableStatus.unbilled;
   bool _initialized = false;
@@ -58,6 +62,7 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
     _contactId = widget.initialContactId;
     if (_isNew) {
       _workspaceId = widget.initialWorkspaceId;
+      _projectId = widget.initialProjectId;
       if (widget.initialTitle != null) {
         _titleController.text = widget.initialTitle!;
       }
@@ -95,6 +100,7 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
     _currencyController.text = item.currency;
     _workspaceId = item.workspaceId;
     _contactId = item.contactId;
+    _projectId = item.projectId;
     _type = item.type;
     _status = item.status;
   }
@@ -133,6 +139,7 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
       await repository.create(
         workspaceId: workspaceId,
         contactId: _contactId,
+        projectId: _projectId,
         type: _type,
         title: title,
         description: description.isEmpty ? null : description,
@@ -151,6 +158,7 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
         currency: currency,
         status: _status,
         contactId: Value(_contactId),
+        projectId: Value(_projectId),
         description: Value(description.isEmpty ? null : description),
         rateCents: Value(rateCents),
         durationMinutes: Value(durationMinutes),
@@ -330,6 +338,21 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
                   ),
               ],
               onChanged: _onContactChanged,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String?>(
+              initialValue: _projectId,
+              decoration: decoration(l10n.projectLabel),
+              items: [
+                DropdownMenuItem(value: null, child: Text(l10n.noProject)),
+                for (final project
+                    in ref.watch(allProjectsProvider).value ?? <Project>[])
+                  DropdownMenuItem(
+                    value: project.id,
+                    child: Text(project.name),
+                  ),
+              ],
+              onChanged: (id) => setState(() => _projectId = id),
             ),
             const SizedBox(height: 16),
             Text(l10n.billableStatusLabel,

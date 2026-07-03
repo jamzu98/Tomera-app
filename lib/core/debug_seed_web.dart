@@ -22,12 +22,17 @@ void installDebugSeedHook(ProviderContainer container) {
 Future<void> _seed(ProviderContainer container) async {
   final workspaces = container.read(workspaceRepositoryProvider);
   if ((await workspaces.watchAll().first).isNotEmpty) return;
-  await workspaces.create(
+  final workspaceId = await workspaces.create(
     name: 'DEV',
     color: 0xFF00696B,
     icon: 'code',
     enabledModules: {...ModuleKey.values},
   );
+  await container.read(projectRepositoryProvider).create(
+        workspaceId: workspaceId,
+        name: 'Math 101',
+        description: 'Autumn lecture course',
+      );
   await container.read(contactRepositoryProvider).create(
         name: 'Anna Client',
         defaultHourlyRateCents: 6500,

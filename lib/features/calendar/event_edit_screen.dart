@@ -8,17 +8,22 @@ import '../../core/providers.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
+import '../projects/project_providers.dart';
 import 'calendar_providers.dart';
 import 'reminder_offsets.dart';
 
 class EventEditScreen extends ConsumerStatefulWidget {
-  const EventEditScreen({super.key, this.eventId, this.initialStartMs});
+  const EventEditScreen(
+      {super.key, this.eventId, this.initialStartMs, this.initialProjectId});
 
   /// Null when creating a new event.
   final String? eventId;
 
-  /// Pre-filled start (epoch ms) when created from a week-view slot tap.
+  /// Pre-filled start (epoch ms) when created from a calendar slot tap.
   final int? initialStartMs;
+
+  /// Pre-selected project when created from a project detail screen.
+  final String? initialProjectId;
 
   @override
   ConsumerState<EventEditScreen> createState() => _EventEditScreenState();
@@ -30,6 +35,7 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
   String? _workspaceId;
+  String? _projectId;
   bool _allDay = false;
   late DateTime _start;
   late DateTime _end;
@@ -44,6 +50,7 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
   @override
   void initState() {
     super.initState();
+    _projectId = widget.initialProjectId;
     final initialMs = widget.initialStartMs;
     _start = initialMs != null
         ? DateTime.fromMillisecondsSinceEpoch(initialMs)
@@ -69,6 +76,7 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
     _descriptionController.text = event.description ?? '';
     _locationController.text = event.location ?? '';
     _workspaceId = event.workspaceId;
+    _projectId = event.projectId;
     _allDay = event.allDay;
     _start = DateTime.fromMillisecondsSinceEpoch(event.startsAt, isUtc: true)
         .toLocal();
@@ -130,6 +138,7 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
         startsAt: startMs,
         endsAt: endMs,
         allDay: _allDay,
+        projectId: _projectId,
       );
     } else {
       eventId = widget.eventId!;
@@ -142,6 +151,7 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
         allDay: _allDay,
         description: Value(description.isEmpty ? null : description),
         location: Value(location.isEmpty ? null : location),
+        projectId: Value(_projectId),
       );
     }
     await repository.setContacts(eventId, _linkedContactIds);
@@ -354,6 +364,24 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
                   ),
               ],
               onChanged: (id) => setState(() => _workspaceId = id),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String?>(
+              initialValue: _projectId,
+              decoration: InputDecoration(
+                labelText: l10n.projectLabel,
+                border: const OutlineInputBorder(),
+              ),
+              items: [
+                DropdownMenuItem(value: null, child: Text(l10n.noProject)),
+                for (final project
+                    in ref.watch(allProjectsProvider).value ?? <Project>[])
+                  DropdownMenuItem(
+                    value: project.id,
+                    child: Text(project.name),
+                  ),
+              ],
+              onChanged: (id) => setState(() => _projectId = id),
             ),
             const SizedBox(height: 16),
             SwitchListTile(

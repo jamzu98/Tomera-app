@@ -335,6 +335,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidDuration => 'Enter minutes as a whole number';
 
   @override
+  String get projectsTitle => 'Projects';
+
+  @override
+  String get newProject => 'New project';
+
+  @override
+  String get editProject => 'Edit project';
+
+  @override
+  String get projectLabel => 'Project';
+
+  @override
+  String get noProject => 'None';
+
+  @override
+  String get archivedLabel => 'Archived';
+
+  @override
+  String get showArchived => 'Show archived';
+
+  @override
+  String get useWorkspaceColor => 'Workspace color';
+
+  @override
+  String get emptyProjectsTitle => 'No projects';
+
+  @override
+  String get emptyProjectsBody =>
+      'Group a course, a client gig or any recurring work with the + button.';
+
+  @override
+  String get deleteProjectTitle => 'Delete project?';
+
+  @override
+  String deleteProjectBody(String name) {
+    return '\"$name\" will be removed. Its events, tasks and billables are kept.';
+  }
+
+  @override
   String get newContact => 'New contact';
 
   @override
