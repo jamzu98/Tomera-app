@@ -49,6 +49,8 @@ dependencies:
   flutter_timezone: ^5.1.0
   shared_preferences: ^2.5.5
   share_plus: ^13.2.0
+  syncfusion_flutter_calendar: ^33.2.15
+  syncfusion_flutter_datepicker: ^33.2.15
 
 dev_dependencies:
   flutter_test:

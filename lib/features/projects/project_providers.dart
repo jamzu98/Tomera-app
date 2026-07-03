@@ -19,6 +19,12 @@ final allProjectsProvider = StreamProvider.autoDispose<List<Project>>(
   (ref) => ref.watch(projectRepositoryProvider).watchAll(),
 );
 
+/// Every project including archived ones (color lookups for old events).
+final allProjectsForLookupProvider = StreamProvider.autoDispose<List<Project>>(
+  (ref) =>
+      ref.watch(projectRepositoryProvider).watchAll(includeArchived: true),
+);
+
 final projectByIdProvider = StreamProvider.autoDispose.family<Project?, String>(
   (ref, id) => ref.watch(projectRepositoryProvider).watchById(id),
 );

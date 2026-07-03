@@ -491,6 +491,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nextWeek => 'Next week';
 
   @override
+  String movedEventConflicts(int count) {
+    return 'Now overlaps $count other event(s)';
+  }
+
+  @override
   String get conflictTitle => 'Schedule conflict';
 
   @override

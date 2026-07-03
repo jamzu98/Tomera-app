@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 import '../../core/providers.dart';
 import '../../core/widgets/workspace_filter_button.dart';
 import '../../core/widgets/workspaces_button.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
-import 'agenda_view.dart';
+import '../projects/project_providers.dart';
 import 'calendar_providers.dart';
-import 'week_view.dart';
+
+/// Appointment id prefixes distinguishing our two appointment kinds.
+const _eventPrefix = 'event:';
+const _taskPrefix = 'task:';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -20,26 +23,83 @@ class CalendarScreen extends ConsumerStatefulWidget {
 }
 
 class _CalendarScreenState extends ConsumerState<CalendarScreen> {
-  /// Local midnight of the first day of the displayed week (Monday).
-  late DateTime _weekStart = _mondayOf(DateTime.now());
-  bool _agenda = false;
+  final _controller = CalendarController();
 
-  static DateTime _mondayOf(DateTime date) =>
-      DateTime(date.year, date.month, date.day - (date.weekday - 1));
+  /// Watched window; widened by onViewChanged as the user navigates.
+  late MsRange _range = _rangeAround(DateTime.now());
 
-  List<DateTime> get _days => [
-        for (var i = 0; i < 7; i++)
-          DateTime(_weekStart.year, _weekStart.month, _weekStart.day + i),
-      ];
-
-  MsRange get _range => (
-        start: _weekStart.millisecondsSinceEpoch,
-        end: DateTime(_weekStart.year, _weekStart.month, _weekStart.day + 7)
-            .millisecondsSinceEpoch,
+  static MsRange _rangeAround(DateTime anchor) => (
+        start: DateTime(anchor.year, anchor.month - 1, 1).millisecondsSinceEpoch,
+        end: DateTime(anchor.year, anchor.month + 2, 1).millisecondsSinceEpoch,
       );
 
-  void _shiftWeek(int weeks) => setState(() => _weekStart = DateTime(
-      _weekStart.year, _weekStart.month, _weekStart.day + 7 * weeks));
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onViewChanged(ViewChangedDetails details) {
+    if (details.visibleDates.isEmpty) return;
+    final first = details.visibleDates.first;
+    final last = details.visibleDates.last;
+    final range = (
+      start: DateTime(first.year, first.month, first.day)
+          .millisecondsSinceEpoch,
+      end: DateTime(last.year, last.month, last.day + 1)
+          .millisecondsSinceEpoch,
+    );
+    if (range == _range) return;
+    // onViewChanged can fire during build; defer the provider switch.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _range = range);
+    });
+  }
+
+  void _onTap(CalendarTapDetails details) {
+    if (details.targetElement == CalendarElement.appointment) {
+      final appointment = details.appointments?.firstOrNull as Appointment?;
+      if (appointment != null) _openAppointment(appointment.id as String);
+    } else if (details.targetElement == CalendarElement.calendarCell &&
+        details.date != null &&
+        _controller.view != CalendarView.month) {
+      context.go(
+          '/calendar/new?start=${details.date!.millisecondsSinceEpoch}');
+    }
+  }
+
+  void _openAppointment(String id) {
+    if (id.startsWith(_eventPrefix)) {
+      context.go('/calendar/${id.substring(_eventPrefix.length)}');
+    } else if (id.startsWith(_taskPrefix)) {
+      context.go('/tasks/${id.substring(_taskPrefix.length)}');
+    }
+  }
+
+  /// Persists a drag/resize of an event appointment and warns (non-blocking,
+  /// spec §6.2) when the new time overlaps other events.
+  Future<void> _applyMove(Appointment appointment) async {
+    final id = appointment.id as String;
+    if (!id.startsWith(_eventPrefix)) return; // task deadlines don't move
+    final eventId = id.substring(_eventPrefix.length);
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final startMs = appointment.startTime.toUtc().millisecondsSinceEpoch;
+    final endMs = appointment.endTime.toUtc().millisecondsSinceEpoch;
+    final repository = ref.read(eventRepositoryProvider);
+    await repository.update(eventId, startsAt: startMs, endsAt: endMs);
+    final conflicts = await repository.findConflicts(
+      startMs: startMs,
+      endMs: endMs,
+      excludeEventId: eventId,
+      allDay: appointment.isAllDay,
+    );
+    if (conflicts.isNotEmpty) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.movedEventConflicts(conflicts.length))),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,31 +108,52 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final events = ref.watch(calendarEventsProvider(_range)).value ?? [];
     final tasks = ref.watch(agendaTasksProvider(_range)).value ?? [];
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
-    final selectedWorkspace = ref.watch(selectedWorkspaceProvider).value;
-    final moduleDisabled = selectedWorkspace != null &&
-        !selectedWorkspace.enabledModules.contains(ModuleKey.calendar);
+    final projects = ref.watch(allProjectsForLookupProvider).value ?? [];
 
-    Color colorOf(String workspaceId) {
+    Color colorOf(Event event) {
+      final project =
+          projects.where((p) => p.id == event.projectId).firstOrNull;
       final workspace =
-          workspaces.where((w) => w.id == workspaceId).firstOrNull;
-      return workspace != null
-          ? Color(workspace.color)
-          : theme.colorScheme.primary;
+          workspaces.where((w) => w.id == event.workspaceId).firstOrNull;
+      return Color(
+          project?.color ?? workspace?.color ?? theme.colorScheme.primary.toARGB32());
     }
 
-    final days = _days;
-    final rangeLabel =
-        '${DateFormat.MMMd().format(days.first)} – ${DateFormat.MMMd().format(days.last)}';
+    final appointments = <Appointment>[
+      for (final event in events)
+        Appointment(
+          id: '$_eventPrefix${event.id}',
+          subject: event.title,
+          notes: event.location,
+          startTime: DateTime.fromMillisecondsSinceEpoch(event.startsAt,
+                  isUtc: true)
+              .toLocal(),
+          endTime:
+              DateTime.fromMillisecondsSinceEpoch(event.endsAt, isUtc: true)
+                  .toLocal(),
+          isAllDay: event.allDay,
+          color: colorOf(event),
+        ),
+      for (final task in tasks)
+        if (task.dueAt != null)
+          Appointment(
+            id: '$_taskPrefix${task.id}',
+            subject: task.title,
+            startTime:
+                DateTime.fromMillisecondsSinceEpoch(task.dueAt!, isUtc: true)
+                    .toLocal(),
+            endTime:
+                DateTime.fromMillisecondsSinceEpoch(task.dueAt!, isUtc: true)
+                    .toLocal()
+                    .add(const Duration(minutes: 30)),
+            color: theme.colorScheme.tertiary,
+          ),
+    ];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tabCalendar),
         actions: [
-          IconButton(
-            icon: Icon(_agenda ? Icons.calendar_view_week : Icons.view_agenda),
-            tooltip: _agenda ? l10n.weekView : l10n.agendaView,
-            onPressed: () => setState(() => _agenda = !_agenda),
-          ),
           IconButton(
             icon: const Icon(Icons.topic_outlined),
             tooltip: l10n.projectsTitle,
@@ -87,66 +168,50 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         onPressed: () => context.go('/calendar/new'),
         child: const Icon(Icons.add),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  tooltip: l10n.previousWeek,
-                  onPressed: () => _shiftWeek(-1),
-                ),
-                Expanded(
-                  child: Text(
-                    rangeLabel,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  tooltip: l10n.nextWeek,
-                  onPressed: () => _shiftWeek(1),
-                ),
-                TextButton(
-                  onPressed: () =>
-                      setState(() => _weekStart = _mondayOf(DateTime.now())),
-                  child: Text(l10n.todayButton),
-                ),
-              ],
-            ),
-          ),
-          if (moduleDisabled)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                l10n.calendarModuleDisabled,
-                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-              ),
-            ),
-          Expanded(
-            child: _agenda
-                ? AgendaView(
-                    days: days,
-                    events: events,
-                    tasks: tasks,
-                    colorOf: colorOf,
-                    onEventTap: (event) => context.go('/calendar/${event.id}'),
-                    onTaskTap: (task) => context.go('/tasks/${task.id}'),
-                  )
-                : WeekView(
-                    days: days,
-                    events: events,
-                    colorOf: colorOf,
-                    onEventTap: (event) => context.go('/calendar/${event.id}'),
-                    onSlotTap: (slotStart) => context.go(
-                        '/calendar/new?start=${slotStart.millisecondsSinceEpoch}'),
-                  ),
-          ),
+      body: SfCalendar(
+        controller: _controller,
+        view: CalendarView.week,
+        allowedViews: const [
+          CalendarView.day,
+          CalendarView.week,
+          CalendarView.month,
+          CalendarView.schedule,
         ],
+        firstDayOfWeek: 1,
+        dataSource: _AppointmentSource(appointments),
+        showDatePickerButton: true,
+        showTodayButton: true,
+        allowDragAndDrop: true,
+        allowAppointmentResize: true,
+        onViewChanged: _onViewChanged,
+        onTap: _onTap,
+        onDragEnd: (details) {
+          final appointment = details.appointment as Appointment?;
+          if (appointment != null) _applyMove(appointment);
+        },
+        onAppointmentResizeEnd: (details) {
+          final appointment = details.appointment as Appointment?;
+          if (appointment != null) _applyMove(appointment);
+        },
+        todayHighlightColor: theme.colorScheme.primary,
+        monthViewSettings: const MonthViewSettings(
+          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
+          showAgenda: true,
+        ),
+        timeSlotViewSettings: const TimeSlotViewSettings(
+          startHour: 6,
+          endHour: 24,
+        ),
+        scheduleViewSettings: const ScheduleViewSettings(
+          hideEmptyScheduleWeek: true,
+        ),
       ),
     );
+  }
+}
+
+class _AppointmentSource extends CalendarDataSource {
+  _AppointmentSource(List<Appointment> source) {
+    appointments = source;
   }
 }

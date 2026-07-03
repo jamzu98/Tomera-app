@@ -197,6 +197,14 @@
   "todayButton": "Today",
   "previousWeek": "Previous week",
   "nextWeek": "Next week",
+  "movedEventConflicts": "Now overlaps {count} other event(s)",
+  "@movedEventConflicts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "conflictTitle": "Schedule conflict",
   "conflictBody": "This event overlaps with:",
   "saveAnyway": "Save anyway",

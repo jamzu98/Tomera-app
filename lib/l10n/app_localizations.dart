@@ -1030,6 +1030,12 @@ abstract class AppLocalizations {
   /// **'Next week'**
   String get nextWeek;
 
+  /// No description provided for @movedEventConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'Now overlaps {count} other event(s)'**
+  String movedEventConflicts(int count);
+
   /// No description provided for @conflictTitle.
   ///
   /// In en, this message translates to:
