@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
-import '../../core/widgets/workspace_filter_button.dart';
+import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/workspace_avatar.dart';
+import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'project_providers.dart';
@@ -27,12 +30,16 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.projectsTitle),
-        actions: const [WorkspaceFilterButton()],
+        actions: const [
+          Center(child: WorkspaceSwitcherPill(compact: true)),
+          SizedBox(width: 12),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab-projects',
         tooltip: l10n.newProject,
         onPressed: () => context.go('/calendar/projects/new'),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_rounded),
       ),
       body: Column(
         children: [
@@ -52,7 +59,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
             child: switch (projectsValue) {
               AsyncValue(value: final projects?) when projects.isNotEmpty =>
                 ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 88),
+                  padding: const EdgeInsets.only(top: 8, bottom: 88),
                   itemCount: projects.length,
                   itemBuilder: (context, index) => _ProjectTile(
                     project: projects[index],
@@ -61,20 +68,10 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                 ),
               AsyncValue(isLoading: true) =>
                 const Center(child: CircularProgressIndicator()),
-              _ => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(l10n.emptyProjectsTitle,
-                            style: Theme.of(context).textTheme.titleMedium),
-                        const SizedBox(height: 8),
-                        Text(l10n.emptyProjectsBody,
-                            textAlign: TextAlign.center),
-                      ],
-                    ),
-                  ),
+              _ => EmptyState(
+                  icon: Icons.layers_outlined,
+                  title: l10n.emptyProjectsTitle,
+                  body: l10n.emptyProjectsBody,
                 ),
             },
           ),
@@ -88,7 +85,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
 int projectColor(Project project, List<Workspace> workspaces) =>
     project.color ??
     workspaces.where((w) => w.id == project.workspaceId).firstOrNull?.color ??
-    0xFF888888;
+    0xFFB7AD9C;
 
 class _ProjectTile extends ConsumerWidget {
   const _ProjectTile({required this.project, required this.workspaces});
@@ -105,15 +102,28 @@ class _ProjectTile extends ConsumerWidget {
       if (workspace != null) workspace.name,
       if (project.archived) l10n.archivedLabel,
     ];
-    return ListTile(
-      leading: CircleAvatar(
-        radius: 14,
-        backgroundColor: Color(projectColor(project, workspaces)),
-        child: const Icon(Icons.topic_outlined, size: 16, color: Colors.white),
+    final color = Color(projectColor(project, workspaces));
+    return SoftTile(
+      leading: WorkspaceAvatar(
+        color: color,
+        icon: Icons.layers_rounded,
+        size: 38,
       ),
       title: Text(project.name),
-      subtitle:
-          subtitleParts.isNotEmpty ? Text(subtitleParts.join(' · ')) : null,
+      subtitle: subtitleParts.isNotEmpty
+          ? Row(
+              children: [
+                if (workspace != null) ...[
+                  WorkspaceDot(color: Color(workspace.color)),
+                  const SizedBox(width: 6),
+                ],
+                Flexible(
+                  child: Text(subtitleParts.join(' · '),
+                      overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            )
+          : null,
       onTap: () => context.go('/calendar/projects/${project.id}'),
     );
   }

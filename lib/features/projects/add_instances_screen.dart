@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../../core/providers.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/form_group.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'instance_dates.dart';
@@ -228,40 +230,43 @@ class _AddInstancesScreenState extends ConsumerState<AddInstancesScreen> {
     ];
 
     Widget sectionTitle(String title) => Padding(
-          padding: const EdgeInsets.only(top: 16, bottom: 4),
+          padding: const EdgeInsets.only(top: 20, bottom: 6),
           child: Text(
-            title,
-            style: theme.textTheme.titleSmall
-                ?.copyWith(color: theme.colorScheme.primary),
+            title.toUpperCase(),
+            style: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.3,
+              color: context.tokens.ink3,
+            ),
           ),
         );
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.addInstances)),
+      bottomNavigationBar: SaveBar(
+        label: l10n.createInstances(_instances.length),
+        onPressed: _instances.isEmpty ? null : () => _save(project),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           TextField(
             controller: _titleController,
-            decoration: InputDecoration(
-              labelText: l10n.eventTitle,
-              border: const OutlineInputBorder(),
-            ),
+            decoration: InputDecoration(labelText: l10n.eventTitle),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _locationController,
-            decoration: InputDecoration(
-              labelText: l10n.locationLabel,
-              border: const OutlineInputBorder(),
-            ),
+            decoration: InputDecoration(labelText: l10n.locationLabel),
           ),
           sectionTitle(l10n.defaultTimeLabel),
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.schedule),
+                  icon: const Icon(Icons.schedule_rounded),
                   label: Text(timeOf(_minutes(_defaultStart))),
                   onPressed: () async {
                     final picked = await showTimePicker(
@@ -285,7 +290,7 @@ class _AddInstancesScreenState extends ConsumerState<AddInstancesScreen> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.sync),
+                icon: const Icon(Icons.sync_rounded),
                 tooltip: l10n.applyToAll,
                 onPressed: _instances.isEmpty ? null : _applyDefaultsToAll,
               ),
@@ -316,7 +321,7 @@ class _AddInstancesScreenState extends ConsumerState<AddInstancesScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.event),
+                  icon: const Icon(Icons.event_rounded),
                   label: Text('${l10n.fromLabel}: '
                       '${DateFormat.MMMd().format(_from)}'),
                   onPressed: () async {
@@ -354,7 +359,7 @@ class _AddInstancesScreenState extends ConsumerState<AddInstancesScreen> {
           ),
           const SizedBox(height: 8),
           FilledButton.tonalIcon(
-            icon: const Icon(Icons.auto_awesome),
+            icon: const Icon(Icons.auto_awesome_rounded),
             label: Text(l10n.generateDates),
             onPressed:
                 _weekdays.isEmpty || _until == null ? null : _generateFromPattern,
@@ -370,7 +375,7 @@ class _AddInstancesScreenState extends ConsumerState<AddInstancesScreen> {
             ),
           ),
           TextButton.icon(
-            icon: const Icon(Icons.playlist_add),
+            icon: const Icon(Icons.playlist_add_rounded),
             label: Text(l10n.addSelectedDates),
             onPressed: _addPickedDates,
           ),
@@ -382,27 +387,21 @@ class _AddInstancesScreenState extends ConsumerState<AddInstancesScreen> {
               ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.event_repeat, size: 18),
+                leading: const Icon(Icons.event_repeat_rounded, size: 18),
                 title: Text(dateFormat.format(instance.date)),
                 subtitle: Text(
                     '${timeOf(instance.startMinutes)} – ${timeOf(instance.endMinutes)}'),
                 trailing: IconButton(
-                  icon: const Icon(Icons.close, size: 18),
+                  icon: const Icon(Icons.close_rounded, size: 18),
                   onPressed: () => setState(() =>
                       _instances = [..._instances]..removeAt(index)),
                 ),
                 onTap: () => _editInstance(index),
               ),
           TextButton.icon(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             label: Text(l10n.addSingleDate),
             onPressed: _addSingleDate,
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed:
-                _instances.isEmpty ? null : () => _save(project),
-            child: Text(l10n.createInstances(_instances.length)),
           ),
           const SizedBox(height: 24),
         ],

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../core/providers.dart';
-import '../../core/widgets/workspace_filter_button.dart';
-import '../../core/widgets/workspaces_button.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../projects/project_providers.dart';
+import '../workspaces/workspace_style.dart';
 import 'calendar_providers.dart';
 
 /// Appointment id prefixes distinguishing our two appointment kinds.
@@ -105,6 +109,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final tokens = context.tokens;
     final events = ref.watch(calendarEventsProvider(_range)).value ?? [];
     final tasks = ref.watch(agendaTasksProvider(_range)).value ?? [];
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
@@ -152,59 +157,306 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.tabCalendar),
+        titleSpacing: 16,
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: WorkspaceSwitcherPill(),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.topic_outlined),
+            icon: const Icon(Icons.layers_outlined),
             tooltip: l10n.projectsTitle,
             onPressed: () => context.go('/calendar/projects'),
           ),
-          const WorkspaceFilterButton(),
-          const WorkspacesButton(),
+          const AppBarOverflowMenu(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        // Tab screens coexist in the shell's IndexedStack, so each FAB needs
+        // its own hero tag to avoid duplicate-tag conflicts.
+        heroTag: 'fab-calendar',
         tooltip: l10n.newEvent,
         onPressed: () => context.go('/calendar/new'),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_rounded),
       ),
-      body: SfCalendar(
-        controller: _controller,
-        view: CalendarView.week,
-        allowedViews: const [
-          CalendarView.day,
-          CalendarView.week,
-          CalendarView.month,
-          CalendarView.schedule,
+      body: SfCalendarTheme(
+        data: _calendarTheme(theme, tokens),
+        child: SfCalendar(
+          controller: _controller,
+          view: CalendarView.week,
+          allowedViews: const [
+            CalendarView.day,
+            CalendarView.week,
+            CalendarView.month,
+            CalendarView.schedule,
+          ],
+          firstDayOfWeek: 1,
+          dataSource: _AppointmentSource(appointments),
+          showDatePickerButton: true,
+          showTodayButton: true,
+          allowDragAndDrop: true,
+          allowAppointmentResize: true,
+          onViewChanged: _onViewChanged,
+          onTap: _onTap,
+          onDragEnd: (details) {
+            final appointment = details.appointment as Appointment?;
+            if (appointment != null) _applyMove(appointment);
+          },
+          onAppointmentResizeEnd: (details) {
+            final appointment = details.appointment as Appointment?;
+            if (appointment != null) _applyMove(appointment);
+          },
+          backgroundColor: Colors.transparent,
+          cellBorderColor: tokens.hairline,
+          todayHighlightColor: theme.colorScheme.primary,
+          selectionDecoration: BoxDecoration(
+            border: Border.all(color: theme.colorScheme.primary, width: 1.6),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          headerStyle: CalendarHeaderStyle(
+            backgroundColor: Colors.transparent,
+            textStyle: TextStyle(
+              fontFamily: displayFontFamily,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          viewHeaderStyle: ViewHeaderStyle(
+            dayTextStyle: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: tokens.ink3,
+            ),
+            dateTextStyle: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: tokens.ink2,
+            ),
+          ),
+          appointmentBuilder: _buildAppointment,
+          monthViewSettings: MonthViewSettings(
+            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
+            showAgenda: true,
+            monthCellStyle: MonthCellStyle(
+              textStyle: TextStyle(
+                fontFamily: bodyFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface,
+              ),
+              trailingDatesTextStyle: TextStyle(
+                fontFamily: bodyFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: tokens.ink3,
+              ),
+              leadingDatesTextStyle: TextStyle(
+                fontFamily: bodyFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: tokens.ink3,
+              ),
+            ),
+            agendaStyle: AgendaStyle(
+              dayTextStyle: TextStyle(
+                fontFamily: bodyFontFamily,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: tokens.ink3,
+              ),
+              dateTextStyle: TextStyle(
+                fontFamily: displayFontFamily,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+          ),
+          timeSlotViewSettings: TimeSlotViewSettings(
+            startHour: 6,
+            endHour: 24,
+            timeTextStyle: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: tokens.ink3,
+            ),
+          ),
+          scheduleViewSettings: ScheduleViewSettings(
+            hideEmptyScheduleWeek: true,
+            monthHeaderSettings: MonthHeaderSettings(
+              backgroundColor: theme.colorScheme.surfaceContainer,
+              monthTextStyle: TextStyle(
+                fontFamily: displayFontFamily,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            weekHeaderSettings: WeekHeaderSettings(
+              weekTextStyle: TextStyle(
+                fontFamily: bodyFontFamily,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.1,
+                color: tokens.ink3,
+              ),
+            ),
+            dayHeaderSettings: DayHeaderSettings(
+              dayTextStyle: TextStyle(
+                fontFamily: bodyFontFamily,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: tokens.ink3,
+              ),
+              dateTextStyle: TextStyle(
+                fontFamily: displayFontFamily,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  SfCalendarThemeData _calendarTheme(ThemeData theme, TomeraTokens tokens) {
+    return SfCalendarThemeData(
+      backgroundColor: Colors.transparent,
+      headerBackgroundColor: Colors.transparent,
+      cellBorderColor: tokens.hairline,
+      todayHighlightColor: theme.colorScheme.primary,
+      selectionBorderColor: theme.colorScheme.primary,
+    );
+  }
+
+  /// Renders the redesign's event tile: a workspace-tinted rounded card with
+  /// a colored left rail; task deadlines get a dashed-feel outline card with
+  /// a status glyph instead.
+  Widget _buildAppointment(
+      BuildContext context, CalendarAppointmentDetails details) {
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+    final appointment = details.appointments.first as Appointment;
+    final id = appointment.id as String;
+    final isTask = id.startsWith(_taskPrefix);
+    final bounds = details.bounds;
+    // Below this height the title + meta line don't fit; drop the meta line.
+    final compact = bounds.height < 42;
+    final inMonthCell = bounds.height <= 20 && !details.isMoreAppointmentRegion;
+
+    // Tiny month-cell strips: just a colored bar with the title.
+    if (inMonthCell) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        decoration: BoxDecoration(
+          color: appointment.color,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          appointment.subject,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontFamily: bodyFontFamily,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: workspaceForeground(appointment.color),
+          ),
+        ),
+      );
+    }
+
+    final timeLabel =
+        '${DateFormat.Hm().format(appointment.startTime)} – '
+        '${DateFormat.Hm().format(appointment.endTime)}';
+
+    if (isTask) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(9),
+          border: Border(
+            left: BorderSide(color: tokens.ink3, width: 3),
+            top: BorderSide(color: tokens.line),
+            right: BorderSide(color: tokens.line),
+            bottom: BorderSide(color: tokens.line),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.radio_button_unchecked_rounded,
+                size: 14, color: tokens.ink3),
+            const SizedBox(width: 5),
+            Expanded(
+              child: Text(
+                appointment.subject,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: bodyFontFamily,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final tint = Color.alphaBlend(
+      appointment.color.withValues(alpha: 0.16),
+      theme.colorScheme.surfaceContainer,
+    );
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: compact ? 2 : 5),
+      decoration: BoxDecoration(
+        color: tint,
+        borderRadius: BorderRadius.circular(9),
+        border: Border(left: BorderSide(color: appointment.color, width: 3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            appointment.subject,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.1,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          if (!compact && !appointment.isAllDay)
+            Text(
+              [
+                timeLabel,
+                if (appointment.notes?.isNotEmpty == true) appointment.notes!,
+              ].join(' · '),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: bodyFontFamily,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+                color: tokens.ink2,
+              ),
+            ),
         ],
-        firstDayOfWeek: 1,
-        dataSource: _AppointmentSource(appointments),
-        showDatePickerButton: true,
-        showTodayButton: true,
-        allowDragAndDrop: true,
-        allowAppointmentResize: true,
-        onViewChanged: _onViewChanged,
-        onTap: _onTap,
-        onDragEnd: (details) {
-          final appointment = details.appointment as Appointment?;
-          if (appointment != null) _applyMove(appointment);
-        },
-        onAppointmentResizeEnd: (details) {
-          final appointment = details.appointment as Appointment?;
-          if (appointment != null) _applyMove(appointment);
-        },
-        todayHighlightColor: theme.colorScheme.primary,
-        monthViewSettings: const MonthViewSettings(
-          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-          showAgenda: true,
-        ),
-        timeSlotViewSettings: const TimeSlotViewSettings(
-          startHour: 6,
-          endHour: 24,
-        ),
-        scheduleViewSettings: const ScheduleViewSettings(
-          hideEmptyScheduleWeek: true,
-        ),
       ),
     );
   }

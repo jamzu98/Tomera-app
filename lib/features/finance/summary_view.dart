@@ -4,6 +4,10 @@ import 'package:intl/intl.dart';
 
 import '../../core/money.dart';
 import '../../core/providers.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/section_header.dart';
+import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/workspace_avatar.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
 import 'finance_providers.dart';
@@ -50,15 +54,6 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
       _month.month,
     );
 
-    Widget sectionTitle(String title) => Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(
-            title,
-            style: theme.textTheme.titleSmall
-                ?.copyWith(color: theme.colorScheme.primary),
-          ),
-        );
-
     return ListView(
       padding: const EdgeInsets.only(bottom: 88),
       children: [
@@ -67,18 +62,18 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
           child: Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.chevron_left),
+                icon: const Icon(Icons.chevron_left_rounded),
                 onPressed: () => _shiftMonth(-1),
               ),
               Expanded(
                 child: Text(
                   DateFormat.yMMMM().format(_month),
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium,
+                  style: theme.textTheme.titleLarge,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.chevron_right),
+                icon: const Icon(Icons.chevron_right_rounded),
                 onPressed: () => _shiftMonth(1),
               ),
               TextButton(
@@ -89,20 +84,19 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
             ],
           ),
         ),
-        sectionTitle(l10n.overviewLabel),
+        SectionHeader(title: l10n.overviewLabel),
         _SummaryCard(summary: summary.overall),
         if (summary.byWorkspace.isNotEmpty) ...[
-          sectionTitle(l10n.byWorkspaceLabel),
+          SectionHeader(title: l10n.byWorkspaceLabel),
           for (final entry in summary.byWorkspace.entries)
             _GroupTile(
-              leading: Icon(
-                Icons.circle,
+              leading: WorkspaceDot(
                 size: 12,
                 color: Color(workspaces
                         .where((w) => w.id == entry.key)
                         .firstOrNull
                         ?.color ??
-                    0xFF888888),
+                    0xFFB7AD9C),
               ),
               name: workspaces
                       .where((w) => w.id == entry.key)
@@ -113,10 +107,10 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
             ),
         ],
         if (summary.byContact.isNotEmpty) ...[
-          sectionTitle(l10n.byContactLabel),
+          SectionHeader(title: l10n.byContactLabel),
           for (final entry in summary.byContact.entries)
             _GroupTile(
-              leading: const Icon(Icons.person_outline, size: 18),
+              leading: const Icon(Icons.person_outline_rounded, size: 18),
               name: contacts
                       .where((c) => c.id == entry.key)
                       .firstOrNull
@@ -138,12 +132,40 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    Widget row(String label, String value) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+    Widget row(String label, String value, {bool highlighted = false}) =>
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
           child: Row(
             children: [
-              Expanded(child: Text(label)),
-              Text(value, style: Theme.of(context).textTheme.titleSmall),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: bodyFontFamily,
+                    fontSize: 13.5,
+                    fontWeight:
+                        highlighted ? FontWeight.w800 : FontWeight.w600,
+                    color: highlighted
+                        ? theme.colorScheme.onSurface
+                        : tokens.ink2,
+                  ),
+                ),
+              ),
+              Text(
+                value,
+                style: TextStyle(
+                  fontFamily: bodyFontFamily,
+                  fontSize: highlighted ? 16 : 14.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.1,
+                  color: highlighted
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface,
+                  fontFeatures: tabularFigures,
+                ),
+              ),
             ],
           ),
         );
@@ -151,7 +173,7 @@ class _SummaryCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           children: [
             row(l10n.hoursThisMonth,
@@ -161,7 +183,8 @@ class _SummaryCard extends StatelessWidget {
             row(l10n.invoicedUnpaid,
                 '${formatCents(summary.invoicedUnpaidCents)} EUR'),
             row(l10n.paidThisMonth,
-                '${formatCents(summary.paidThisMonthCents)} EUR'),
+                '${formatCents(summary.paidThisMonthCents)} EUR',
+                highlighted: true),
           ],
         ),
       ),
@@ -183,8 +206,9 @@ class _GroupTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return ListTile(
-      dense: true,
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+    return SoftTile(
       leading: leading,
       title: Text(name),
       subtitle: Text(
@@ -198,10 +222,25 @@ class _GroupTile extends StatelessWidget {
         children: [
           Text(
             '${formatCents(summary.unbilledCents)} EUR',
-            style: Theme.of(context).textTheme.titleSmall,
+            style: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 14.5,
+              fontWeight: FontWeight.w800,
+              color: theme.colorScheme.onSurface,
+              fontFeatures: tabularFigures,
+            ),
           ),
-          Text(l10n.statusUnbilled,
-              style: Theme.of(context).textTheme.labelSmall),
+          const SizedBox(height: 3),
+          Text(
+            l10n.statusUnbilled.toUpperCase(),
+            style: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+              color: tokens.ink3,
+            ),
+          ),
         ],
       ),
     );

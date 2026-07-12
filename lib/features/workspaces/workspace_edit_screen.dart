@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
+import '../../core/widgets/form_group.dart';
+import '../../core/widgets/section_header.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'module_labels.dart';
@@ -109,102 +111,142 @@ class _WorkspaceEditScreenState extends ConsumerState<WorkspaceEditScreen> {
       if (workspace != null) _initFrom(workspace);
     }
 
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isNew ? l10n.newWorkspace : l10n.editWorkspace),
         actions: [
           if (workspace != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline_rounded),
               tooltip: l10n.delete,
               onPressed: () => _delete(workspace!),
             ),
         ],
       ),
+      bottomNavigationBar: SaveBar(label: l10n.save, onPressed: _save),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: InputDecoration(
-                labelText: l10n.workspaceName,
-                border: const OutlineInputBorder(),
-              ),
+              decoration: InputDecoration(labelText: l10n.workspaceName),
               textInputAction: TextInputAction.done,
               validator: (value) =>
                   (value == null || value.trim().isEmpty)
                       ? l10n.nameRequired
                       : null,
             ),
-            const SizedBox(height: 24),
-            Text(l10n.colorLabel,
-                style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
+            SectionHeader(
+              title: l10n.colorLabel,
+              padding: const EdgeInsets.fromLTRB(4, 24, 4, 10),
+            ),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 9,
+              runSpacing: 9,
               children: [
                 for (final color in workspaceColors)
                   InkWell(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(14),
                     onTap: () => setState(() => _color = color),
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Color(color),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Color(color),
+                        borderRadius: BorderRadius.circular(14),
+                        border: _color == color
+                            ? Border.all(
+                                color: theme.colorScheme.onSurface,
+                                width: 2.5)
+                            : Border.all(
+                                color: theme.colorScheme.outlineVariant),
+                      ),
                       child: _color == color
-                          ? const Icon(Icons.check, color: Colors.white)
+                          ? Icon(Icons.check_rounded,
+                              size: 22,
+                              color: workspaceForeground(Color(color)))
                           : null,
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 24),
-            Text(l10n.iconLabel, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            SectionHeader(
+              title: l10n.iconLabel,
+              padding: const EdgeInsets.fromLTRB(4, 24, 4, 10),
+            ),
+            GridView.count(
+              crossAxisCount: 6,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 9,
+              crossAxisSpacing: 9,
               children: [
                 for (final entry in workspaceIcons.entries)
                   InkWell(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(14),
                     onTap: () => setState(() => _icon = entry.key),
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: _icon == entry.key
-                          ? Color(_color)
-                          : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      decoration: BoxDecoration(
+                        color: _icon == entry.key
+                            ? Color(_color)
+                            : theme.colorScheme.surfaceContainer,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: _icon == entry.key
+                              ? Colors.transparent
+                              : theme.colorScheme.outline,
+                        ),
+                      ),
                       child: Icon(
                         entry.value,
+                        size: 22,
                         color: _icon == entry.key
-                            ? Colors.white
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                            ? workspaceForeground(Color(_color))
+                            : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 24),
-            Text(l10n.modulesLabel,
-                style: Theme.of(context).textTheme.titleSmall),
-            for (final module in ModuleKey.values)
-              SwitchListTile(
-                title: Text(moduleLabel(l10n, module)),
-                value: _modules.contains(module),
-                onChanged: (enabled) => setState(() {
-                  if (enabled) {
-                    _modules.add(module);
-                  } else {
-                    _modules.remove(module);
-                  }
-                }),
+            SectionHeader(
+              title: l10n.modulesLabel,
+              padding: const EdgeInsets.fromLTRB(4, 24, 4, 10),
+            ),
+            // Material (not a decorated Container) so ListTile ink renders.
+            Material(
+              color: theme.colorScheme.surfaceContainer,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+                side: BorderSide(color: theme.colorScheme.outlineVariant),
               ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _save,
-              child: Text(l10n.save),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  for (final (i, module) in ModuleKey.values.indexed) ...[
+                    if (i > 0)
+                      Divider(
+                          height: 1,
+                          color: theme.colorScheme.outlineVariant),
+                    SwitchListTile(
+                      title: Text(moduleLabel(l10n, module)),
+                      value: _modules.contains(module),
+                      onChanged: (enabled) => setState(() {
+                        if (enabled) {
+                          _modules.add(module);
+                        } else {
+                          _modules.remove(module);
+                        }
+                      }),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
         ),

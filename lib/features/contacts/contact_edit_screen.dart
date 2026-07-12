@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/money.dart';
 import '../../core/providers.dart';
+import '../../core/widgets/form_group.dart';
+import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'contact_providers.dart';
@@ -141,15 +143,14 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
       _initRoles(rolesValue.value ?? const []);
     }
 
-    InputDecoration decoration(String label) => InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        );
+    InputDecoration decoration(String label) =>
+        InputDecoration(labelText: label);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_isNew ? l10n.newContact : l10n.editContact),
       ),
+      bottomNavigationBar: SaveBar(label: l10n.save, onPressed: _save),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -217,7 +218,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
                         }
                       }),
                     ),
-                    Icon(Icons.circle, size: 12, color: Color(workspace.color)),
+                    WorkspaceDot(color: Color(workspace.color), size: 12),
                     const SizedBox(width: 8),
                     SizedBox(width: 90, child: Text(workspace.name,
                         overflow: TextOverflow.ellipsis)),
@@ -229,18 +230,12 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
                         decoration: InputDecoration(
                           hintText: l10n.roleHint,
                           isDense: true,
-                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _save,
-              child: Text(l10n.save),
-            ),
           ],
         ),
       ),

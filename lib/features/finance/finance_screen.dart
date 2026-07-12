@@ -7,8 +7,13 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/money.dart';
 import '../../core/providers.dart';
-import '../../core/widgets/workspace_filter_button.dart';
-import '../../core/widgets/workspaces_button.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/status_ring.dart';
+import '../../core/widgets/workspace_avatar.dart';
+import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
@@ -77,21 +82,23 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
       appBar: AppBar(
         title: Text(l10n.tabFinance),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.ios_share),
-            tooltip: l10n.exportCsv,
-            onPressed: _exportCsv,
-          ),
-          const WorkspaceFilterButton(),
-          const WorkspacesButton(),
+          const Center(child: WorkspaceSwitcherPill(compact: true)),
+          AppBarOverflowMenu(entries: [
+            (
+              icon: Icons.ios_share_rounded,
+              label: l10n.exportCsv,
+              onTap: _exportCsv,
+            ),
+          ]),
         ],
       ),
       floatingActionButton: _showSummary
           ? null
           : FloatingActionButton(
+              heroTag: 'fab-finance',
               tooltip: l10n.newBillable,
               onPressed: () => context.go('/finance/new'),
-              child: const Icon(Icons.add),
+              child: const Icon(Icons.add_rounded),
             ),
       body: Column(
         children: [
@@ -150,7 +157,11 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
                       ),
                     AsyncValue(isLoading: true) =>
                       const Center(child: CircularProgressIndicator()),
-                    _ => _EmptyState(l10n: l10n),
+                    _ => EmptyState(
+                        icon: Icons.receipt_long_outlined,
+                        title: l10n.emptyBillablesTitle,
+                        body: l10n.emptyBillablesBody,
+                      ),
                   },
           ),
         ],
@@ -167,12 +178,18 @@ class _BillableList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    if (items.isEmpty) return _EmptyState(l10n: l10n);
+    if (items.isEmpty) {
+      return EmptyState(
+        icon: Icons.receipt_long_outlined,
+        title: l10n.emptyBillablesTitle,
+        body: l10n.emptyBillablesBody,
+      );
+    }
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
     final contacts = ref.watch(allContactsProvider).value ?? [];
 
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 88),
+      padding: const EdgeInsets.only(top: 6, bottom: 88),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
@@ -186,64 +203,103 @@ class _BillableList extends ConsumerWidget {
           durationMinutes: item.durationMinutes,
           amountCents: item.amountCents,
         );
-        final subtitleParts = [
-          billableStatusLabel(l10n, item.status),
-          if (contact != null) contact.name,
-        ];
-        return ListTile(
-          leading: IconButton(
-            icon: Icon(switch (item.status) {
-              BillableStatus.unbilled => Icons.receipt_long_outlined,
-              BillableStatus.invoiced => Icons.outgoing_mail,
-              BillableStatus.paid => Icons.check_circle,
-            }),
-            color: switch (item.status) {
-              BillableStatus.unbilled => Theme.of(context).colorScheme.outline,
-              BillableStatus.invoiced => Theme.of(context).colorScheme.tertiary,
-              BillableStatus.paid => Theme.of(context).colorScheme.primary,
-            },
-            tooltip: billableStatusLabel(l10n, item.status),
-            onPressed: () =>
-                ref.read(billableRepositoryProvider).cycleStatus(item),
-          ),
-          title: Text(item.title),
-          subtitle: Text(subtitleParts.join(' · ')),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${formatCents(total)} ${item.currency}',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              if (workspace != null)
-                Icon(Icons.circle, size: 10, color: Color(workspace.color)),
-            ],
-          ),
-          onTap: () => context.go('/finance/${item.id}'),
+        return _BillableTile(
+          item: item,
+          workspace: workspace,
+          contact: contact,
+          totalCents: total,
         );
       },
     );
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.l10n});
+class _BillableTile extends ConsumerWidget {
+  const _BillableTile({
+    required this.item,
+    required this.workspace,
+    required this.contact,
+    required this.totalCents,
+  });
 
-  final AppLocalizations l10n;
+  final BillableItem item;
+  final Workspace? workspace;
+  final Contact? contact;
+  final int totalCents;
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+
+    // Leading status marker cycles unbilled -> invoiced -> paid on tap.
+    final (statusIcon, statusColor, statusFilled) = switch (item.status) {
+      BillableStatus.unbilled =>
+        (Icons.radio_button_unchecked_rounded, tokens.ink3, false),
+      BillableStatus.invoiced =>
+        (Icons.schedule_rounded, const Color(0xFFE4AB3C), false),
+      BillableStatus.paid => (Icons.check_rounded, tokens.success, true),
+    };
+
+    return SoftTile(
+      leading: StatusRing(
+        icon: statusIcon,
+        color: statusColor,
+        filled: statusFilled,
+        squared: true,
+        size: 38,
+        tooltip: billableStatusLabel(l10n, item.status),
+        onTap: () => ref.read(billableRepositoryProvider).cycleStatus(item),
+      ),
+      title: Text(item.title),
+      subtitle: Row(
         children: [
-          Text(l10n.emptyBillablesTitle,
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(l10n.emptyBillablesBody),
+          if (workspace != null) ...[
+            WorkspaceDot(color: Color(workspace!.color)),
+            const SizedBox(width: 6),
+          ],
+          Flexible(
+            child: Text(
+              [
+                if (contact != null) contact!.name,
+                if (workspace != null && contact == null) workspace!.name,
+              ].join(' · '),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            formatCents(totalCents),
+            style: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.1,
+              color: theme.colorScheme.onSurface,
+              fontFeatures: tabularFigures,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            '${item.currency} · ${billableStatusLabel(l10n, item.status)}'
+                .toUpperCase(),
+            style: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+              color: tokens.ink3,
+            ),
+          ),
+        ],
+      ),
+      onTap: () => context.go('/finance/${item.id}'),
     );
   }
 }

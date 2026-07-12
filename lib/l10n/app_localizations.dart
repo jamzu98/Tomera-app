@@ -142,6 +142,12 @@ abstract class AppLocalizations {
   /// **'All workspaces'**
   String get allWorkspaces;
 
+  /// Compact label for the all-workspaces filter pill next to a screen title
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allWorkspacesShort;
+
   /// No description provided for @save.
   ///
   /// In en, this message translates to:
@@ -921,6 +927,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Organization'**
   String get organizationLabel;
+
+  /// Form group heading for the event identity fields
+  ///
+  /// In en, this message translates to:
+  /// **'Event'**
+  String get formGroupEvent;
+
+  /// Form group heading for date/time fields
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get formGroupWhen;
+
+  /// Form group heading for secondary fields
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get formGroupDetails;
+
+  /// Form group heading for workspace/contact/project pickers
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get formGroupLinks;
+
+  /// Form group heading for billing amount fields
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get formGroupAmount;
+
+  /// Quick action button on contact detail that dials the contact
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get callAction;
+
+  /// Quick action button on contact detail that starts a pre-filled billable
+  ///
+  /// In en, this message translates to:
+  /// **'Log time'**
+  String get logTimeAction;
 
   /// No description provided for @contactNotesLabel.
   ///

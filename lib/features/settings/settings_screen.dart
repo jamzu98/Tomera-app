@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/widgets/section_header.dart';
 import '../../l10n/app_localizations.dart';
 import 'settings_providers.dart';
 
@@ -22,62 +23,78 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 24),
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text(
-              l10n.themeLabel,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+          SectionHeader(title: l10n.themeLabel),
+          _SettingsCard(
+            child: RadioGroup<ThemeMode>(
+              groupValue: themeMode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(themeModeSettingProvider.notifier).set(value);
+                }
+              },
+              child: Column(
+                children: [
+                  for (final mode in ThemeMode.values)
+                    RadioListTile<ThemeMode>(
+                      title: Text(themeLabel(mode)),
+                      value: mode,
+                    ),
+                ],
+              ),
             ),
           ),
-          RadioGroup<ThemeMode>(
-            groupValue: themeMode,
-            onChanged: (value) {
-              if (value != null) {
-                ref.read(themeModeSettingProvider.notifier).set(value);
-              }
-            },
-            child: Column(
-              children: [
-                for (final mode in ThemeMode.values)
-                  RadioListTile<ThemeMode>(
-                    title: Text(themeLabel(mode)),
-                    value: mode,
-                  ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-            child: Text(
-              l10n.roundingLabel,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-          ),
-          RadioGroup<int>(
-            groupValue: rounding,
-            onChanged: (value) {
-              if (value != null) {
-                ref.read(roundingMinutesSettingProvider.notifier).set(value);
-              }
-            },
-            child: Column(
-              children: [
-                for (final minutes in roundingOptions)
-                  RadioListTile<int>(
-                    title: Text(minutes == 0
-                        ? l10n.roundingNone
-                        : l10n.roundingOption(minutes)),
-                    value: minutes,
-                  ),
-              ],
+          SectionHeader(title: l10n.roundingLabel),
+          _SettingsCard(
+            child: RadioGroup<int>(
+              groupValue: rounding,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(roundingMinutesSettingProvider.notifier).set(value);
+                }
+              },
+              child: Column(
+                children: [
+                  for (final minutes in roundingOptions)
+                    RadioListTile<int>(
+                      title: Text(minutes == 0
+                          ? l10n.roundingNone
+                          : l10n.roundingOption(minutes)),
+                      value: minutes,
+                    ),
+                ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SettingsCard extends StatelessWidget {
+  const _SettingsCard({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      // Material (not a decorated Container) so ListTile ink renders on it.
+      child: Material(
+        color: theme.colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: child,
+        ),
       ),
     );
   }

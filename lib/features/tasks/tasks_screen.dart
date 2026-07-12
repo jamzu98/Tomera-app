@@ -4,8 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers.dart';
-import '../../core/widgets/workspace_filter_button.dart';
-import '../../core/widgets/workspaces_button.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/section_header.dart';
+import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/status_ring.dart';
+import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'task_grouping.dart';
@@ -35,12 +40,17 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tabTasks),
-        actions: const [WorkspaceFilterButton(), WorkspacesButton()],
+        actions: const [
+          Center(child: WorkspaceSwitcherPill(compact: true)),
+          SizedBox(width: 4),
+          AppBarOverflowMenu(),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab-tasks',
         tooltip: l10n.newTask,
         onPressed: () => context.go('/tasks/new'),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_rounded),
       ),
       body: Column(
         children: [
@@ -112,44 +122,42 @@ class _TaskList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
     if (tasks.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.emptyTasksTitle,
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(l10n.emptyTasksBody),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.task_alt_rounded,
+        title: l10n.emptyTasksTitle,
+        body: l10n.emptyTasksBody,
       );
     }
 
-    final sections = <(String, List<Task>)>[];
+    final sections = <(String, Color, List<Task>)>[];
     if (groupMode == _GroupMode.status) {
       for (final entry in groupByStatus(tasks).entries) {
-        sections.add((_statusLabel(l10n, entry.key), entry.value));
+        final color = switch (entry.key) {
+          TaskStatus.open => theme.colorScheme.onSurface,
+          TaskStatus.inProgress => const Color(0xFF7C7FF2),
+          TaskStatus.done => tokens.success,
+        };
+        sections.add((_statusLabel(l10n, entry.key), color, entry.value));
       }
     } else {
       for (final entry in groupByDueDate(tasks, DateTime.now()).entries) {
-        sections.add((_dueSectionLabel(l10n, entry.key), entry.value));
+        final color = switch (entry.key) {
+          DueSection.overdue => tokens.overdue,
+          DueSection.today => theme.colorScheme.onSurface,
+          _ => tokens.ink3,
+        };
+        sections.add((_dueSectionLabel(l10n, entry.key), color, entry.value));
       }
     }
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 88),
       children: [
-        for (final (title, sectionTasks) in sections) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-          ),
+        for (final (title, color, sectionTasks) in sections) ...[
+          GroupHeader(title: title, color: color, count: sectionTasks.length),
           for (final task in sectionTasks) _TaskTile(task: task),
         ],
       ],
@@ -164,23 +172,27 @@ class _TaskTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final tokens = context.tokens;
     final overdue = isOverdue(task, DateTime.now());
     final dueAt = task.dueAt;
+    final done = task.status == TaskStatus.done;
 
-    return ListTile(
-      leading: IconButton(
-        icon: Icon(switch (task.status) {
-          TaskStatus.open => Icons.radio_button_unchecked,
-          TaskStatus.inProgress => Icons.timelapse,
-          TaskStatus.done => Icons.check_circle,
-        }),
-        color: switch (task.status) {
-          TaskStatus.open => theme.colorScheme.outline,
-          TaskStatus.inProgress => theme.colorScheme.tertiary,
-          TaskStatus.done => theme.colorScheme.primary,
-        },
-        onPressed: () {
+    // One-tap status ring: open -> in progress -> done.
+    final (statusIcon, statusColor, statusFilled) = switch (task.status) {
+      TaskStatus.open =>
+        (Icons.radio_button_unchecked_rounded, tokens.ink3, false),
+      TaskStatus.inProgress =>
+        (Icons.timelapse_rounded, const Color(0xFF7C7FF2), false),
+      TaskStatus.done => (Icons.check_rounded, tokens.success, true),
+    };
+
+    return SoftTile(
+      leading: StatusRing(
+        icon: statusIcon,
+        color: statusColor,
+        filled: statusFilled,
+        size: 32,
+        onTap: () {
           // Completing a task cancels its pending reminder (spec §6.3).
           if (task.status == TaskStatus.inProgress) {
             ref.read(reminderCoordinatorProvider).cancelTaskReminder(task.id);
@@ -190,28 +202,51 @@ class _TaskTile extends ConsumerWidget {
       ),
       title: Text(
         task.title,
-        style: task.status == TaskStatus.done
-            ? const TextStyle(decoration: TextDecoration.lineThrough)
+        style: done
+            ? TextStyle(
+                decoration: TextDecoration.lineThrough,
+                decorationThickness: 1.5,
+                color: tokens.ink3,
+              )
             : null,
       ),
       subtitle: dueAt != null
-          ? Text(
-              DateFormat.yMMMEd().add_Hm().format(
-                  DateTime.fromMillisecondsSinceEpoch(dueAt, isUtc: true)
-                      .toLocal()),
-              style: overdue
-                  ? TextStyle(color: theme.colorScheme.error)
-                  : null,
+          ? Row(
+              children: [
+                Icon(
+                  overdue
+                      ? Icons.event_busy_rounded
+                      : (done
+                          ? Icons.check_circle_outline_rounded
+                          : Icons.schedule_rounded),
+                  size: 14,
+                  color: overdue ? tokens.overdue : tokens.ink2,
+                ),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    DateFormat.yMMMEd().add_Hm().format(
+                        DateTime.fromMillisecondsSinceEpoch(dueAt, isUtc: true)
+                            .toLocal()),
+                    overflow: TextOverflow.ellipsis,
+                    style: overdue
+                        ? TextStyle(
+                            color: tokens.overdue, fontWeight: FontWeight.w600)
+                        : null,
+                  ),
+                ),
+              ],
             )
           : null,
       trailing: task.priority != TaskPriority.normal
           ? Icon(
               task.priority == TaskPriority.high
-                  ? Icons.keyboard_double_arrow_up
-                  : Icons.keyboard_double_arrow_down,
+                  ? Icons.keyboard_double_arrow_up_rounded
+                  : Icons.keyboard_double_arrow_down_rounded,
+              size: 22,
               color: task.priority == TaskPriority.high
-                  ? theme.colorScheme.error
-                  : theme.colorScheme.outline,
+                  ? tokens.overdue
+                  : tokens.ink3,
             )
           : null,
       onTap: () => context.go('/tasks/${task.id}'),

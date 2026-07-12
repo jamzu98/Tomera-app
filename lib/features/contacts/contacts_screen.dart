@@ -3,10 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
-import '../../core/widgets/workspace_filter_button.dart';
-import '../../core/widgets/workspaces_button.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
+import '../workspaces/workspace_style.dart';
+import 'contact_detail_screen.dart' show initialsOf;
 import 'contact_providers.dart';
 
 class ContactsScreen extends ConsumerWidget {
@@ -23,12 +28,17 @@ class ContactsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tabContacts),
-        actions: const [WorkspaceFilterButton(), WorkspacesButton()],
+        actions: const [
+          Center(child: WorkspaceSwitcherPill(compact: true)),
+          SizedBox(width: 4),
+          AppBarOverflowMenu(),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab-contacts',
         tooltip: l10n.newContact,
         onPressed: () => context.go('/contacts/new'),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_rounded),
       ),
       body: Column(
         children: [
@@ -45,23 +55,17 @@ class ContactsScreen extends ConsumerWidget {
             child: switch (contactsValue) {
               AsyncValue(value: final contacts?) when contacts.isNotEmpty =>
                 ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 88),
+                  padding: const EdgeInsets.only(top: 6, bottom: 88),
                   itemCount: contacts.length,
                   itemBuilder: (context, index) =>
                       _ContactTile(contact: contacts[index]),
                 ),
               AsyncValue(isLoading: true) =>
                 const Center(child: CircularProgressIndicator()),
-              _ => Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(l10n.emptyContactsTitle,
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 8),
-                      Text(l10n.emptyContactsBody),
-                    ],
-                  ),
+              _ => EmptyState(
+                  icon: Icons.group_outlined,
+                  title: l10n.emptyContactsTitle,
+                  body: l10n.emptyContactsBody,
                 ),
             },
           ),
@@ -78,8 +82,28 @@ class _ContactTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(child: Text(_initials(contact.name))),
+    // Deterministic identity color per contact from the workspace palette.
+    final color =
+        Color(workspaceColors[contact.name.hashCode % workspaceColors.length]);
+    return SoftTile(
+      leading: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          initialsOf(contact.name),
+          style: TextStyle(
+            fontFamily: displayFontFamily,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: workspaceForeground(color),
+          ),
+        ),
+      ),
       title: Text(contact.name),
       subtitle: contact.organization?.isNotEmpty == true
           ? Text(contact.organization!)
@@ -87,12 +111,4 @@ class _ContactTile extends StatelessWidget {
       onTap: () => context.go('/contacts/${contact.id}'),
     );
   }
-}
-
-String _initials(String name) {
-  final parts = name.trim().split(RegExp(r'\s+'));
-  if (parts.isEmpty || parts.first.isEmpty) return '?';
-  final first = parts.first[0];
-  final last = parts.length > 1 ? parts.last[0] : '';
-  return (first + last).toUpperCase();
 }

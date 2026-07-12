@@ -4,7 +4,10 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/markdown_style.dart';
 import '../../core/providers.dart';
+import '../../core/widgets/form_group.dart';
+import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'note_providers.dart';
@@ -137,12 +140,13 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
           ),
           if (note != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline_rounded),
               tooltip: l10n.delete,
               onPressed: () => _delete(note!),
             ),
         ],
       ),
+      bottomNavigationBar: SaveBar(label: l10n.save, onPressed: _save),
       body: Form(
         key: _formKey,
         child: Column(
@@ -153,10 +157,7 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
                 children: [
                   TextFormField(
                     controller: _titleController,
-                    decoration: InputDecoration(
-                      labelText: l10n.noteTitle,
-                      border: const OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(labelText: l10n.noteTitle),
                     validator: (value) =>
                         (value == null || value.trim().isEmpty)
                             ? l10n.titleRequired
@@ -165,10 +166,8 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String?>(
                     initialValue: _workspaceId,
-                    decoration: InputDecoration(
-                      labelText: l10n.workspaceLabel,
-                      border: const OutlineInputBorder(),
-                    ),
+                    decoration:
+                        InputDecoration(labelText: l10n.workspaceLabel),
                     items: [
                       DropdownMenuItem(
                         value: null,
@@ -179,8 +178,7 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
                           value: w.id,
                           child: Row(
                             children: [
-                              Icon(Icons.circle,
-                                  size: 12, color: Color(w.color)),
+                              WorkspaceDot(color: Color(w.color), size: 12),
                               const SizedBox(width: 8),
                               Text(w.name),
                             ],
@@ -199,29 +197,16 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
                     ? Markdown(
                         data: _bodyController.text,
                         padding: EdgeInsets.zero,
+                        styleSheet: tomeraMarkdownStyleSheet(context),
                       )
                     : TextFormField(
                         controller: _bodyController,
-                        decoration: InputDecoration(
-                          hintText: l10n.noteBodyHint,
-                          border: const OutlineInputBorder(),
-                        ),
+                        decoration:
+                            InputDecoration(hintText: l10n.noteBodyHint),
                         maxLines: null,
                         expands: true,
                         textAlignVertical: TextAlignVertical.top,
                       ),
-              ),
-            ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _save,
-                    child: Text(l10n.save),
-                  ),
-                ),
               ),
             ),
           ],

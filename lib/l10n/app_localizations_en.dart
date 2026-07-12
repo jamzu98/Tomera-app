@@ -33,6 +33,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allWorkspaces => 'All workspaces';
 
   @override
+  String get allWorkspacesShort => 'All';
+
+  @override
   String get save => 'Save';
 
   @override
@@ -439,6 +442,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get organizationLabel => 'Organization';
+
+  @override
+  String get formGroupEvent => 'Event';
+
+  @override
+  String get formGroupWhen => 'When';
+
+  @override
+  String get formGroupDetails => 'Details';
+
+  @override
+  String get formGroupLinks => 'Links';
+
+  @override
+  String get formGroupAmount => 'Amount';
+
+  @override
+  String get callAction => 'Call';
+
+  @override
+  String get logTimeAction => 'Log time';
 
   @override
   String get contactNotesLabel => 'Notes';

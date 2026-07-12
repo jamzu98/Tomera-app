@@ -35,7 +35,7 @@ Future<void> _seed(ProviderContainer container) async {
       ? existing.first.id
       : await workspaces.create(
           name: 'DEV',
-          color: 0xFF00696B,
+          color: 0xFF7C7FF2,
           icon: 'code',
           enabledModules: {...ModuleKey.values},
         );

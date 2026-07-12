@@ -5,6 +5,11 @@ import 'package:intl/intl.dart';
 
 import '../../core/money.dart';
 import '../../core/providers.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/financial_summary_card.dart';
+import '../../core/widgets/section_header.dart';
+import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
@@ -83,7 +88,7 @@ class ProjectDetailScreen extends ConsumerWidget {
             onPressed: () => context.go('/calendar/projects/$projectId/edit'),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline_rounded),
             tooltip: l10n.delete,
             onPressed: () => _delete(context, ref, project),
           ),
@@ -98,12 +103,12 @@ class ProjectDetailScreen extends ConsumerWidget {
             children: [
               if (workspace != null)
                 Chip(
-                  avatar: Icon(Icons.circle, size: 12, color: color),
+                  avatar: WorkspaceDot(size: 12, color: color),
                   label: Text(workspace.name),
                 ),
               if (contact != null)
                 Chip(
-                  avatar: const Icon(Icons.person_outline, size: 16),
+                  avatar: const Icon(Icons.person_outline_rounded, size: 16),
                   label: Text(contact.name),
                 ),
               if (project.archived) Chip(label: Text(l10n.archivedLabel)),
@@ -113,7 +118,8 @@ class ProjectDetailScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(project.description!,
-                  style: theme.textTheme.bodyMedium),
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: context.tokens.ink2)),
             ),
           _Section(
             title: l10n.linkedEvents,
@@ -121,13 +127,13 @@ class ProjectDetailScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextButton.icon(
-                  icon: const Icon(Icons.event_repeat, size: 18),
+                  icon: const Icon(Icons.event_repeat_rounded, size: 18),
                   label: Text(l10n.addInstances),
                   onPressed: () => context
                       .go('/calendar/projects/$projectId/instances'),
                 ),
                 TextButton.icon(
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: const Icon(Icons.add_rounded, size: 18),
                   label: Text(l10n.newEvent),
                   onPressed: () =>
                       context.go('/calendar/new?projectId=$projectId'),
@@ -136,9 +142,9 @@ class ProjectDetailScreen extends ConsumerWidget {
             ),
             children: [
               for (final event in events)
-                ListTile(
-                  dense: true,
-                  leading: Icon(Icons.circle, size: 12, color: color),
+                SoftTile(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  leading: WorkspaceDot(size: 10, color: color),
                   title: Text(event.title),
                   subtitle: Text(
                     '${dateFormat.format(DateTime.fromMillisecondsSinceEpoch(event.startsAt, isUtc: true).toLocal())}'
@@ -151,20 +157,23 @@ class ProjectDetailScreen extends ConsumerWidget {
           _Section(
             title: l10n.linkedTasks,
             action: TextButton.icon(
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(l10n.newTask),
               onPressed: () =>
                   context.go('/tasks/new?projectId=$projectId'),
             ),
             children: [
               for (final task in tasks)
-                ListTile(
-                  dense: true,
+                SoftTile(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
                   leading: Icon(
                     task.status == TaskStatus.done
-                        ? Icons.check_circle
-                        : Icons.radio_button_unchecked,
-                    size: 18,
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    size: 20,
+                    color: task.status == TaskStatus.done
+                        ? context.tokens.success
+                        : context.tokens.ink3,
                   ),
                   title: Text(task.title),
                   onTap: () => context.go('/tasks/${task.id}'),
@@ -174,16 +183,17 @@ class ProjectDetailScreen extends ConsumerWidget {
           _Section(
             title: l10n.linkedNotes,
             action: TextButton.icon(
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(l10n.addNoteAction),
               onPressed: () => context.go(
                   '/notes/new?parentType=project&parentId=$projectId'),
             ),
             children: [
               for (final note in notes)
-                ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.description_outlined, size: 18),
+                SoftTile(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  leading: Icon(Icons.description_outlined,
+                      size: 20, color: context.tokens.ink2),
                   title: Text(note.title),
                   onTap: () => context.go('/notes/${note.id}'),
                 ),
@@ -192,16 +202,17 @@ class ProjectDetailScreen extends ConsumerWidget {
           _Section(
             title: l10n.linkedBillables,
             action: TextButton.icon(
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(l10n.newBillable),
               onPressed: () =>
                   context.go('/finance/new?projectId=$projectId'),
             ),
             children: [
               for (final item in billables)
-                ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.receipt_long_outlined, size: 18),
+                SoftTile(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  leading: Icon(Icons.receipt_long_outlined,
+                      size: 20, color: context.tokens.ink2),
                   title: Text(item.title),
                   subtitle: Text(billableStatusLabel(l10n, item.status)),
                   trailing: Text(
@@ -211,23 +222,28 @@ class ProjectDetailScreen extends ConsumerWidget {
                       durationMinutes: item.durationMinutes,
                       amountCents: item.amountCents,
                     ))} ${item.currency}',
+                    style: TextStyle(
+                      fontFamily: bodyFontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.onSurface,
+                      fontFeatures: tabularFigures,
+                    ),
                   ),
                   onTap: () => context.go('/finance/${item.id}'),
                 ),
             ],
           ),
           if (totals != null) ...[
-            Padding(
-              padding: const EdgeInsets.only(top: 16, bottom: 4),
-              child: Text(
-                l10n.financialSummary,
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(color: theme.colorScheme.primary),
-              ),
+            SectionHeader(
+              title: l10n.financialSummary,
+              padding: const EdgeInsets.fromLTRB(6, 22, 6, 8),
             ),
-            _TotalRow(label: l10n.statusUnbilled, cents: totals.unbilled),
-            _TotalRow(label: l10n.statusInvoiced, cents: totals.invoiced),
-            _TotalRow(label: l10n.statusPaid, cents: totals.paid),
+            FinancialSummaryCard(rows: [
+              (l10n.statusUnbilled, totals.unbilled, false),
+              (l10n.statusInvoiced, totals.invoiced, false),
+              (l10n.statusPaid, totals.paid, true),
+            ]),
           ],
         ],
       ),
@@ -250,14 +266,19 @@ class _Section extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 16, bottom: 4),
+          padding: const EdgeInsets.fromLTRB(6, 20, 0, 6),
           child: Row(
             children: [
               Expanded(
                 child: Text(
-                  title,
-                  style: theme.textTheme.titleSmall
-                      ?.copyWith(color: theme.colorScheme.primary),
+                  title.toUpperCase(),
+                  style: TextStyle(
+                    fontFamily: bodyFontFamily,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.3,
+                    color: context.tokens.ink3,
+                  ),
                 ),
               ),
               if (action != null) action!,
@@ -265,31 +286,14 @@ class _Section extends StatelessWidget {
           ),
         ),
         if (children.isEmpty)
-          Text(l10n.nothingLinkedYet, style: theme.textTheme.bodySmall)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child:
+                Text(l10n.nothingLinkedYet, style: theme.textTheme.bodySmall),
+          )
         else
           ...children,
       ],
-    );
-  }
-}
-
-class _TotalRow extends StatelessWidget {
-  const _TotalRow({required this.label, required this.cents});
-
-  final String label;
-  final int cents;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          Text('${formatCents(cents)} EUR',
-              style: Theme.of(context).textTheme.titleSmall),
-        ],
-      ),
     );
   }
 }

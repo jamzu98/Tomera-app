@@ -238,28 +238,28 @@ class AppShell extends ConsumerWidget {
         onDestinationSelected: shell.goBranch,
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.calendar_today_outlined),
-            selectedIcon: const Icon(Icons.calendar_today),
+            icon: const Icon(Icons.calendar_month_outlined),
+            selectedIcon: const Icon(Icons.calendar_month_rounded),
             label: l10n.tabCalendar,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.check_circle_outline),
-            selectedIcon: const Icon(Icons.check_circle),
+            icon: const Icon(Icons.task_alt_outlined),
+            selectedIcon: const Icon(Icons.task_alt_rounded),
             label: l10n.tabTasks,
           ),
           NavigationDestination(
             icon: const Icon(Icons.notes_outlined),
-            selectedIcon: const Icon(Icons.notes),
+            selectedIcon: const Icon(Icons.notes_rounded),
             label: l10n.tabNotes,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.people_outline),
-            selectedIcon: const Icon(Icons.people),
+            icon: const Icon(Icons.group_outlined),
+            selectedIcon: const Icon(Icons.group_rounded),
             label: l10n.tabContacts,
           ),
           NavigationDestination(
             icon: const Icon(Icons.euro_outlined),
-            selectedIcon: const Icon(Icons.euro),
+            selectedIcon: const Icon(Icons.euro_rounded),
             label: l10n.tabFinance,
           ),
         ],

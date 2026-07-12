@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/money.dart';
 import '../../core/providers.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/financial_summary_card.dart';
+import '../../core/widgets/section_header.dart';
+import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../finance/billable_math.dart';
 import '../finance/finance_providers.dart';
 import '../finance/finance_screen.dart' show billableStatusLabel;
+import '../workspaces/workspace_style.dart';
 import 'contact_providers.dart';
 
 class ContactDetailScreen extends ConsumerWidget {
@@ -46,6 +53,7 @@ class ContactDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final tokens = context.tokens;
     final contactValue = ref.watch(contactByIdProvider(contactId));
     final contact = contactValue.value;
     if (contactValue.isLoading) {
@@ -67,76 +75,101 @@ class ContactDetailScreen extends ConsumerWidget {
     Workspace? workspaceOf(String id) =>
         workspaces.where((w) => w.id == id).firstOrNull;
 
+    // Identity color: the first workspace this contact belongs to.
+    final identityColor = Color(roles.isNotEmpty
+        ? (workspaceOf(roles.first.workspaceId)?.color ?? 0xFFB7AD9C)
+        : 0xFFB7AD9C);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(contact.name),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             tooltip: l10n.editContact,
             onPressed: () => context.go('/contacts/$contactId/edit'),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            tooltip: l10n.delete,
-            onPressed: () => _delete(context, ref, contact),
+          PopupMenuButton<void>(
+            icon: const Icon(Icons.more_vert_rounded),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: () => _delete(context, ref, contact),
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline_rounded,
+                        size: 20, color: tokens.overdue),
+                    const SizedBox(width: 12),
+                    Text(l10n.delete,
+                        style: TextStyle(color: tokens.overdue)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
-          if (roles.isNotEmpty)
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                for (final role in roles)
-                  if (workspaceOf(role.workspaceId) case final workspace?)
-                    Chip(
-                      avatar: Icon(Icons.circle,
-                          size: 12, color: Color(workspace.color)),
-                      label: Text(role.roleLabel?.isNotEmpty == true
-                          ? '${workspace.name} · ${role.roleLabel}'
-                          : workspace.name),
-                    ),
-              ],
-            ),
-          if (contact.organization?.isNotEmpty == true)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.business_outlined),
-              title: Text(contact.organization!),
-            ),
+          _IdentityHeader(
+            contact: contact,
+            color: identityColor,
+            roleChips: [
+              for (final role in roles)
+                if (workspaceOf(role.workspaceId) case final workspace?)
+                  _RoleChip(
+                    color: Color(workspace.color),
+                    label: role.roleLabel?.isNotEmpty == true
+                        ? '${workspace.name} · ${role.roleLabel}'
+                        : workspace.name,
+                  ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _QuickActions(contact: contact, contactId: contactId),
+          const SizedBox(height: 6),
           if (contact.email?.isNotEmpty == true)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.mail_outline),
-              title: Text(contact.email!),
-            ),
+            _InfoRow(
+                icon: Icons.mail_outline_rounded,
+                label: l10n.emailLabel,
+                value: contact.email!),
           if (contact.phone?.isNotEmpty == true)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.phone_outlined),
-              title: Text(contact.phone!),
-            ),
+            _InfoRow(
+                icon: Icons.call_outlined,
+                label: l10n.phoneLabel,
+                value: contact.phone!,
+                tabular: true),
+          if (contact.organization?.isNotEmpty == true)
+            _InfoRow(
+                icon: Icons.business_outlined,
+                label: l10n.organizationLabel,
+                value: contact.organization!),
+          if (contact.defaultHourlyRateCents case final rate?)
+            _InfoRow(
+                icon: Icons.payments_outlined,
+                label: l10n.defaultRateLabel,
+                value: '${formatCents(rate)} EUR / h',
+                tabular: true),
           if (contact.notesText?.isNotEmpty == true)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
               child: Text(contact.notesText!,
-                  style: theme.textTheme.bodyMedium),
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: tokens.ink2)),
             ),
           _Section(
             title: l10n.linkedTasks,
             children: [
               for (final task in tasks)
-                ListTile(
-                  dense: true,
+                SoftTile(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
                   leading: Icon(
                     task.status == TaskStatus.done
-                        ? Icons.check_circle
-                        : Icons.radio_button_unchecked,
-                    size: 18,
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    size: 20,
+                    color: task.status == TaskStatus.done
+                        ? tokens.success
+                        : tokens.ink3,
                   ),
                   title: Text(task.title),
                   onTap: () => context.go('/tasks/${task.id}'),
@@ -147,12 +180,13 @@ class ContactDetailScreen extends ConsumerWidget {
             title: l10n.linkedEvents,
             children: [
               for (final event in events)
-                ListTile(
-                  dense: true,
-                  leading: Icon(Icons.circle,
-                      size: 12,
-                      color: Color(workspaceOf(event.workspaceId)?.color ??
-                          0xFF888888)),
+                SoftTile(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  leading: WorkspaceDot(
+                    color: Color(
+                        workspaceOf(event.workspaceId)?.color ?? 0xFFB7AD9C),
+                    size: 10,
+                  ),
                   title: Text(event.title),
                   subtitle: Text(DateFormat.yMMMEd().add_Hm().format(
                       DateTime.fromMillisecondsSinceEpoch(event.startsAt,
@@ -164,17 +198,15 @@ class ContactDetailScreen extends ConsumerWidget {
           ),
           _Section(
             title: l10n.linkedNotes,
-            action: TextButton.icon(
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.addNoteAction),
-              onPressed: () => context.go(
-                  '/notes/new?parentType=contact&parentId=$contactId'),
-            ),
+            actionLabel: l10n.addNoteAction,
+            onAction: () =>
+                context.go('/notes/new?parentType=contact&parentId=$contactId'),
             children: [
               for (final note in notes)
-                ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.description_outlined, size: 18),
+                SoftTile(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  leading: Icon(Icons.description_outlined,
+                      size: 20, color: tokens.ink2),
                   title: Text(note.title),
                   onTap: () => context.go('/notes/${note.id}'),
                 ),
@@ -182,17 +214,14 @@ class ContactDetailScreen extends ConsumerWidget {
           ),
           _Section(
             title: l10n.linkedBillables,
-            action: TextButton.icon(
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.newBillable),
-              onPressed: () =>
-                  context.go('/finance/new?contactId=$contactId'),
-            ),
+            actionLabel: l10n.newBillable,
+            onAction: () => context.go('/finance/new?contactId=$contactId'),
             children: [
               for (final item in billables)
-                ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.receipt_long_outlined, size: 18),
+                SoftTile(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  leading: Icon(Icons.receipt_long_outlined,
+                      size: 20, color: tokens.ink2),
                   title: Text(item.title),
                   subtitle: Text(billableStatusLabel(l10n, item.status)),
                   trailing: Text(
@@ -202,23 +231,28 @@ class ContactDetailScreen extends ConsumerWidget {
                       durationMinutes: item.durationMinutes,
                       amountCents: item.amountCents,
                     ))} ${item.currency}',
+                    style: TextStyle(
+                      fontFamily: bodyFontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.onSurface,
+                      fontFeatures: tabularFigures,
+                    ),
                   ),
                   onTap: () => context.go('/finance/${item.id}'),
                 ),
             ],
           ),
           if (totals != null) ...[
-            Padding(
-              padding: const EdgeInsets.only(top: 16, bottom: 4),
-              child: Text(
-                l10n.financialSummary,
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(color: theme.colorScheme.primary),
-              ),
+            SectionHeader(
+              title: l10n.financialSummary,
+              padding: const EdgeInsets.fromLTRB(6, 22, 6, 8),
             ),
-            _TotalRow(label: l10n.statusUnbilled, cents: totals.unbilled),
-            _TotalRow(label: l10n.statusInvoiced, cents: totals.invoiced),
-            _TotalRow(label: l10n.statusPaid, cents: totals.paid),
+            FinancialSummaryCard(rows: [
+              (l10n.statusUnbilled, totals.unbilled, false),
+              (l10n.statusInvoiced, totals.invoiced, false),
+              (l10n.statusPaid, totals.paid, true),
+            ]),
           ],
         ],
       ),
@@ -226,21 +260,278 @@ class ContactDetailScreen extends ConsumerWidget {
   }
 }
 
-class _TotalRow extends StatelessWidget {
-  const _TotalRow({required this.label, required this.cents});
+class _IdentityHeader extends StatelessWidget {
+  const _IdentityHeader({
+    required this.contact,
+    required this.color,
+    required this.roleChips,
+  });
 
-  final String label;
-  final int cents;
+  final Contact contact;
+  final Color color;
+  final List<Widget> roleChips;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Container(
+          width: 84,
+          height: 84,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            initialsOf(contact.name),
+            style: TextStyle(
+              fontFamily: displayFontFamily,
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: workspaceForeground(color),
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          contact.name,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.headlineSmall?.copyWith(fontSize: 24),
+        ),
+        if (contact.organization?.isNotEmpty == true) ...[
+          const SizedBox(height: 2),
+          Text(
+            contact.organization!,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: tokens.ink2,
+            ),
+          ),
+        ],
+        if (roleChips.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 7,
+            runSpacing: 7,
+            alignment: WrapAlignment.center,
+            children: roleChips,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _RoleChip extends StatelessWidget {
+  const _RoleChip({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      height: 30,
+      padding: const EdgeInsets.symmetric(horizontal: 11),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: theme.colorScheme.outline),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          WorkspaceDot(color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: bodyFontFamily,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickActions extends StatelessWidget {
+  const _QuickActions({required this.contact, required this.contactId});
+
+  final Contact contact;
+  final String contactId;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
+      children: [
+        Expanded(
+          child: _ActionButton(
+            icon: Icons.timer_outlined,
+            label: l10n.logTimeAction,
+            primary: true,
+            onTap: () => context.go('/finance/new?contactId=$contactId'),
+          ),
+        ),
+        if (contact.phone?.isNotEmpty == true) ...[
+          const SizedBox(width: 9),
+          Expanded(
+            child: _ActionButton(
+              icon: Icons.call_outlined,
+              label: l10n.callAction,
+              onTap: () =>
+                  launchUrl(Uri(scheme: 'tel', path: contact.phone!)),
+            ),
+          ),
+        ],
+        if (contact.email?.isNotEmpty == true) ...[
+          const SizedBox(width: 9),
+          Expanded(
+            child: _ActionButton(
+              icon: Icons.mail_outline_rounded,
+              label: l10n.emailLabel,
+              onTap: () =>
+                  launchUrl(Uri(scheme: 'mailto', path: contact.email!)),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.primary = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool primary;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final fg = primary
+        ? theme.colorScheme.onPrimary
+        : theme.colorScheme.onSurface;
+    return Material(
+      color: primary
+          ? theme.colorScheme.primary
+          : theme.colorScheme.surfaceContainer,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: primary
+            ? BorderSide.none
+            : BorderSide(color: theme.colorScheme.outline),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: SizedBox(
+          height: 44,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 19, color: fg),
+              const SizedBox(width: 7),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: bodyFontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: fg,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.tabular = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool tabular;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tokens = context.tokens;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 11),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: tokens.hairline)),
+      ),
       child: Row(
         children: [
-          Expanded(child: Text(label)),
-          Text('${formatCents(cents)} EUR',
-              style: Theme.of(context).textTheme.titleSmall),
+          SizedBox(
+            width: 24,
+            child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(
+                    fontFamily: bodyFontFamily,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.8,
+                    color: tokens.ink3,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontFamily: bodyFontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                    fontFeatures: tabular ? tabularFigures : null,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -248,11 +539,17 @@ class _TotalRow extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.children, this.action});
+  const _Section({
+    required this.title,
+    required this.children,
+    this.actionLabel,
+    this.onAction,
+  });
 
   final String title;
   final List<Widget> children;
-  final Widget? action;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -261,26 +558,31 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 16, bottom: 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.titleSmall
-                      ?.copyWith(color: theme.colorScheme.primary),
-                ),
-              ),
-              if (action != null) action!,
-            ],
-          ),
+        SectionHeader(
+          title: title,
+          actionLabel: actionLabel,
+          actionIcon: onAction != null ? Icons.add_rounded : null,
+          onAction: onAction,
+          padding: const EdgeInsets.fromLTRB(6, 22, 6, 8),
         ),
         if (children.isEmpty)
-          Text(l10n.nothingLinkedYet, style: theme.textTheme.bodySmall)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Text(l10n.nothingLinkedYet,
+                style: theme.textTheme.bodySmall),
+          )
         else
           ...children,
       ],
     );
   }
+}
+
+/// "Antti Virtanen" -> "AV".
+String initialsOf(String name) {
+  final parts = name.trim().split(RegExp(r'\s+'));
+  if (parts.isEmpty || parts.first.isEmpty) return '?';
+  final first = parts.first[0];
+  final last = parts.length > 1 ? parts.last[0] : '';
+  return (first + last).toUpperCase();
 }

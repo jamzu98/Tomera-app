@@ -11,6 +11,10 @@
   "tabContacts": "Contacts",
   "tabFinance": "Finance",
   "allWorkspaces": "All workspaces",
+  "allWorkspacesShort": "All",
+  "@allWorkspacesShort": {
+    "description": "Compact label for the all-workspaces filter pill next to a screen title"
+  },
   "@allWorkspaces": {
     "description": "Workspace filter option that shows data from every workspace"
   },
@@ -193,6 +197,34 @@
   "emailLabel": "Email",
   "phoneLabel": "Phone",
   "organizationLabel": "Organization",
+  "formGroupEvent": "Event",
+  "@formGroupEvent": {
+    "description": "Form group heading for the event identity fields"
+  },
+  "formGroupWhen": "When",
+  "@formGroupWhen": {
+    "description": "Form group heading for date/time fields"
+  },
+  "formGroupDetails": "Details",
+  "@formGroupDetails": {
+    "description": "Form group heading for secondary fields"
+  },
+  "formGroupLinks": "Links",
+  "@formGroupLinks": {
+    "description": "Form group heading for workspace/contact/project pickers"
+  },
+  "formGroupAmount": "Amount",
+  "@formGroupAmount": {
+    "description": "Form group heading for billing amount fields"
+  },
+  "callAction": "Call",
+  "@callAction": {
+    "description": "Quick action button on contact detail that dials the contact"
+  },
+  "logTimeAction": "Log time",
+  "@logTimeAction": {
+    "description": "Quick action button on contact detail that starts a pre-filled billable"
+  },
   "contactNotesLabel": "Notes",
   "defaultRateLabel": "Default hourly rate (€)",
   "invalidAmount": "Enter a valid amount",

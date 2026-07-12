@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/money.dart';
 import '../../core/providers.dart';
+import '../../core/widgets/form_group.dart';
+import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
@@ -225,70 +227,120 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
       );
     }
 
-    InputDecoration decoration(String label) => InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        );
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_isNew ? l10n.newBillable : l10n.editBillable),
         actions: [
           if (item != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline_rounded),
               tooltip: l10n.delete,
               onPressed: () => _delete(item!),
             ),
         ],
       ),
+      bottomNavigationBar: SaveBar(label: l10n.save, onPressed: _save),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
-            TextFormField(
-              controller: _titleController,
-              decoration: decoration(l10n.taskTitle),
-              validator: (value) => (value == null || value.trim().isEmpty)
-                  ? l10n.titleRequired
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            SegmentedButton<BillableType>(
-              segments: [
-                ButtonSegment(
-                  value: BillableType.hourly,
-                  label: Text(l10n.typeHourly),
+            FormGroupCard(
+              title: l10n.formGroupDetails,
+              children: [
+                FormFieldRow(
+                  icon: Icons.title_rounded,
+                  label: l10n.taskTitle,
+                  child: TextFormField(
+                    controller: _titleController,
+                    style: inlineFieldStyle(context),
+                    decoration:
+                        inlineFieldDecoration(context, hint: l10n.taskTitle),
+                    validator: (value) =>
+                        (value == null || value.trim().isEmpty)
+                            ? l10n.titleRequired
+                            : null,
+                  ),
                 ),
-                ButtonSegment(
-                  value: BillableType.fixed,
-                  label: Text(l10n.typeFixed),
+                FormFieldRow(
+                  icon: Icons.notes_rounded,
+                  label: l10n.descriptionLabel,
+                  child: TextFormField(
+                    controller: _descriptionController,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context,
+                        hint: l10n.descriptionLabel),
+                    minLines: 1,
+                    maxLines: 5,
+                  ),
+                ),
+                FormFieldRow(
+                  icon: Icons.flag_outlined,
+                  label: l10n.billableStatusLabel,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: SegmentedButton<BillableStatus>(
+                      segments: [
+                        for (final status in BillableStatus.values)
+                          ButtonSegment(
+                            value: status,
+                            label: Text(billableStatusLabel(l10n, status)),
+                          ),
+                      ],
+                      selected: {_status},
+                      onSelectionChanged: (selection) =>
+                          setState(() => _status = selection.first),
+                    ),
+                  ),
                 ),
               ],
-              selected: {_type},
-              onSelectionChanged: (selection) =>
-                  setState(() => _type = selection.first),
             ),
-            const SizedBox(height: 16),
-            if (_type == BillableType.hourly) ...[
-              Row(
-                children: [
-                  Expanded(
+            FormGroupCard(
+              title: l10n.formGroupAmount,
+              children: [
+                FormFieldRow(
+                  icon: Icons.payments_outlined,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: SegmentedButton<BillableType>(
+                      segments: [
+                        ButtonSegment(
+                          value: BillableType.hourly,
+                          label: Text(l10n.typeHourly),
+                        ),
+                        ButtonSegment(
+                          value: BillableType.fixed,
+                          label: Text(l10n.typeFixed),
+                        ),
+                      ],
+                      selected: {_type},
+                      onSelectionChanged: (selection) =>
+                          setState(() => _type = selection.first),
+                    ),
+                  ),
+                ),
+                if (_type == BillableType.hourly) ...[
+                  FormFieldRow(
+                    icon: Icons.speed_rounded,
+                    label: l10n.rateLabel,
                     child: TextFormField(
                       controller: _rateController,
-                      decoration: decoration(l10n.rateLabel),
+                      style: inlineFieldStyle(context),
+                      decoration:
+                          inlineFieldDecoration(context, hint: '0.00'),
                       keyboardType: const TextInputType.numberWithOptions(
                           decimal: true),
                       validator: (value) =>
                           _validateMoney(value, required: true),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
+                  FormFieldRow(
+                    icon: Icons.timelapse_rounded,
+                    label: l10n.durationMinutesLabel,
                     child: TextFormField(
                       controller: _durationController,
-                      decoration: decoration(l10n.durationMinutesLabel),
+                      style: inlineFieldStyle(context),
+                      decoration: inlineFieldDecoration(context, hint: '60'),
                       keyboardType: TextInputType.number,
                       validator: (value) =>
                           int.tryParse(value?.trim() ?? '') == null
@@ -296,96 +348,102 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
                               : null,
                     ),
                   ),
-                ],
-              ),
-            ] else
-              TextFormField(
-                controller: _amountController,
-                decoration: decoration(l10n.amountLabel),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) => _validateMoney(value, required: true),
-              ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _workspaceId,
-              decoration: decoration(l10n.workspaceLabel),
-              items: [
-                for (final w in workspaces)
-                  DropdownMenuItem(
-                    value: w.id,
-                    child: Row(
-                      children: [
-                        Icon(Icons.circle, size: 12, color: Color(w.color)),
-                        const SizedBox(width: 8),
-                        Text(w.name),
-                      ],
+                ] else
+                  FormFieldRow(
+                    icon: Icons.request_quote_outlined,
+                    label: l10n.amountLabel,
+                    child: TextFormField(
+                      controller: _amountController,
+                      style: inlineFieldStyle(context),
+                      decoration:
+                          inlineFieldDecoration(context, hint: '0.00'),
+                      keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true),
+                      validator: (value) =>
+                          _validateMoney(value, required: true),
                     ),
                   ),
-              ],
-              onChanged: (id) => setState(() => _workspaceId = id),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String?>(
-              initialValue: _contactId,
-              decoration: decoration(l10n.contactLabel),
-              items: [
-                DropdownMenuItem(value: null, child: Text(l10n.noContact)),
-                for (final contact in contacts)
-                  DropdownMenuItem(
-                    value: contact.id,
-                    child: Text(contact.name),
+                FormFieldRow(
+                  icon: Icons.currency_exchange_rounded,
+                  label: l10n.currencyLabel,
+                  child: TextFormField(
+                    controller: _currencyController,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context, hint: 'EUR'),
                   ),
+                ),
               ],
-              onChanged: _onContactChanged,
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String?>(
-              initialValue: _projectId,
-              decoration: decoration(l10n.projectLabel),
-              items: [
-                DropdownMenuItem(value: null, child: Text(l10n.noProject)),
-                for (final project
-                    in ref.watch(allProjectsProvider).value ?? <Project>[])
-                  DropdownMenuItem(
-                    value: project.id,
-                    child: Text(project.name),
+            FormGroupCard(
+              title: l10n.formGroupLinks,
+              children: [
+                FormFieldRow(
+                  icon: Icons.workspaces_outline,
+                  label: l10n.workspaceLabel,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _workspaceId,
+                    isDense: true,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context),
+                    items: [
+                      for (final w in workspaces)
+                        DropdownMenuItem(
+                          value: w.id,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              WorkspaceDot(color: Color(w.color), size: 12),
+                              const SizedBox(width: 8),
+                              Text(w.name),
+                            ],
+                          ),
+                        ),
+                    ],
+                    onChanged: (id) => setState(() => _workspaceId = id),
                   ),
-              ],
-              onChanged: (id) => setState(() => _projectId = id),
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.billableStatusLabel,
-                style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
-            SegmentedButton<BillableStatus>(
-              segments: [
-                for (final status in BillableStatus.values)
-                  ButtonSegment(
-                    value: status,
-                    label: Text(billableStatusLabel(l10n, status)),
+                ),
+                FormFieldRow(
+                  icon: Icons.person_outline_rounded,
+                  label: l10n.contactLabel,
+                  child: DropdownButtonFormField<String?>(
+                    initialValue: _contactId,
+                    isDense: true,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context),
+                    items: [
+                      DropdownMenuItem(
+                          value: null, child: Text(l10n.noContact)),
+                      for (final contact in contacts)
+                        DropdownMenuItem(
+                          value: contact.id,
+                          child: Text(contact.name),
+                        ),
+                    ],
+                    onChanged: _onContactChanged,
                   ),
+                ),
+                FormFieldRow(
+                  icon: Icons.layers_outlined,
+                  label: l10n.projectLabel,
+                  child: DropdownButtonFormField<String?>(
+                    initialValue: _projectId,
+                    isDense: true,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context),
+                    items: [
+                      DropdownMenuItem(
+                          value: null, child: Text(l10n.noProject)),
+                      for (final project in
+                          ref.watch(allProjectsProvider).value ?? <Project>[])
+                        DropdownMenuItem(
+                          value: project.id,
+                          child: Text(project.name),
+                        ),
+                    ],
+                    onChanged: (id) => setState(() => _projectId = id),
+                  ),
+                ),
               ],
-              selected: {_status},
-              onSelectionChanged: (selection) =>
-                  setState(() => _status = selection.first),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _currencyController,
-              decoration: decoration(l10n.currencyLabel),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: decoration(l10n.descriptionLabel),
-              minLines: 2,
-              maxLines: 5,
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _save,
-              child: Text(l10n.save),
             ),
           ],
         ),

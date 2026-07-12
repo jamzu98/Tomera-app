@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/providers.dart';
+import '../../core/widgets/form_group.dart';
+import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
@@ -182,14 +184,13 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.circle,
+                    WorkspaceDot(
                       size: 12,
                       color: Color(workspaces
                               .where((w) => w.id == event.workspaceId)
                               .firstOrNull
                               ?.color ??
-                          0xFF888888),
+                          0xFFB7AD9C),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -322,167 +323,212 @@ class _EventEditScreenState extends ConsumerState<EventEditScreen> {
         actions: [
           if (event != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline_rounded),
               tooltip: l10n.delete,
               onPressed: () => _delete(event!),
             ),
         ],
       ),
+      bottomNavigationBar: SaveBar(label: l10n.save, onPressed: _save),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: l10n.eventTitle,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) => (value == null || value.trim().isEmpty)
-                  ? l10n.titleRequired
-                  : null,
+            FormGroupCard(
+              title: l10n.formGroupEvent,
+              children: [
+                FormFieldRow(
+                  icon: Icons.title_rounded,
+                  label: l10n.eventTitle,
+                  child: TextFormField(
+                    controller: _titleController,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context,
+                        hint: l10n.eventTitle),
+                    validator: (value) =>
+                        (value == null || value.trim().isEmpty)
+                            ? l10n.titleRequired
+                            : null,
+                  ),
+                ),
+                FormFieldRow(
+                  icon: Icons.workspaces_outline,
+                  label: l10n.workspaceLabel,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _workspaceId,
+                    isDense: true,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context),
+                    items: [
+                      for (final w in workspaces)
+                        DropdownMenuItem(
+                          value: w.id,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              WorkspaceDot(color: Color(w.color), size: 12),
+                              const SizedBox(width: 8),
+                              Text(w.name),
+                            ],
+                          ),
+                        ),
+                    ],
+                    onChanged: (id) => setState(() => _workspaceId = id),
+                  ),
+                ),
+                FormFieldRow(
+                  icon: Icons.layers_outlined,
+                  label: l10n.projectLabel,
+                  child: DropdownButtonFormField<String?>(
+                    initialValue: _projectId,
+                    isDense: true,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context),
+                    items: [
+                      DropdownMenuItem(
+                          value: null, child: Text(l10n.noProject)),
+                      for (final project in
+                          ref.watch(allProjectsProvider).value ?? <Project>[])
+                        DropdownMenuItem(
+                          value: project.id,
+                          child: Text(project.name),
+                        ),
+                    ],
+                    onChanged: (id) => setState(() => _projectId = id),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _workspaceId,
-              decoration: InputDecoration(
-                labelText: l10n.workspaceLabel,
-                border: const OutlineInputBorder(),
-              ),
-              items: [
-                for (final w in workspaces)
-                  DropdownMenuItem(
-                    value: w.id,
-                    child: Row(
-                      children: [
-                        Icon(Icons.circle, size: 12, color: Color(w.color)),
-                        const SizedBox(width: 8),
-                        Text(w.name),
-                      ],
+            FormGroupCard(
+              title: l10n.formGroupWhen,
+              children: [
+                FormFieldRow(
+                  icon: Icons.schedule_rounded,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(l10n.allDayLabel,
+                            style: inlineFieldStyle(context)),
+                      ),
+                      Switch(
+                        value: _allDay,
+                        onChanged: (value) =>
+                            setState(() => _allDay = value),
+                      ),
+                    ],
+                  ),
+                ),
+                FormFieldRow(
+                  icon: Icons.play_circle_outline_rounded,
+                  label: l10n.startsLabel,
+                  trailing: Icon(Icons.edit_calendar_outlined,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  onTap: () => _pickDateTime(isStart: true),
+                  child: Text(formatMoment(_start),
+                      style: inlineFieldStyle(context)),
+                ),
+                FormFieldRow(
+                  icon: Icons.stop_circle_outlined,
+                  label: l10n.endsLabel,
+                  trailing: Icon(Icons.edit_calendar_outlined,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  onTap: () => _pickDateTime(isStart: false),
+                  child: Text(formatMoment(_end),
+                      style: inlineFieldStyle(context)),
+                ),
+              ],
+            ),
+            FormGroupCard(
+              title: l10n.formGroupDetails,
+              children: [
+                FormFieldRow(
+                  icon: Icons.notifications_outlined,
+                  label: l10n.reminderLabel,
+                  child: DropdownButtonFormField<ReminderOffset>(
+                    initialValue: _reminderOffset,
+                    isDense: true,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context),
+                    items: [
+                      DropdownMenuItem(
+                        value: ReminderOffset.none,
+                        child: Text(l10n.remindNone),
+                      ),
+                      DropdownMenuItem(
+                        value: ReminderOffset.atStart,
+                        child: Text(l10n.remindAtStart),
+                      ),
+                      DropdownMenuItem(
+                        value: ReminderOffset.min15,
+                        child: Text(l10n.remind15m),
+                      ),
+                      DropdownMenuItem(
+                        value: ReminderOffset.hour1,
+                        child: Text(l10n.remind1h),
+                      ),
+                      DropdownMenuItem(
+                        value: ReminderOffset.day1,
+                        child: Text(l10n.remind1d),
+                      ),
+                    ],
+                    onChanged: (offset) => setState(
+                        () => _reminderOffset = offset ?? ReminderOffset.none),
+                  ),
+                ),
+                if (ref.watch(allContactsProvider).value case final contacts?
+                    when contacts.isNotEmpty)
+                  FormFieldRow(
+                    icon: Icons.group_outlined,
+                    label: l10n.linkedContacts,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Wrap(
+                        spacing: 7,
+                        runSpacing: 6,
+                        children: [
+                          for (final contact in contacts)
+                            FilterChip(
+                              label: Text(contact.name),
+                              selected:
+                                  _linkedContactIds.contains(contact.id),
+                              onSelected: (selected) => setState(() {
+                                if (selected) {
+                                  _linkedContactIds.add(contact.id);
+                                } else {
+                                  _linkedContactIds.remove(contact.id);
+                                }
+                              }),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-              ],
-              onChanged: (id) => setState(() => _workspaceId = id),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String?>(
-              initialValue: _projectId,
-              decoration: InputDecoration(
-                labelText: l10n.projectLabel,
-                border: const OutlineInputBorder(),
-              ),
-              items: [
-                DropdownMenuItem(value: null, child: Text(l10n.noProject)),
-                for (final project
-                    in ref.watch(allProjectsProvider).value ?? <Project>[])
-                  DropdownMenuItem(
-                    value: project.id,
-                    child: Text(project.name),
+                FormFieldRow(
+                  icon: Icons.location_on_outlined,
+                  label: l10n.locationLabel,
+                  child: TextFormField(
+                    controller: _locationController,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context,
+                        hint: l10n.locationLabel),
                   ),
-              ],
-              onChanged: (id) => setState(() => _projectId = id),
-            ),
-            const SizedBox(height: 16),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.allDayLabel),
-              value: _allDay,
-              onChanged: (value) => setState(() => _allDay = value),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.schedule),
-              title: Text(l10n.startsLabel),
-              trailing: Text(formatMoment(_start)),
-              onTap: () => _pickDateTime(isStart: true),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.schedule_outlined),
-              title: Text(l10n.endsLabel),
-              trailing: Text(formatMoment(_end)),
-              onTap: () => _pickDateTime(isStart: false),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<ReminderOffset>(
-              initialValue: _reminderOffset,
-              decoration: InputDecoration(
-                labelText: l10n.reminderLabel,
-                border: const OutlineInputBorder(),
-              ),
-              items: [
-                DropdownMenuItem(
-                  value: ReminderOffset.none,
-                  child: Text(l10n.remindNone),
                 ),
-                DropdownMenuItem(
-                  value: ReminderOffset.atStart,
-                  child: Text(l10n.remindAtStart),
-                ),
-                DropdownMenuItem(
-                  value: ReminderOffset.min15,
-                  child: Text(l10n.remind15m),
-                ),
-                DropdownMenuItem(
-                  value: ReminderOffset.hour1,
-                  child: Text(l10n.remind1h),
-                ),
-                DropdownMenuItem(
-                  value: ReminderOffset.day1,
-                  child: Text(l10n.remind1d),
+                FormFieldRow(
+                  icon: Icons.notes_rounded,
+                  label: l10n.descriptionLabel,
+                  child: TextFormField(
+                    controller: _descriptionController,
+                    style: inlineFieldStyle(context),
+                    decoration: inlineFieldDecoration(context,
+                        hint: l10n.descriptionLabel),
+                    minLines: 1,
+                    maxLines: 5,
+                  ),
                 ),
               ],
-              onChanged: (offset) => setState(() =>
-                  _reminderOffset = offset ?? ReminderOffset.none),
-            ),
-            const SizedBox(height: 16),
-            if (ref.watch(allContactsProvider).value case final contacts?
-                when contacts.isNotEmpty) ...[
-              Text(l10n.linkedContacts,
-                  style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  for (final contact in contacts)
-                    FilterChip(
-                      label: Text(contact.name),
-                      selected: _linkedContactIds.contains(contact.id),
-                      onSelected: (selected) => setState(() {
-                        if (selected) {
-                          _linkedContactIds.add(contact.id);
-                        } else {
-                          _linkedContactIds.remove(contact.id);
-                        }
-                      }),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-            TextFormField(
-              controller: _locationController,
-              decoration: InputDecoration(
-                labelText: l10n.locationLabel,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(
-                labelText: l10n.descriptionLabel,
-                border: const OutlineInputBorder(),
-              ),
-              minLines: 2,
-              maxLines: 5,
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _save,
-              child: Text(l10n.save),
             ),
           ],
         ),

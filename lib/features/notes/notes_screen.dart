@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
-import '../../core/widgets/workspace_filter_button.dart';
-import '../../core/widgets/workspaces_button.dart';
+import '../../core/theme.dart';
+import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import 'note_providers.dart';
@@ -61,24 +64,26 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         actions: [
           if (_searching)
             IconButton(
-              icon: const Icon(Icons.close),
+              icon: const Icon(Icons.close_rounded),
               tooltip: l10n.closeSearch,
               onPressed: _closeSearch,
             )
           else
             IconButton(
-              icon: const Icon(Icons.search),
+              icon: const Icon(Icons.search_rounded),
               tooltip: l10n.searchNotes,
               onPressed: () => setState(() => _searching = true),
             ),
-          const WorkspaceFilterButton(),
-          const WorkspacesButton(),
+          const Center(child: WorkspaceSwitcherPill(compact: true)),
+          const SizedBox(width: 4),
+          const AppBarOverflowMenu(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab-notes',
         tooltip: l10n.newNote,
         onPressed: () => context.go('/notes/new'),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_rounded),
       ),
       body: Column(
         children: [
@@ -95,25 +100,32 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
             child: switch (notesValue) {
               AsyncValue(value: final notes?) when notes.isNotEmpty =>
                 ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 88),
+                  padding: const EdgeInsets.only(top: 6, bottom: 88),
                   itemCount: notes.length,
                   itemBuilder: (context, index) {
                     final note = notes[index];
                     final workspace = workspaces
                         .where((w) => w.id == note.workspaceId)
                         .firstOrNull;
-                    return ListTile(
-                      leading: Icon(
-                        Icons.description_outlined,
-                        color: workspace != null
-                            ? Color(workspace.color)
-                            : Theme.of(context).colorScheme.outline,
+                    final color = workspace != null
+                        ? Color(workspace.color)
+                        : context.tokens.ink3;
+                    return SoftTile(
+                      leading: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.description_outlined,
+                            size: 19, color: color),
                       ),
                       title: Text(note.title),
                       subtitle: note.body.isNotEmpty
                           ? Text(
                               note.body,
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             )
                           : null,
@@ -123,20 +135,16 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                 ),
               AsyncValue(isLoading: true) =>
                 const Center(child: CircularProgressIndicator()),
-              _ => Center(
-                  child: searchActive
-                      ? Text(l10n.noSearchResults)
-                      : Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(l10n.emptyNotesTitle,
-                                style:
-                                    Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: 8),
-                            Text(l10n.emptyNotesBody),
-                          ],
-                        ),
-                ),
+              _ => searchActive
+                  ? EmptyState(
+                      icon: Icons.search_off_rounded,
+                      title: l10n.noSearchResults,
+                    )
+                  : EmptyState(
+                      icon: Icons.notes_rounded,
+                      title: l10n.emptyNotesTitle,
+                      body: l10n.emptyNotesBody,
+                    ),
             },
           ),
         ],

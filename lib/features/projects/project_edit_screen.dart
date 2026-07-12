@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
+import '../../core/widgets/form_group.dart';
+import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contact_providers.dart';
@@ -106,15 +108,14 @@ class _ProjectEditScreenState extends ConsumerState<ProjectEditScreen> {
       );
     }
 
-    InputDecoration decoration(String label) => InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        );
+    InputDecoration decoration(String label) =>
+        InputDecoration(labelText: label);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_isNew ? l10n.newProject : l10n.editProject),
       ),
+      bottomNavigationBar: SaveBar(label: l10n.save, onPressed: _save),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -137,7 +138,7 @@ class _ProjectEditScreenState extends ConsumerState<ProjectEditScreen> {
                     value: w.id,
                     child: Row(
                       children: [
-                        Icon(Icons.circle, size: 12, color: Color(w.color)),
+                        WorkspaceDot(color: Color(w.color), size: 12),
                         const SizedBox(width: 8),
                         Text(w.name),
                       ],
@@ -165,37 +166,30 @@ class _ProjectEditScreenState extends ConsumerState<ProjectEditScreen> {
                 style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 9,
+              runSpacing: 9,
               children: [
                 // First option: inherit the workspace color (null).
                 Tooltip(
                   message: l10n.useWorkspaceColor,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(20),
+                  child: _ColorSwatch(
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    selected: _color == null,
+                    icon: _color == null
+                        ? Icons.check_rounded
+                        : Icons.format_color_reset_rounded,
+                    iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     onTap: () => setState(() => _color = null),
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                      child: Icon(
-                        _color == null ? Icons.check : Icons.format_color_reset,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
                   ),
                 ),
                 for (final color in workspaceColors)
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
+                  _ColorSwatch(
+                    color: Color(color),
+                    selected: _color == color,
+                    icon: _color == color ? Icons.check_rounded : null,
+                    iconColor: workspaceForeground(Color(color)),
                     onTap: () => setState(() => _color = color),
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Color(color),
-                      child: _color == color
-                          ? const Icon(Icons.check, color: Colors.white)
-                          : null,
-                    ),
                   ),
               ],
             ),
@@ -213,13 +207,47 @@ class _ProjectEditScreenState extends ConsumerState<ProjectEditScreen> {
                 value: _archived,
                 onChanged: (value) => setState(() => _archived = value),
               ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _save,
-              child: Text(l10n.save),
-            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Rounded-square palette swatch with a selection ring (mock's picker style).
+class _ColorSwatch extends StatelessWidget {
+  const _ColorSwatch({
+    required this.color,
+    required this.selected,
+    required this.onTap,
+    this.icon,
+    this.iconColor,
+  });
+
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData? icon;
+  final Color? iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(14),
+          border: selected
+              ? Border.all(color: theme.colorScheme.onSurface, width: 2.5)
+              : Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        child: icon != null ? Icon(icon, size: 20, color: iconColor) : null,
       ),
     );
   }
