@@ -11,6 +11,7 @@ import 'package:tomera/core/providers.dart';
 import 'package:tomera/core/theme.dart';
 import 'package:tomera/data/db/database.dart';
 import 'package:tomera/features/finance/finance_providers.dart';
+import 'package:tomera/features/finance/finance_screen.dart';
 import 'package:tomera/features/finance/recoverable_timer_list.dart';
 import 'package:tomera/features/finance/timer_card.dart';
 import 'package:tomera/features/finance/timer_session_detail_screen.dart';
@@ -128,6 +129,162 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
+  });
+
+  testWidgets('recoverable timer swipes to trash and can be restored', (
+    tester,
+  ) async {
+    final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
+    final container = _container(db);
+    addTearDown(() async {
+      container.dispose();
+      await db.close();
+    });
+    final workspaceId = await _workspace(container, 'Studio');
+    await container
+        .read(timerRepositoryProvider)
+        .start(
+          workspaceId: workspaceId,
+          description: 'Discard me',
+          notificationTitle: 'Discard me',
+        );
+    final running = await container.read(timerRepositoryProvider).getRunning();
+    await container.read(timerRepositoryProvider).stop(running!);
+
+    await tester.pumpWidget(
+      _testApp(
+        container,
+        Consumer(
+          builder: (context, ref, child) {
+            final sessions = ref.watch(recoverableTimerSessionsProvider);
+            return sessions.when(
+              data: (items) => RecoverableTimerList(sessions: items),
+              error: (error, stackTrace) => Text('$error'),
+              loading: () => const CircularProgressIndicator(),
+            );
+          },
+        ),
+      ),
+    );
+    await _pumpStreams(tester);
+
+    expect(find.text('Discard me'), findsOneWidget);
+    expect(find.byType(Dismissible), findsOneWidget);
+    await tester.drag(find.byType(Dismissible), const Offset(-600, 0));
+    await _pumpStreams(tester);
+
+    expect(find.text('Discard me'), findsNothing);
+    expect(find.text('Unconverted time removed.'), findsOneWidget);
+    expect(
+      await container.read(timerRepositoryProvider).getById(running.id),
+      isNull,
+    );
+
+    tester.widget<SnackBarAction>(find.byType(SnackBarAction)).onPressed();
+    await _pumpStreams(tester);
+
+    expect(find.text('Discard me'), findsOneWidget);
+    expect(
+      await container.read(timerRepositoryProvider).getById(running.id),
+      isNotNull,
+    );
+  });
+
+  testWidgets('timer detail offers confirmed removal', (tester) async {
+    final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
+    final container = _container(db);
+    addTearDown(() async {
+      container.dispose();
+      await db.close();
+    });
+    final workspaceId = await _workspace(container, 'Studio');
+    await container
+        .read(timerRepositoryProvider)
+        .start(
+          workspaceId: workspaceId,
+          description: 'Remove from detail',
+          notificationTitle: 'Remove from detail',
+        );
+    final session = await container.read(timerRepositoryProvider).getRunning();
+    await container.read(timerRepositoryProvider).stop(session!);
+
+    final router = GoRouter(
+      initialLocation: '/finance/timers/${session.id}',
+      routes: [
+        GoRoute(
+          path: '/finance',
+          builder: (context, state) => const Scaffold(body: Text('Finance')),
+          routes: [
+            GoRoute(
+              path: 'timers/:timerId',
+              builder: (context, state) => TimerSessionDetailScreen(
+                timerId: state.pathParameters['timerId']!,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_routerTestApp(container, router));
+    await _pumpStreams(tester);
+
+    final removeButton = find.byTooltip('Remove unconverted time');
+    expect(removeButton, findsOneWidget);
+    await tester.tap(removeButton);
+    await tester.pumpAndSettle();
+    expect(find.text('Remove unconverted time?'), findsOneWidget);
+
+    await tester.tap(
+      find.widgetWithText(FilledButton, 'Remove unconverted time'),
+    );
+    await _pumpStreams(tester);
+
+    expect(find.text('Finance'), findsOneWidget);
+    expect(
+      await container.read(timerRepositoryProvider).getById(session.id),
+      isNull,
+    );
+  });
+
+  testWidgets('Finance uses one scroll for unconverted and billable content', (
+    tester,
+  ) async {
+    final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
+    final container = _container(db);
+    addTearDown(() async {
+      container.dispose();
+      await db.close();
+    });
+    final workspaceId = await _workspace(container, 'Studio');
+    for (var i = 0; i < 4; i++) {
+      await container
+          .read(timerRepositoryProvider)
+          .start(
+            workspaceId: workspaceId,
+            description: 'Session $i',
+            notificationTitle: 'Session $i',
+          );
+      final running = await container
+          .read(timerRepositoryProvider)
+          .getRunning();
+      await container.read(timerRepositoryProvider).stop(running!);
+    }
+
+    await tester.pumpWidget(_testApp(container, const FinanceScreen()));
+    await _pumpStreams(tester);
+
+    expect(find.byType(Scrollable), findsOneWidget);
+    expect(find.byType(SingleChildScrollView), findsNothing);
+    final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
+    expect(scrollable.position.maxScrollExtent, greaterThan(0));
+    scrollable.position.jumpTo(scrollable.position.maxScrollExtent);
+    await tester.pump();
+    final actionRect = tester.getRect(find.text('New billable item'));
+    expect(actionRect.top, greaterThanOrEqualTo(0));
+    expect(actionRect.bottom, lessThanOrEqualTo(600));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('timer detail Add note opens editor with a timer reference', (

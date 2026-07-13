@@ -54,72 +54,75 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
       _month.month,
     );
 
-    return ListView(
+    return Padding(
       padding: const EdgeInsets.only(bottom: 88),
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left_rounded),
-                onPressed: () => _shiftMonth(-1),
-              ),
-              Expanded(
-                child: Text(
-                  DateFormat.yMMMM().format(_month),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left_rounded),
+                  onPressed: () => _shiftMonth(-1),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right_rounded),
-                onPressed: () => _shiftMonth(1),
-              ),
-              TextButton(
-                onPressed: () => setState(() => _month =
-                    DateTime(DateTime.now().year, DateTime.now().month)),
-                child: Text(l10n.thisMonthButton),
-              ),
-            ],
+                Expanded(
+                  child: Text(
+                    DateFormat.yMMMM().format(_month),
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleLarge,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right_rounded),
+                  onPressed: () => _shiftMonth(1),
+                ),
+                TextButton(
+                  onPressed: () => setState(() => _month =
+                      DateTime(DateTime.now().year, DateTime.now().month)),
+                  child: Text(l10n.thisMonthButton),
+                ),
+              ],
+            ),
           ),
-        ),
-        SectionHeader(title: l10n.overviewLabel),
-        _SummaryCard(summary: summary.overall),
-        if (summary.byWorkspace.isNotEmpty) ...[
-          SectionHeader(title: l10n.byWorkspaceLabel),
-          for (final entry in summary.byWorkspace.entries)
-            _GroupTile(
-              leading: WorkspaceDot(
-                size: 12,
-                color: Color(workspaces
+          SectionHeader(title: l10n.overviewLabel),
+          _SummaryCard(summary: summary.overall),
+          if (summary.byWorkspace.isNotEmpty) ...[
+            SectionHeader(title: l10n.byWorkspaceLabel),
+            for (final entry in summary.byWorkspace.entries)
+              _GroupTile(
+                leading: WorkspaceDot(
+                  size: 12,
+                  color: Color(workspaces
+                          .where((w) => w.id == entry.key)
+                          .firstOrNull
+                          ?.color ??
+                      0xFFB7AD9C),
+                ),
+                name: workspaces
                         .where((w) => w.id == entry.key)
                         .firstOrNull
-                        ?.color ??
-                    0xFFB7AD9C),
+                        ?.name ??
+                    '—',
+                summary: entry.value,
               ),
-              name: workspaces
-                      .where((w) => w.id == entry.key)
-                      .firstOrNull
-                      ?.name ??
-                  '—',
-              summary: entry.value,
-            ),
+          ],
+          if (summary.byContact.isNotEmpty) ...[
+            SectionHeader(title: l10n.byContactLabel),
+            for (final entry in summary.byContact.entries)
+              _GroupTile(
+                leading: const Icon(Icons.person_outline_rounded, size: 18),
+                name: contacts
+                        .where((c) => c.id == entry.key)
+                        .firstOrNull
+                        ?.name ??
+                    '—',
+                summary: entry.value,
+              ),
+          ],
         ],
-        if (summary.byContact.isNotEmpty) ...[
-          SectionHeader(title: l10n.byContactLabel),
-          for (final entry in summary.byContact.entries)
-            _GroupTile(
-              leading: const Icon(Icons.person_outline_rounded, size: 18),
-              name: contacts
-                      .where((c) => c.id == entry.key)
-                      .firstOrNull
-                      ?.name ??
-                  '—',
-              summary: entry.value,
-            ),
-        ],
-      ],
+      ),
     );
   }
 }

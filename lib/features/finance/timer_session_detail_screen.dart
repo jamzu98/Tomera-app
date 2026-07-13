@@ -27,6 +27,63 @@ class TimerSessionDetailScreen extends ConsumerWidget {
 
   final String timerId;
 
+  Future<void> _remove(
+    BuildContext context,
+    WidgetRef ref,
+    TimerSession session,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.removeTimerTitle),
+        content: Text(l10n.removeTimerBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.removeUnconvertedTime),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final repository = ref.read(timerRepositoryProvider);
+    try {
+      final removed = await repository.deleteUnconverted(session.id);
+      if (!context.mounted) return;
+      if (!removed) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.timerRemovalFailed)),
+        );
+        return;
+      }
+      context.pop();
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.timerRemoved),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () => repository.restore(session.id),
+            ),
+          ),
+        );
+    } catch (_) {
+      if (context.mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.timerRemovalFailed)),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
@@ -42,7 +99,8 @@ class TimerSessionDetailScreen extends ConsumerWidget {
       );
     }
 
-    final billable = ref.watch(timerBillableProvider(timerId)).value;
+    final billableValue = ref.watch(timerBillableProvider(timerId));
+    final billable = billableValue.value;
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
     final contacts = ref.watch(allContactsProvider).value ?? [];
     final projects = ref.watch(allProjectsForLookupProvider).value ?? [];
@@ -72,9 +130,21 @@ class TimerSessionDetailScreen extends ConsumerWidget {
     final time = appTimeFormat(context, ref);
     String moment(DateTime value) =>
         '${date.format(value)} ${time.format(value)}';
+    final canRemove =
+        billableValue.hasValue && billable == null && session.stoppedAt != null;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.timerSessionTitle)),
+      appBar: AppBar(
+        title: Text(l10n.timerSessionTitle),
+        actions: [
+          if (canRemove)
+            IconButton(
+              icon: const Icon(Icons.delete_outline_rounded),
+              tooltip: l10n.removeUnconvertedTime,
+              onPressed: () => _remove(context, ref, session),
+            ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [

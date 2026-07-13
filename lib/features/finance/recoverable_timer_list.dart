@@ -34,22 +34,10 @@ class RecoverableTimerList extends ConsumerWidget {
     return Column(
       children: [
         for (final session in visible)
-          SoftTile(
+          _RecoverableTimerTile(
             key: ValueKey('recoverable-timer-${session.id}'),
-            margin: const EdgeInsets.only(bottom: 8),
-            leading: const Icon(Icons.history_toggle_off_rounded),
-            title: Text(
-              session.description?.trim().isNotEmpty == true
-                  ? session.description!.trim()
-                  : AppLocalizations.of(context)!.workTimer,
-            ),
-            subtitle: Text(
-              _contextLabel(session, workspaces, projects),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: _ConvertTimerButton(session: session),
-            onTap: () => context.push('/finance/timers/${session.id}'),
+            session: session,
+            contextLabel: _contextLabel(session, workspaces, projects),
           ),
       ],
     );
@@ -74,6 +62,95 @@ class RecoverableTimerList extends ConsumerWidget {
       if (project != null) project.name,
       duration,
     ].join(' · ');
+  }
+}
+
+class _RecoverableTimerTile extends ConsumerWidget {
+  const _RecoverableTimerTile({
+    super.key,
+    required this.session,
+    required this.contextLabel,
+  });
+
+  final TimerSession session;
+  final String contextLabel;
+
+  Future<bool> _remove(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final repository = ref.read(timerRepositoryProvider);
+    try {
+      final removed = await repository.deleteUnconverted(session.id);
+      if (!context.mounted) return removed;
+      if (!removed) {
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l10n.timerRemovalFailed)));
+        return false;
+      }
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.timerRemoved),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () => repository.restore(session.id),
+            ),
+          ),
+        );
+      return true;
+    } catch (_) {
+      if (context.mounted) {
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l10n.timerRemovalFailed)));
+      }
+      return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    return Dismissible(
+      key: ValueKey('dismissible-recoverable-timer-${session.id}'),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (_) => _remove(context, ref),
+      background: Semantics(
+        label: l10n.removeUnconvertedTime,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          alignment: Alignment.centerRight,
+          decoration: BoxDecoration(
+            color: colorScheme.errorContainer,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Icon(
+            Icons.delete_outline_rounded,
+            color: colorScheme.onErrorContainer,
+          ),
+        ),
+      ),
+      child: SoftTile(
+        margin: const EdgeInsets.only(bottom: 8),
+        leading: const Icon(Icons.history_toggle_off_rounded),
+        title: Text(
+          session.description?.trim().isNotEmpty == true
+              ? session.description!.trim()
+              : l10n.workTimer,
+        ),
+        subtitle: Text(
+          contextLabel,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: _ConvertTimerButton(session: session),
+        onTap: () => context.push('/finance/timers/${session.id}'),
+      ),
+    );
   }
 }
 

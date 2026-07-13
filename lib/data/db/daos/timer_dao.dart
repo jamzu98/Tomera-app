@@ -92,4 +92,42 @@ class TimerDao extends DatabaseAccessor<AppDatabase> with _$TimerDaoMixin {
           isDirty: const Value(true),
         ),
       );
+
+  /// Soft-deletes a stopped session only while it has no active billable.
+  /// Returning false lets stale UI avoid removing a session that was converted
+  /// concurrently on another surface.
+  Future<bool> softDeleteUnconverted(String id) async {
+    final now = utcNowMs();
+    final changed =
+        await (update(timerSessions)..where(
+              (t) =>
+                  t.id.equals(id) &
+                  t.deletedAt.isNull() &
+                  t.stoppedAt.isNotNull() &
+                  notExistsQuery(
+                    select(billableItems)..where(
+                      (b) =>
+                          b.timerSessionId.equalsExp(t.id) &
+                          b.deletedAt.isNull(),
+                    ),
+                  ),
+            ))
+            .write(
+              TimerSessionsCompanion(
+                deletedAt: Value(now),
+                updatedAt: Value(now),
+                isDirty: const Value(true),
+              ),
+            );
+    return changed == 1;
+  }
+
+  Future<void> restore(String id) =>
+      (update(timerSessions)..where((t) => t.id.equals(id))).write(
+        TimerSessionsCompanion(
+          deletedAt: const Value(null),
+          updatedAt: Value(utcNowMs()),
+          isDirty: const Value(true),
+        ),
+      );
 }

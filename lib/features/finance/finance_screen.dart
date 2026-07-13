@@ -124,12 +124,70 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
     final moduleDisabled =
         selectedWorkspace != null &&
         !selectedWorkspace.enabledModules.contains(ModuleKey.finance);
+    final Widget contentSliver = moduleDisabled
+        ? SliverFillRemaining(
+            hasScrollBody: false,
+            child: EmptyState(
+              icon: Icons.visibility_off_outlined,
+              title: l10n.moduleDisabledTitle,
+              body: l10n.financeModuleDisabled,
+              primaryAction: EmptyStateAction(
+                label: l10n.editWorkspace,
+                icon: Icons.tune_rounded,
+                onPressed: () =>
+                    context.push('/workspaces/${selectedWorkspace.id}'),
+              ),
+            ),
+          )
+        : _showSummary
+        ? const SliverToBoxAdapter(child: SummaryView())
+        : switch (billablesValue) {
+            AsyncValue(value: final items?) when items.isNotEmpty =>
+              _BillableSliver(
+                items: items
+                    .where((b) => _statusFilter.contains(b.status))
+                    .toList(),
+                onClearFilters: () => setState(() {
+                  _statusFilter
+                    ..clear()
+                    ..addAll(BillableStatus.values);
+                }),
+              ),
+            AsyncValue(isLoading: true) => const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            AsyncValue(hasError: true) => SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: Icons.error_outline_rounded,
+                title: l10n.unableToLoadTitle,
+                body: l10n.unableToLoadBody,
+                retryLabel: l10n.retry,
+                onRetry: () => ref.invalidate(visibleBillablesProvider),
+              ),
+            ),
+            _ => SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: Icons.receipt_long_outlined,
+                title: l10n.emptyBillablesTitle,
+                body: l10n.emptyBillablesBody,
+                primaryAction: EmptyStateAction(
+                  label: l10n.newBillable,
+                  icon: Icons.add_rounded,
+                  onPressed: () => context.go('/finance/new'),
+                ),
+              ),
+            ),
+          };
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tabFinance),
         actions: [
           const Center(child: WorkspaceSwitcherPill(compact: true)),
+          const SizedBox(width: 4),
           AppBarOverflowMenu(
             entries: [
               (
@@ -141,84 +199,41 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          const TimerCard(),
-          const _RecoverableTimersPanel(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: SegmentedButton<bool>(
-              segments: [
-                ButtonSegment(value: false, label: Text(l10n.itemsTab)),
-                ButtonSegment(value: true, label: Text(l10n.summaryTab)),
-              ],
-              selected: {_showSummary},
-              onSelectionChanged: (selection) =>
-                  setState(() => _showSummary = selection.first),
+      body: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          const SliverToBoxAdapter(child: TimerCard()),
+          const SliverToBoxAdapter(child: _RecoverableTimersPanel()),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment(value: false, label: Text(l10n.itemsTab)),
+                  ButtonSegment(value: true, label: Text(l10n.summaryTab)),
+                ],
+                selected: {_showSummary},
+                onSelectionChanged: (selection) =>
+                    setState(() => _showSummary = selection.first),
+              ),
             ),
           ),
           if (!_showSummary)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: FilterButton(
-                  label: l10n.filtersLabel,
-                  activeCount:
-                      BillableStatus.values.length - _statusFilter.length,
-                  onPressed: _showFilters,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FilterButton(
+                    label: l10n.filtersLabel,
+                    activeCount:
+                        BillableStatus.values.length - _statusFilter.length,
+                    onPressed: _showFilters,
+                  ),
                 ),
               ),
             ),
-          Expanded(
-            child: moduleDisabled
-                ? EmptyState(
-                    icon: Icons.visibility_off_outlined,
-                    title: l10n.moduleDisabledTitle,
-                    body: l10n.financeModuleDisabled,
-                    primaryAction: EmptyStateAction(
-                      label: l10n.editWorkspace,
-                      icon: Icons.tune_rounded,
-                      onPressed: () =>
-                          context.push('/workspaces/${selectedWorkspace.id}'),
-                    ),
-                  )
-                : _showSummary
-                ? const SummaryView()
-                : switch (billablesValue) {
-                    AsyncValue(value: final items?) when items.isNotEmpty =>
-                      _BillableList(
-                        items: items
-                            .where((b) => _statusFilter.contains(b.status))
-                            .toList(),
-                        onClearFilters: () => setState(() {
-                          _statusFilter
-                            ..clear()
-                            ..addAll(BillableStatus.values);
-                        }),
-                      ),
-                    AsyncValue(isLoading: true) => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    AsyncValue(hasError: true) => EmptyState(
-                      icon: Icons.error_outline_rounded,
-                      title: l10n.unableToLoadTitle,
-                      body: l10n.unableToLoadBody,
-                      retryLabel: l10n.retry,
-                      onRetry: () => ref.invalidate(visibleBillablesProvider),
-                    ),
-                    _ => EmptyState(
-                      icon: Icons.receipt_long_outlined,
-                      title: l10n.emptyBillablesTitle,
-                      body: l10n.emptyBillablesBody,
-                      primaryAction: EmptyStateAction(
-                        label: l10n.newBillable,
-                        icon: Icons.add_rounded,
-                        onPressed: () => context.go('/finance/new'),
-                      ),
-                    ),
-                  },
-          ),
+          contentSliver,
         ],
       ),
     );
@@ -237,7 +252,6 @@ class _RecoverableTimersPanel extends ConsumerWidget {
       error: (error, stackTrace) => const SizedBox.shrink(),
       data: (sessions) {
         if (sessions.isEmpty) return const SizedBox.shrink();
-        final visibleHeight = (sessions.length * 83.0).clamp(83.0, 190.0);
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: Column(
@@ -253,12 +267,7 @@ class _RecoverableTimersPanel extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 6),
-              SizedBox(
-                height: visibleHeight,
-                child: SingleChildScrollView(
-                  child: RecoverableTimerList(sessions: sessions),
-                ),
-              ),
+              RecoverableTimerList(sessions: sessions),
             ],
           ),
         );
@@ -267,8 +276,8 @@ class _RecoverableTimersPanel extends ConsumerWidget {
   }
 }
 
-class _BillableList extends ConsumerWidget {
-  const _BillableList({required this.items, required this.onClearFilters});
+class _BillableSliver extends ConsumerWidget {
+  const _BillableSliver({required this.items, required this.onClearFilters});
 
   final List<BillableItem> items;
   final VoidCallback onClearFilters;
@@ -277,48 +286,52 @@ class _BillableList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     if (items.isEmpty) {
-      return EmptyState(
-        icon: Icons.receipt_long_outlined,
-        title: l10n.emptyBillablesTitle,
-        body: l10n.emptyBillablesBody,
-        primaryAction: EmptyStateAction(
-          label: l10n.newBillable,
-          icon: Icons.add_rounded,
-          onPressed: () => context.go('/finance/new'),
-        ),
-        secondaryAction: EmptyStateAction(
-          label: l10n.clearFilters,
-          onPressed: onClearFilters,
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: EmptyState(
+          icon: Icons.receipt_long_outlined,
+          title: l10n.emptyBillablesTitle,
+          body: l10n.emptyBillablesBody,
+          primaryAction: EmptyStateAction(
+            label: l10n.newBillable,
+            icon: Icons.add_rounded,
+            onPressed: () => context.go('/finance/new'),
+          ),
+          secondaryAction: EmptyStateAction(
+            label: l10n.clearFilters,
+            onPressed: onClearFilters,
+          ),
         ),
       );
     }
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
     final contacts = ref.watch(allContactsProvider).value ?? [];
 
-    return ListView.builder(
+    return SliverPadding(
       padding: const EdgeInsets.only(top: 6, bottom: 88),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        final workspace = workspaces
-            .where((w) => w.id == item.workspaceId)
-            .firstOrNull;
-        final contact = contacts
-            .where((c) => c.id == item.contactId)
-            .firstOrNull;
-        final total = billableTotalCents(
-          type: item.type,
-          rateCents: item.rateCents,
-          durationMinutes: item.durationMinutes,
-          amountCents: item.amountCents,
-        );
-        return _BillableTile(
-          item: item,
-          workspace: workspace,
-          contact: contact,
-          totalCents: total,
-        );
-      },
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final item = items[index];
+          final workspace = workspaces
+              .where((w) => w.id == item.workspaceId)
+              .firstOrNull;
+          final contact = contacts
+              .where((c) => c.id == item.contactId)
+              .firstOrNull;
+          final total = billableTotalCents(
+            type: item.type,
+            rateCents: item.rateCents,
+            durationMinutes: item.durationMinutes,
+            amountCents: item.amountCents,
+          );
+          return _BillableTile(
+            item: item,
+            workspace: workspace,
+            contact: contact,
+            totalCents: total,
+          );
+        }, childCount: items.length),
+      ),
     );
   }
 }

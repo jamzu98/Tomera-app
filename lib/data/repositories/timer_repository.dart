@@ -82,4 +82,11 @@ class TimerRepository {
     final running = await _dao.getAnyRunning();
     if (running != null) await stop(running);
   }
+
+  /// Removes a stopped session that has not been converted to a billable.
+  /// Returns false if it is no longer eligible for removal.
+  Future<bool> deleteUnconverted(String id) => _dao.softDeleteUnconverted(id);
+
+  /// Clears a prior soft-delete, used by the swipe-to-remove undo action.
+  Future<void> restore(String id) => _dao.restore(id);
 }

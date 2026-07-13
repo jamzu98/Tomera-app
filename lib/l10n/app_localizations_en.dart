@@ -459,6 +459,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'This timer session is no longer available.';
 
   @override
+  String get removeUnconvertedTime => 'Remove unconverted time';
+
+  @override
+  String get removeTimerTitle => 'Remove unconverted time?';
+
+  @override
+  String get removeTimerBody =>
+      'This timer session will be removed from your lists.';
+
+  @override
+  String get timerRemoved => 'Unconverted time removed.';
+
+  @override
+  String get timerRemovalFailed => 'Couldn’t remove this timer. Try again.';
+
+  @override
   String get timerAlreadyRunning => 'A timer is already running.';
 
   @override

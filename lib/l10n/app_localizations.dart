@@ -970,6 +970,36 @@ abstract class AppLocalizations {
   /// **'This timer session is no longer available.'**
   String get timerSessionNotFound;
 
+  /// No description provided for @removeUnconvertedTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove unconverted time'**
+  String get removeUnconvertedTime;
+
+  /// No description provided for @removeTimerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove unconverted time?'**
+  String get removeTimerTitle;
+
+  /// No description provided for @removeTimerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This timer session will be removed from your lists.'**
+  String get removeTimerBody;
+
+  /// No description provided for @timerRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconverted time removed.'**
+  String get timerRemoved;
+
+  /// No description provided for @timerRemovalFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t remove this timer. Try again.'**
+  String get timerRemovalFailed;
+
   /// No description provided for @timerAlreadyRunning.
   ///
   /// In en, this message translates to:
