@@ -48,7 +48,7 @@ final class AppDatabaseProvider
   }
 }
 
-String _$appDatabaseHash() => r'365ef3f215d780c29a21b6328f0b547a8363c6a6';
+String _$appDatabaseHash() => r'baeb3a95f3f92ffb41db328b4b0d68def1ecef8c';
 
 @ProviderFor(workspaceRepository)
 final workspaceRepositoryProvider = WorkspaceRepositoryProvider._();
@@ -511,7 +511,7 @@ final class ReminderCoordinatorProvider
 }
 
 String _$reminderCoordinatorHash() =>
-    r'bed1f6c21da8f3d4ab06c29f558fabcecacd7ecb';
+    r'a7c00be5ae0a8a3845e8bd87b6849b718f54c9bf';
 
 /// The workspace the list screens are filtered to; null means all workspaces
 /// (spec §6.1 global view). Kept alive so the choice survives navigation.

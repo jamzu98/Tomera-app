@@ -7,15 +7,20 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../core/theme.dart';
+import '../../core/widgets/app_bar_overflow_menu.dart';
 import '../../core/widgets/financial_summary_card.dart';
 import '../../core/widgets/section_header.dart';
 import '../../core/widgets/soft_tile.dart';
 import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
+import '../connected/connected_timeline.dart';
+import '../connected/connected_timeline_section.dart';
 import '../finance/billable_math.dart';
 import '../finance/finance_providers.dart';
 import '../finance/finance_screen.dart' show billableStatusLabel;
+import '../notes/note_providers.dart';
+import '../settings/date_time_format.dart';
 import '../workspaces/workspace_style.dart';
 import 'contact_providers.dart';
 
@@ -25,7 +30,10 @@ class ContactDetailScreen extends ConsumerWidget {
   final String contactId;
 
   Future<void> _delete(
-      BuildContext context, WidgetRef ref, Contact contact) async {
+    BuildContext context,
+    WidgetRef ref,
+    Contact contact,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -64,21 +72,52 @@ class ContactDetailScreen extends ConsumerWidget {
     }
 
     final roles = ref.watch(contactRolesProvider(contactId)).value ?? [];
+    final selectedWorkspaceId = ref.watch(selectedWorkspaceIdProvider);
+    final noteWorkspaceId =
+        roles.any((role) => role.workspaceId == selectedWorkspaceId)
+        ? selectedWorkspaceId
+        : roles.firstOrNull?.workspaceId;
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
     final tasks = ref.watch(tasksForContactProvider(contactId)).value ?? [];
     final events = ref.watch(eventsForContactProvider(contactId)).value ?? [];
-    final notes = ref.watch(notesForContactProvider(contactId)).value ?? [];
+    final parentedNotes =
+        ref.watch(notesForContactProvider(contactId)).value ?? [];
+    final backlinkNotes =
+        ref
+            .watch(
+              noteBacklinksProvider((type: ParentType.contact, id: contactId)),
+            )
+            .value ??
+        [];
+    final notesById = <String, Note>{
+      for (final note in parentedNotes) note.id: note,
+      for (final note in backlinkNotes) note.id: note,
+    };
+    final notes = notesById.values.toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final billables =
         ref.watch(billablesForContactProvider(contactId)).value ?? [];
-    final totals = ref.watch(contactTotalsProvider(contactId)).value;
+    final timers = ref.watch(timersForContactProvider(contactId)).value ?? [];
+    final totalsByCurrency =
+        ref.watch(contactTotalsByCurrencyProvider(contactId)).value ?? {};
+    final timeline = buildConnectedTimeline(
+      events: events,
+      tasks: tasks,
+      notes: notes,
+      timers: timers,
+      billables: billables,
+    );
+    final currencies = totalsByCurrency.keys.toList()..sort();
 
     Workspace? workspaceOf(String id) =>
         workspaces.where((w) => w.id == id).firstOrNull;
 
     // Identity color: the first workspace this contact belongs to.
-    final identityColor = Color(roles.isNotEmpty
-        ? (workspaceOf(roles.first.workspaceId)?.color ?? 0xFFB7AD9C)
-        : 0xFFB7AD9C);
+    final identityColor = Color(
+      roles.isNotEmpty
+          ? (workspaceOf(roles.first.workspaceId)?.color ?? 0xFFB7AD9C)
+          : 0xFFB7AD9C,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -86,22 +125,14 @@ class ContactDetailScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             tooltip: l10n.editContact,
-            onPressed: () => context.go('/contacts/$contactId/edit'),
+            onPressed: () => context.push('/contacts/$contactId/edit'),
           ),
-          PopupMenuButton<void>(
-            icon: const Icon(Icons.more_vert_rounded),
-            itemBuilder: (context) => [
-              PopupMenuItem(
+          AppBarOverflowMenu(
+            entries: [
+              (
+                icon: Icons.delete_outline_rounded,
+                label: l10n.delete,
                 onTap: () => _delete(context, ref, contact),
-                child: Row(
-                  children: [
-                    Icon(Icons.delete_outline_rounded,
-                        size: 20, color: tokens.overdue),
-                    const SizedBox(width: 12),
-                    Text(l10n.delete,
-                        style: TextStyle(color: tokens.overdue)),
-                  ],
-                ),
               ),
             ],
           ),
@@ -129,33 +160,39 @@ class ContactDetailScreen extends ConsumerWidget {
           const SizedBox(height: 6),
           if (contact.email?.isNotEmpty == true)
             _InfoRow(
-                icon: Icons.mail_outline_rounded,
-                label: l10n.emailLabel,
-                value: contact.email!),
+              icon: Icons.mail_outline_rounded,
+              label: l10n.emailLabel,
+              value: contact.email!,
+            ),
           if (contact.phone?.isNotEmpty == true)
             _InfoRow(
-                icon: Icons.call_outlined,
-                label: l10n.phoneLabel,
-                value: contact.phone!,
-                tabular: true),
+              icon: Icons.call_outlined,
+              label: l10n.phoneLabel,
+              value: contact.phone!,
+              tabular: true,
+            ),
           if (contact.organization?.isNotEmpty == true)
             _InfoRow(
-                icon: Icons.business_outlined,
-                label: l10n.organizationLabel,
-                value: contact.organization!),
+              icon: Icons.business_outlined,
+              label: l10n.organizationLabel,
+              value: contact.organization!,
+            ),
           if (contact.defaultHourlyRateCents case final rate?)
             _InfoRow(
-                icon: Icons.payments_outlined,
-                label: l10n.defaultRateLabel,
-                value: '${formatCents(rate)} EUR / h',
-                tabular: true),
+              icon: Icons.payments_outlined,
+              label: l10n.defaultRateLabel,
+              value: '${formatCents(rate)} EUR / h',
+              tabular: true,
+            ),
           if (contact.notesText?.isNotEmpty == true)
             Padding(
               padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
-              child: Text(contact.notesText!,
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(color: tokens.ink2)),
+              child: Text(
+                contact.notesText!,
+                style: theme.textTheme.bodyMedium?.copyWith(color: tokens.ink2),
+              ),
             ),
+          ConnectedTimelineSection(activities: timeline),
           _Section(
             title: l10n.linkedTasks,
             children: [
@@ -172,7 +209,7 @@ class ContactDetailScreen extends ConsumerWidget {
                         : tokens.ink3,
                   ),
                   title: Text(task.title),
-                  onTap: () => context.go('/tasks/${task.id}'),
+                  onTap: () => context.push('/work/tasks/${task.id}'),
                 ),
             ],
           ),
@@ -184,53 +221,67 @@ class ContactDetailScreen extends ConsumerWidget {
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   leading: WorkspaceDot(
                     color: Color(
-                        workspaceOf(event.workspaceId)?.color ?? 0xFFB7AD9C),
+                      workspaceOf(event.workspaceId)?.color ?? 0xFFB7AD9C,
+                    ),
                     size: 10,
                   ),
                   title: Text(event.title),
-                  subtitle: Text(DateFormat.yMMMEd().add_Hm().format(
-                      DateTime.fromMillisecondsSinceEpoch(event.startsAt,
-                              isUtc: true)
-                          .toLocal())),
-                  onTap: () => context.go('/calendar/${event.id}'),
+                  subtitle: Text(() {
+                    final starts = DateTime.fromMillisecondsSinceEpoch(
+                      event.startsAt,
+                      isUtc: true,
+                    ).toLocal();
+                    return '${DateFormat.yMMMEd().format(starts)} '
+                        '${appTimeFormat(context, ref).format(starts)}';
+                  }()),
+                  onTap: () => context.push('/calendar/${event.id}'),
                 ),
             ],
           ),
           _Section(
             title: l10n.linkedNotes,
             actionLabel: l10n.addNoteAction,
-            onAction: () =>
-                context.go('/notes/new?parentType=contact&parentId=$contactId'),
+            onAction: () => context.push(
+              Uri(
+                path: '/work/notes/new',
+                queryParameters: {
+                  if (noteWorkspaceId != null) 'workspaceId': noteWorkspaceId,
+                  'parentType': ParentType.contact.dbValue,
+                  'parentId': contactId,
+                },
+              ).toString(),
+            ),
             children: [
               for (final note in notes)
                 SoftTile(
                   margin: const EdgeInsets.symmetric(vertical: 4),
-                  leading: Icon(Icons.description_outlined,
-                      size: 20, color: tokens.ink2),
+                  leading: Icon(
+                    Icons.description_outlined,
+                    size: 20,
+                    color: tokens.ink2,
+                  ),
                   title: Text(note.title),
-                  onTap: () => context.go('/notes/${note.id}'),
+                  onTap: () => context.push('/work/notes/${note.id}'),
                 ),
             ],
           ),
           _Section(
             title: l10n.linkedBillables,
             actionLabel: l10n.newBillable,
-            onAction: () => context.go('/finance/new?contactId=$contactId'),
+            onAction: () => context.push('/finance/new?contactId=$contactId'),
             children: [
               for (final item in billables)
                 SoftTile(
                   margin: const EdgeInsets.symmetric(vertical: 4),
-                  leading: Icon(Icons.receipt_long_outlined,
-                      size: 20, color: tokens.ink2),
+                  leading: Icon(
+                    Icons.receipt_long_outlined,
+                    size: 20,
+                    color: tokens.ink2,
+                  ),
                   title: Text(item.title),
                   subtitle: Text(billableStatusLabel(l10n, item.status)),
                   trailing: Text(
-                    '${formatCents(billableTotalCents(
-                      type: item.type,
-                      rateCents: item.rateCents,
-                      durationMinutes: item.durationMinutes,
-                      amountCents: item.amountCents,
-                    ))} ${item.currency}',
+                    '${formatCents(billableTotalCents(type: item.type, rateCents: item.rateCents, durationMinutes: item.durationMinutes, amountCents: item.amountCents))} ${item.currency}',
                     style: TextStyle(
                       fontFamily: bodyFontFamily,
                       fontSize: 14,
@@ -239,20 +290,37 @@ class ContactDetailScreen extends ConsumerWidget {
                       fontFeatures: tabularFigures,
                     ),
                   ),
-                  onTap: () => context.go('/finance/${item.id}'),
+                  onTap: () => context.push('/finance/${item.id}'),
                 ),
             ],
           ),
-          if (totals != null) ...[
+          if (currencies.isNotEmpty) ...[
             SectionHeader(
               title: l10n.financialSummary,
               padding: const EdgeInsets.fromLTRB(6, 22, 6, 8),
             ),
-            FinancialSummaryCard(rows: [
-              (l10n.statusUnbilled, totals.unbilled, false),
-              (l10n.statusInvoiced, totals.invoiced, false),
-              (l10n.statusPaid, totals.paid, true),
-            ]),
+            for (final currency in currencies) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 8, 6, 6),
+                child: Text(currency, style: theme.textTheme.labelLarge),
+              ),
+              FinancialSummaryCard(
+                currency: currency,
+                rows: [
+                  (
+                    l10n.statusUnbilled,
+                    totalsByCurrency[currency]!.unbilled,
+                    false,
+                  ),
+                  (
+                    l10n.statusInvoiced,
+                    totalsByCurrency[currency]!.invoiced,
+                    false,
+                  ),
+                  (l10n.statusPaid, totalsByCurrency[currency]!.paid, true),
+                ],
+              ),
+            ],
           ],
         ],
       ),
@@ -389,7 +457,7 @@ class _QuickActions extends StatelessWidget {
             icon: Icons.timer_outlined,
             label: l10n.logTimeAction,
             primary: true,
-            onTap: () => context.go('/finance/new?contactId=$contactId'),
+            onTap: () => context.push('/finance/new?contactId=$contactId'),
           ),
         ),
         if (contact.phone?.isNotEmpty == true) ...[
@@ -398,8 +466,7 @@ class _QuickActions extends StatelessWidget {
             child: _ActionButton(
               icon: Icons.call_outlined,
               label: l10n.callAction,
-              onTap: () =>
-                  launchUrl(Uri(scheme: 'tel', path: contact.phone!)),
+              onTap: () => launchUrl(Uri(scheme: 'tel', path: contact.phone!)),
             ),
           ),
         ],
@@ -568,8 +635,10 @@ class _Section extends StatelessWidget {
         if (children.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: Text(l10n.nothingLinkedYet,
-                style: theme.textTheme.bodySmall),
+            child: Text(
+              l10n.nothingLinkedYet,
+              style: theme.textTheme.bodySmall,
+            ),
           )
         else
           ...children,

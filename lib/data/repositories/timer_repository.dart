@@ -20,28 +20,47 @@ class TimerRepository {
 
   Future<TimerSession?> getRunning() => _dao.getRunning();
 
+  Future<TimerSession?> getById(String id) => _dao.getById(id);
+
+  Stream<List<TimerSession>> watchUnconverted({String? workspaceId}) =>
+      _dao.watchUnconverted(workspaceId: workspaceId);
+
+  Stream<List<TimerSession>> watchAll({
+    String? workspaceId,
+    String? contactId,
+    String? projectId,
+  }) => _dao.watchAll(
+    workspaceId: workspaceId,
+    contactId: contactId,
+    projectId: projectId,
+  );
+
   /// Starts a session. Throws [StateError] if one is already running.
   /// [notificationTitle] is shown in the persistent notification.
   Future<String> start({
     required String workspaceId,
     String? contactId,
+    String? projectId,
     String? description,
     required String notificationTitle,
   }) async {
-    if (await _dao.getRunning() != null) {
+    if (await _dao.getAnyRunning() != null) {
       throw StateError('A timer is already running');
     }
     final id = newId();
     final now = utcNowMs();
-    await _dao.insertSession(TimerSessionsCompanion.insert(
-      id: id,
-      workspaceId: workspaceId,
-      contactId: Value.absentIfNull(contactId),
-      description: Value.absentIfNull(description),
-      startedAt: now,
-      createdAt: now,
-      updatedAt: now,
-    ));
+    await _dao.insertSession(
+      TimerSessionsCompanion.insert(
+        id: id,
+        workspaceId: workspaceId,
+        contactId: Value.absentIfNull(contactId),
+        projectId: Value.absentIfNull(projectId),
+        description: Value.absentIfNull(description),
+        startedAt: now,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
     await _notifications.showOngoingTimer(
       id: timerNotificationId,
       title: notificationTitle,
@@ -60,7 +79,7 @@ class TimerRepository {
 
   /// Stops whatever is running (notification stop action); no-op otherwise.
   Future<void> stopRunning() async {
-    final running = await _dao.getRunning();
+    final running = await _dao.getAnyRunning();
     if (running != null) await stop(running);
   }
 }

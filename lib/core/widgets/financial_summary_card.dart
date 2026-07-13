@@ -6,10 +6,15 @@ import '../theme.dart';
 /// Card of label/amount rows with hairline separators; the highlighted row
 /// renders larger with the accent color (mock's financial summary).
 class FinancialSummaryCard extends StatelessWidget {
-  const FinancialSummaryCard({super.key, required this.rows});
+  const FinancialSummaryCard({
+    super.key,
+    required this.rows,
+    this.currency = 'EUR',
+  });
 
   /// (label, cents, highlighted)
   final List<(String, int, bool)> rows;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +45,9 @@ class FinancialSummaryCard extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: bodyFontFamily,
                         fontSize: 13.5,
-                        fontWeight:
-                            highlighted ? FontWeight.w800 : FontWeight.w600,
+                        fontWeight: highlighted
+                            ? FontWeight.w800
+                            : FontWeight.w600,
                         color: highlighted
                             ? theme.colorScheme.onSurface
                             : tokens.ink2,
@@ -49,7 +55,7 @@ class FinancialSummaryCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${formatCents(cents)} EUR',
+                    '${formatCents(cents)} $currency',
                     style: TextStyle(
                       fontFamily: bodyFontFamily,
                       fontSize: highlighted ? 16 : 14.5,

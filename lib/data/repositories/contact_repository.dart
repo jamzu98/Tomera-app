@@ -28,17 +28,19 @@ class ContactRepository {
   }) async {
     final id = newId();
     final now = utcNowMs();
-    await _dao.insertContact(ContactsCompanion.insert(
-      id: id,
-      name: name,
-      email: Value.absentIfNull(email),
-      phone: Value.absentIfNull(phone),
-      organization: Value.absentIfNull(organization),
-      notesText: Value.absentIfNull(notesText),
-      defaultHourlyRateCents: Value.absentIfNull(defaultHourlyRateCents),
-      createdAt: now,
-      updatedAt: now,
-    ));
+    await _dao.insertContact(
+      ContactsCompanion.insert(
+        id: id,
+        name: name,
+        email: Value.absentIfNull(email),
+        phone: Value.absentIfNull(phone),
+        organization: Value.absentIfNull(organization),
+        notesText: Value.absentIfNull(notesText),
+        defaultHourlyRateCents: Value.absentIfNull(defaultHourlyRateCents),
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
     return id;
   }
 
@@ -52,18 +54,17 @@ class ContactRepository {
     Value<String?> organization = const Value.absent(),
     Value<String?> notesText = const Value.absent(),
     Value<int?> defaultHourlyRateCents = const Value.absent(),
-  }) =>
-      _dao.updateContact(
-        id,
-        ContactsCompanion(
-          name: Value.absentIfNull(name),
-          email: email,
-          phone: phone,
-          organization: organization,
-          notesText: notesText,
-          defaultHourlyRateCents: defaultHourlyRateCents,
-        ),
-      );
+  }) => _dao.updateContact(
+    id,
+    ContactsCompanion(
+      name: Value.absentIfNull(name),
+      email: email,
+      phone: phone,
+      organization: organization,
+      notesText: notesText,
+      defaultHourlyRateCents: defaultHourlyRateCents,
+    ),
+  );
 
   Future<void> delete(String id) => _dao.softDelete(id);
 
@@ -74,9 +75,23 @@ class ContactRepository {
   Future<List<WorkspaceContact>> getRoles(String contactId) =>
       _dao.getRoles(contactId);
 
-  Future<void> setRole(String contactId, String workspaceId,
-          String? roleLabel) =>
-      _dao.upsertRole(contactId, workspaceId, roleLabel);
+  Future<void> setRole(
+    String contactId,
+    String workspaceId,
+    String? roleLabel, {
+    Value<int?> hourlyRateCents = const Value.absent(),
+  }) => _dao.upsertRole(
+    contactId,
+    workspaceId,
+    roleLabel,
+    hourlyRateCents: hourlyRateCents,
+  );
+
+  Future<void> setWorkspaceHourlyRate(
+    String contactId,
+    String workspaceId,
+    int? hourlyRateCents,
+  ) => _dao.setRoleHourlyRate(contactId, workspaceId, hourlyRateCents);
 
   Future<void> removeRole(String contactId, String workspaceId) =>
       _dao.removeRole(contactId, workspaceId);

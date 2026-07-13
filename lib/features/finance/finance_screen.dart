@@ -10,6 +10,7 @@ import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
 import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/filter_sheet.dart';
 import '../../core/widgets/soft_tile.dart';
 import '../../core/widgets/status_ring.dart';
 import '../../core/widgets/workspace_avatar.dart';
@@ -20,6 +21,7 @@ import '../contacts/contact_providers.dart';
 import 'billable_csv.dart';
 import 'billable_math.dart';
 import 'finance_providers.dart';
+import 'recoverable_timer_list.dart';
 import 'summary_view.dart';
 import 'timer_card.dart';
 
@@ -33,6 +35,53 @@ class FinanceScreen extends ConsumerStatefulWidget {
 class _FinanceScreenState extends ConsumerState<FinanceScreen> {
   final Set<BillableStatus> _statusFilter = {...BillableStatus.values};
   bool _showSummary = false;
+
+  Future<void> _showFilters() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          final l10n = AppLocalizations.of(context)!;
+          final allSelected =
+              _statusFilter.length == BillableStatus.values.length;
+          return FilterSheetScaffold(
+            title: l10n.filtersLabel,
+            clearAllLabel: l10n.clearFilters,
+            onClearAll: allSelected
+                ? null
+                : () {
+                    setState(
+                      () => _statusFilter
+                        ..clear()
+                        ..addAll(BillableStatus.values),
+                    );
+                    setSheetState(() {});
+                  },
+            child: Column(
+              children: [
+                for (final status in BillableStatus.values)
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(billableStatusLabel(l10n, status)),
+                    value: _statusFilter.contains(status),
+                    onChanged: (selected) {
+                      setState(() {
+                        if (selected ?? false) {
+                          _statusFilter.add(status);
+                        } else {
+                          _statusFilter.remove(status);
+                        }
+                      });
+                      setSheetState(() {});
+                    },
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   /// Exports the currently visible (workspace- and status-filtered) items
   /// through the platform share sheet (spec §6.6).
@@ -56,15 +105,12 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
           contacts.where((c) => c.id == id).firstOrNull?.name ?? '',
     );
     try {
-      await SharePlus.instance.share(ShareParams(
-        files: [
-          XFile.fromData(
-            utf8.encode(csv),
-            mimeType: 'text/csv',
-          ),
-        ],
-        fileNameOverrides: ['tomera-billables.csv'],
-      ));
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile.fromData(utf8.encode(csv), mimeType: 'text/csv')],
+          fileNameOverrides: ['tomera-billables.csv'],
+        ),
+      );
     } on Exception {
       messenger.showSnackBar(SnackBar(content: Text(l10n.exportFailed)));
     }
@@ -75,7 +121,8 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
     final l10n = AppLocalizations.of(context)!;
     final billablesValue = ref.watch(visibleBillablesProvider);
     final selectedWorkspace = ref.watch(selectedWorkspaceProvider).value;
-    final moduleDisabled = selectedWorkspace != null &&
+    final moduleDisabled =
+        selectedWorkspace != null &&
         !selectedWorkspace.enabledModules.contains(ModuleKey.finance);
 
     return Scaffold(
@@ -83,26 +130,21 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
         title: Text(l10n.tabFinance),
         actions: [
           const Center(child: WorkspaceSwitcherPill(compact: true)),
-          AppBarOverflowMenu(entries: [
-            (
-              icon: Icons.ios_share_rounded,
-              label: l10n.exportCsv,
-              onTap: _exportCsv,
-            ),
-          ]),
+          AppBarOverflowMenu(
+            entries: [
+              (
+                icon: Icons.ios_share_rounded,
+                label: l10n.exportCsv,
+                onTap: _exportCsv,
+              ),
+            ],
+          ),
         ],
       ),
-      floatingActionButton: _showSummary
-          ? null
-          : FloatingActionButton(
-              heroTag: 'fab-finance',
-              tooltip: l10n.newBillable,
-              onPressed: () => context.go('/finance/new'),
-              child: const Icon(Icons.add_rounded),
-            ),
       body: Column(
         children: [
           const TimerCard(),
+          const _RecoverableTimersPanel(),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: SegmentedButton<bool>(
@@ -118,35 +160,30 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
           if (!_showSummary)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Wrap(
-                spacing: 8,
-                children: [
-                  for (final status in BillableStatus.values)
-                    FilterChip(
-                      label: Text(billableStatusLabel(l10n, status)),
-                      selected: _statusFilter.contains(status),
-                      onSelected: (selected) => setState(() {
-                        if (selected) {
-                          _statusFilter.add(status);
-                        } else {
-                          _statusFilter.remove(status);
-                        }
-                      }),
-                    ),
-                ],
-              ),
-            ),
-          if (moduleDisabled)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                l10n.financeModuleDisabled,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: FilterButton(
+                  label: l10n.filtersLabel,
+                  activeCount:
+                      BillableStatus.values.length - _statusFilter.length,
+                  onPressed: _showFilters,
+                ),
               ),
             ),
           Expanded(
-            child: _showSummary
+            child: moduleDisabled
+                ? EmptyState(
+                    icon: Icons.visibility_off_outlined,
+                    title: l10n.moduleDisabledTitle,
+                    body: l10n.financeModuleDisabled,
+                    primaryAction: EmptyStateAction(
+                      label: l10n.editWorkspace,
+                      icon: Icons.tune_rounded,
+                      onPressed: () =>
+                          context.push('/workspaces/${selectedWorkspace.id}'),
+                    ),
+                  )
+                : _showSummary
                 ? const SummaryView()
                 : switch (billablesValue) {
                     AsyncValue(value: final items?) when items.isNotEmpty =>
@@ -154,14 +191,32 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
                         items: items
                             .where((b) => _statusFilter.contains(b.status))
                             .toList(),
+                        onClearFilters: () => setState(() {
+                          _statusFilter
+                            ..clear()
+                            ..addAll(BillableStatus.values);
+                        }),
                       ),
-                    AsyncValue(isLoading: true) =>
-                      const Center(child: CircularProgressIndicator()),
+                    AsyncValue(isLoading: true) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    AsyncValue(hasError: true) => EmptyState(
+                      icon: Icons.error_outline_rounded,
+                      title: l10n.unableToLoadTitle,
+                      body: l10n.unableToLoadBody,
+                      retryLabel: l10n.retry,
+                      onRetry: () => ref.invalidate(visibleBillablesProvider),
+                    ),
                     _ => EmptyState(
-                        icon: Icons.receipt_long_outlined,
-                        title: l10n.emptyBillablesTitle,
-                        body: l10n.emptyBillablesBody,
+                      icon: Icons.receipt_long_outlined,
+                      title: l10n.emptyBillablesTitle,
+                      body: l10n.emptyBillablesBody,
+                      primaryAction: EmptyStateAction(
+                        label: l10n.newBillable,
+                        icon: Icons.add_rounded,
+                        onPressed: () => context.go('/finance/new'),
                       ),
+                    ),
                   },
           ),
         ],
@@ -170,10 +225,53 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
   }
 }
 
+class _RecoverableTimersPanel extends ConsumerWidget {
+  const _RecoverableTimersPanel();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final value = ref.watch(recoverableTimerSessionsProvider);
+    return value.when(
+      loading: () => const SizedBox.shrink(),
+      error: (error, stackTrace) => const SizedBox.shrink(),
+      data: (sessions) {
+        if (sessions.isEmpty) return const SizedBox.shrink();
+        final visibleHeight = (sessions.length * 83.0).clamp(83.0, 190.0);
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l10n.unconvertedTime,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                l10n.unconvertedTimeBody,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 6),
+              SizedBox(
+                height: visibleHeight,
+                child: SingleChildScrollView(
+                  child: RecoverableTimerList(sessions: sessions),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _BillableList extends ConsumerWidget {
-  const _BillableList({required this.items});
+  const _BillableList({required this.items, required this.onClearFilters});
 
   final List<BillableItem> items;
+  final VoidCallback onClearFilters;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -183,6 +281,15 @@ class _BillableList extends ConsumerWidget {
         icon: Icons.receipt_long_outlined,
         title: l10n.emptyBillablesTitle,
         body: l10n.emptyBillablesBody,
+        primaryAction: EmptyStateAction(
+          label: l10n.newBillable,
+          icon: Icons.add_rounded,
+          onPressed: () => context.go('/finance/new'),
+        ),
+        secondaryAction: EmptyStateAction(
+          label: l10n.clearFilters,
+          onPressed: onClearFilters,
+        ),
       );
     }
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
@@ -193,10 +300,12 @@ class _BillableList extends ConsumerWidget {
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        final workspace =
-            workspaces.where((w) => w.id == item.workspaceId).firstOrNull;
-        final contact =
-            contacts.where((c) => c.id == item.contactId).firstOrNull;
+        final workspace = workspaces
+            .where((w) => w.id == item.workspaceId)
+            .firstOrNull;
+        final contact = contacts
+            .where((c) => c.id == item.contactId)
+            .firstOrNull;
         final total = billableTotalCents(
           type: item.type,
           rateCents: item.rateCents,
@@ -235,10 +344,16 @@ class _BillableTile extends ConsumerWidget {
 
     // Leading status marker cycles unbilled -> invoiced -> paid on tap.
     final (statusIcon, statusColor, statusFilled) = switch (item.status) {
-      BillableStatus.unbilled =>
-        (Icons.radio_button_unchecked_rounded, tokens.ink3, false),
-      BillableStatus.invoiced =>
-        (Icons.schedule_rounded, const Color(0xFFE4AB3C), false),
+      BillableStatus.unbilled => (
+        Icons.radio_button_unchecked_rounded,
+        tokens.ink3,
+        false,
+      ),
+      BillableStatus.invoiced => (
+        Icons.schedule_rounded,
+        const Color(0xFFE4AB3C),
+        false,
+      ),
       BillableStatus.paid => (Icons.check_rounded, tokens.success, true),
     };
 
@@ -250,7 +365,24 @@ class _BillableTile extends ConsumerWidget {
         squared: true,
         size: 38,
         tooltip: billableStatusLabel(l10n, item.status),
-        onTap: () => ref.read(billableRepositoryProvider).cycleStatus(item),
+        onTap: () async {
+          final previous = item.status;
+          await ref.read(billableRepositoryProvider).cycleStatus(item);
+          if (!context.mounted) return;
+          final messenger = ScaffoldMessenger.of(context);
+          messenger.hideCurrentSnackBar();
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(l10n.billableStatusChanged),
+              action: SnackBarAction(
+                label: l10n.undo,
+                onPressed: () => ref
+                    .read(billableRepositoryProvider)
+                    .update(item.id, status: previous),
+              ),
+            ),
+          );
+        },
       ),
       title: Text(item.title),
       subtitle: Row(
@@ -289,6 +421,9 @@ class _BillableTile extends ConsumerWidget {
           Text(
             '${item.currency} · ${billableStatusLabel(l10n, item.status)}'
                 .toUpperCase(),
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.fade,
             style: TextStyle(
               fontFamily: bodyFontFamily,
               fontSize: 10,

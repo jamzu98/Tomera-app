@@ -31,7 +31,7 @@ class StatusRing extends StatelessWidget {
     final radius = squared ? BorderRadius.circular(size * 0.32) : null;
     final shape = squared ? BoxShape.rectangle : BoxShape.circle;
 
-    Widget ring = Container(
+    final ring = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -47,15 +47,32 @@ class StatusRing extends StatelessWidget {
       ),
     );
 
-    if (tooltip != null) ring = Tooltip(message: tooltip!, child: ring);
-    if (onTap == null) return ring;
+    if (onTap == null) {
+      return tooltip == null ? ring : Tooltip(message: tooltip!, child: ring);
+    }
 
-    return InkWell(
-      customBorder: squared
-          ? RoundedRectangleBorder(borderRadius: radius!)
-          : const CircleBorder(),
-      onTap: onTap,
-      child: ring,
+    final borderRadius = squared ? BorderRadius.circular(15) : null;
+    Widget target = Semantics(
+      button: true,
+      label: tooltip,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          customBorder: squared
+              ? RoundedRectangleBorder(borderRadius: borderRadius!)
+              : const CircleBorder(),
+          onTap: onTap,
+          child: SizedBox.square(dimension: 48, child: Center(child: ring)),
+        ),
+      ),
     );
+    if (tooltip != null) {
+      target = Tooltip(
+        message: tooltip!,
+        excludeFromSemantics: true,
+        child: target,
+      );
+    }
+    return target;
   }
 }

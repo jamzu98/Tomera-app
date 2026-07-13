@@ -10,8 +10,10 @@ class ProjectRepository {
 
   final ProjectDao _dao;
 
-  Stream<List<Project>> watchAll(
-          {String? workspaceId, bool includeArchived = false}) =>
+  Stream<List<Project>> watchAll({
+    String? workspaceId,
+    bool includeArchived = false,
+  }) =>
       _dao.watchAll(workspaceId: workspaceId, includeArchived: includeArchived);
 
   Stream<Project?> watchById(String id) => _dao.watchById(id);
@@ -24,19 +26,23 @@ class ProjectRepository {
     String? description,
     int? color,
     String? contactId,
+    int? hourlyRateCents,
   }) async {
     final id = newId();
     final now = utcNowMs();
-    await _dao.insertProject(ProjectsCompanion.insert(
-      id: id,
-      workspaceId: workspaceId,
-      name: name,
-      description: Value.absentIfNull(description),
-      color: Value.absentIfNull(color),
-      contactId: Value.absentIfNull(contactId),
-      createdAt: now,
-      updatedAt: now,
-    ));
+    await _dao.insertProject(
+      ProjectsCompanion.insert(
+        id: id,
+        workspaceId: workspaceId,
+        name: name,
+        description: Value.absentIfNull(description),
+        color: Value.absentIfNull(color),
+        contactId: Value.absentIfNull(contactId),
+        hourlyRateCents: Value.absentIfNull(hourlyRateCents),
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
     return id;
   }
 
@@ -50,18 +56,19 @@ class ProjectRepository {
     Value<String?> description = const Value.absent(),
     Value<int?> color = const Value.absent(),
     Value<String?> contactId = const Value.absent(),
-  }) =>
-      _dao.updateProject(
-        id,
-        ProjectsCompanion(
-          workspaceId: Value.absentIfNull(workspaceId),
-          name: Value.absentIfNull(name),
-          archived: Value.absentIfNull(archived),
-          description: description,
-          color: color,
-          contactId: contactId,
-        ),
-      );
+    Value<int?> hourlyRateCents = const Value.absent(),
+  }) => _dao.updateProject(
+    id,
+    ProjectsCompanion(
+      workspaceId: Value.absentIfNull(workspaceId),
+      name: Value.absentIfNull(name),
+      archived: Value.absentIfNull(archived),
+      description: description,
+      color: color,
+      contactId: contactId,
+      hourlyRateCents: hourlyRateCents,
+    ),
+  );
 
   Future<void> delete(String id) => _dao.softDelete(id);
 }

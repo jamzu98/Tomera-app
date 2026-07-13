@@ -106,6 +106,18 @@ abstract class AppLocalizations {
   /// **'Calendar'**
   String get tabCalendar;
 
+  /// No description provided for @tabToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get tabToday;
+
+  /// No description provided for @tabWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get tabWork;
+
   /// No description provided for @tabTasks.
   ///
   /// In en, this message translates to:
@@ -165,6 +177,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @unableToLoadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t load this yet'**
+  String get unableToLoadTitle;
+
+  /// No description provided for @unableToLoadBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in a moment.'**
+  String get unableToLoadBody;
+
+  /// No description provided for @quickAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick add'**
+  String get quickAdd;
+
+  /// No description provided for @quickAddChooseWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a workspace to continue.'**
+  String get quickAddChooseWorkspace;
+
+  /// No description provided for @moduleUnavailableInWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available in this workspace'**
+  String get moduleUnavailableInWorkspace;
+
+  /// No description provided for @moduleDisabledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This module is turned off'**
+  String get moduleDisabledTitle;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearFilters;
+
+  /// No description provided for @setupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your first workspace'**
+  String get setupTitle;
+
+  /// No description provided for @setupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A workspace keeps related tasks, events, notes, contacts, and billable work together.'**
+  String get setupBody;
+
+  /// No description provided for @createWorkspaceAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create workspace'**
+  String get createWorkspaceAction;
+
+  /// No description provided for @tryDemoAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Try an example workspace'**
+  String get tryDemoAction;
+
+  /// No description provided for @demoDataNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Example data is optional and can be removed from Today.'**
+  String get demoDataNote;
+
+  /// No description provided for @checklistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish setting up Tomera'**
+  String get checklistTitle;
+
+  /// No description provided for @checklistProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first project'**
+  String get checklistProject;
+
+  /// No description provided for @checklistTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan your first task'**
+  String get checklistTask;
+
+  /// No description provided for @checklistContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a contact'**
+  String get checklistContact;
+
+  /// No description provided for @checklistProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed} of {total} complete'**
+  String checklistProgress(int completed, int total);
+
+  /// No description provided for @dismissAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get dismissAction;
+
+  /// No description provided for @removeDemoAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove example data'**
+  String get removeDemoAction;
+
+  /// No description provided for @discardChangesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get discardChangesTitle;
+
+  /// No description provided for @discardChangesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your unsaved changes will be lost.'**
+  String get discardChangesBody;
+
+  /// No description provided for @keepEditingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keepEditingAction;
+
+  /// No description provided for @discardChangesAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get discardChangesAction;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
+
+  /// No description provided for @parentRecordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent record'**
+  String get parentRecordLabel;
+
+  /// No description provided for @noParentRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'No parent'**
+  String get noParentRecord;
+
+  /// No description provided for @referencesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'References'**
+  String get referencesLabel;
+
+  /// No description provided for @addReferenceAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reference'**
+  String get addReferenceAction;
+
+  /// No description provided for @createTaskFromSelectionAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create task from selection'**
+  String get createTaskFromSelectionAction;
+
+  /// No description provided for @selectNoteTextFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Select some note text first.'**
+  String get selectNoteTextFirst;
+
+  /// No description provided for @workspaceRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace rate (€)'**
+  String get workspaceRateLabel;
+
+  /// No description provided for @activityTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activityTimeline;
+
+  /// No description provided for @activityEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Event'**
+  String get activityEvent;
+
+  /// No description provided for @activityCompletedTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed task'**
+  String get activityCompletedTask;
+
+  /// No description provided for @activityNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get activityNote;
+
+  /// No description provided for @activityTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer session'**
+  String get activityTimer;
+
+  /// No description provided for @activityBillable.
+  ///
+  /// In en, this message translates to:
+  /// **'Billable'**
+  String get activityBillable;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @taskStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Task status updated.'**
+  String get taskStatusChanged;
+
+  /// No description provided for @billableStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Billable status updated.'**
+  String get billableStatusChanged;
+
+  /// No description provided for @eventMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Event time updated.'**
+  String get eventMoved;
+
+  /// No description provided for @taskDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task deleted.'**
+  String get taskDeleted;
+
+  /// No description provided for @noteDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Note deleted.'**
+  String get noteDeleted;
+
+  /// No description provided for @eventDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Event deleted.'**
+  String get eventDeleted;
+
+  /// No description provided for @billableDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Billable item deleted.'**
+  String get billableDeleted;
+
+  /// No description provided for @tomorrowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrowButton;
+
+  /// No description provided for @nextMondayButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Monday'**
+  String get nextMondayButton;
+
+  /// No description provided for @filtersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filtersLabel;
+
+  /// No description provided for @todayActiveTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Active timer'**
+  String get todayActiveTimer;
+
+  /// No description provided for @todaySchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get todaySchedule;
+
+  /// No description provided for @todayTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tasks'**
+  String get todayTasks;
+
+  /// No description provided for @todayUnbilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Unbilled'**
+  String get todayUnbilled;
+
+  /// No description provided for @todayUnbilledTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Unbilled time'**
+  String get todayUnbilledTime;
+
+  /// No description provided for @todayRecentNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent notes'**
+  String get todayRecentNotes;
+
+  /// No description provided for @todayNoActiveTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'No timer is running.'**
+  String get todayNoActiveTimer;
+
+  /// No description provided for @todayNoEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing else is scheduled today.'**
+  String get todayNoEvent;
+
+  /// No description provided for @todayNoTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'No overdue tasks or tasks due today.'**
+  String get todayNoTasks;
+
+  /// No description provided for @todayNoUnbilled.
+  ///
+  /// In en, this message translates to:
+  /// **'No unbilled work in this view.'**
+  String get todayNoUnbilled;
+
+  /// No description provided for @todayNoNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent notes in this view.'**
+  String get todayNoNotes;
+
+  /// No description provided for @todayOngoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Ongoing'**
+  String get todayOngoing;
+
+  /// No description provided for @todayNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get todayNext;
+
+  /// No description provided for @todayHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String todayHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @todayMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String todayMinutes(int minutes);
 
   /// No description provided for @newWorkspace.
   ///
@@ -439,7 +835,7 @@ abstract class AppLocalizations {
   /// No description provided for @emptyTasksBody.
   ///
   /// In en, this message translates to:
-  /// **'Add a task with the + button.'**
+  /// **'Capture the next thing you need to do.'**
   String get emptyTasksBody;
 
   /// No description provided for @tasksModuleDisabled.
@@ -562,11 +958,269 @@ abstract class AppLocalizations {
   /// **'Timer running'**
   String get timerRunning;
 
+  /// No description provided for @timerSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer session'**
+  String get timerSessionTitle;
+
+  /// No description provided for @timerSessionNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This timer session is no longer available.'**
+  String get timerSessionNotFound;
+
   /// No description provided for @timerAlreadyRunning.
   ///
   /// In en, this message translates to:
   /// **'A timer is already running.'**
   String get timerAlreadyRunning;
+
+  /// No description provided for @unconvertedTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconverted time'**
+  String get unconvertedTime;
+
+  /// No description provided for @unconvertedTimeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped timers stay here until they become billable items.'**
+  String get unconvertedTimeBody;
+
+  /// No description provided for @convertToBillable.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to billable'**
+  String get convertToBillable;
+
+  /// No description provided for @timerConverted.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer converted to a billable item.'**
+  String get timerConverted;
+
+  /// No description provided for @timerConversionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t convert this timer. Try again.'**
+  String get timerConversionFailed;
+
+  /// No description provided for @repeatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeatLabel;
+
+  /// No description provided for @doesNotRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Does not repeat'**
+  String get doesNotRepeat;
+
+  /// No description provided for @recurrenceFrequencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get recurrenceFrequencyLabel;
+
+  /// No description provided for @recurrenceDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get recurrenceDaily;
+
+  /// No description provided for @recurrenceWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get recurrenceWeekly;
+
+  /// No description provided for @recurrenceMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get recurrenceMonthly;
+
+  /// No description provided for @recurrenceYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get recurrenceYearly;
+
+  /// No description provided for @repeatEveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat every'**
+  String get repeatEveryLabel;
+
+  /// No description provided for @intervalUnitDays.
+  ///
+  /// In en, this message translates to:
+  /// **'day(s)'**
+  String get intervalUnitDays;
+
+  /// No description provided for @intervalUnitWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'week(s)'**
+  String get intervalUnitWeeks;
+
+  /// No description provided for @intervalUnitMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'month(s)'**
+  String get intervalUnitMonths;
+
+  /// No description provided for @intervalUnitYears.
+  ///
+  /// In en, this message translates to:
+  /// **'year(s)'**
+  String get intervalUnitYears;
+
+  /// No description provided for @repeatOnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat on'**
+  String get repeatOnLabel;
+
+  /// No description provided for @recurrenceEndsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get recurrenceEndsLabel;
+
+  /// No description provided for @recurrenceNeverEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get recurrenceNeverEnds;
+
+  /// No description provided for @recurrenceOnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'On date'**
+  String get recurrenceOnDate;
+
+  /// No description provided for @recurrenceAfterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'After count'**
+  String get recurrenceAfterCount;
+
+  /// No description provided for @inclusiveEndDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inclusive end date'**
+  String get inclusiveEndDateLabel;
+
+  /// No description provided for @occurrenceCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Occurrences'**
+  String get occurrenceCountLabel;
+
+  /// No description provided for @repeatAnchorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next task advances'**
+  String get repeatAnchorLabel;
+
+  /// No description provided for @repeatFromSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'From prior due date'**
+  String get repeatFromSchedule;
+
+  /// No description provided for @repeatFromCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'From completion time'**
+  String get repeatFromCompletion;
+
+  /// No description provided for @recurrenceRequiresDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a due date before enabling repeat.'**
+  String get recurrenceRequiresDueDate;
+
+  /// No description provided for @recurrenceReminderBeforeDue.
+  ///
+  /// In en, this message translates to:
+  /// **'A repeating task reminder must be at or before its due time.'**
+  String get recurrenceReminderBeforeDue;
+
+  /// No description provided for @recurringSeriesContext.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of a recurring series'**
+  String get recurringSeriesContext;
+
+  /// No description provided for @editRecurringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit recurring event'**
+  String get editRecurringTitle;
+
+  /// No description provided for @editThisOccurrence.
+  ///
+  /// In en, this message translates to:
+  /// **'This occurrence'**
+  String get editThisOccurrence;
+
+  /// No description provided for @editCurrentAndFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'This and future occurrences'**
+  String get editCurrentAndFuture;
+
+  /// No description provided for @deleteRecurringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete recurring event'**
+  String get deleteRecurringTitle;
+
+  /// No description provided for @deleteThisOccurrence.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this occurrence'**
+  String get deleteThisOccurrence;
+
+  /// No description provided for @deleteCurrentAndFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this and future occurrences'**
+  String get deleteCurrentAndFuture;
+
+  /// No description provided for @invalidInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number greater than zero'**
+  String get invalidInterval;
+
+  /// No description provided for @invalidOccurrenceCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one occurrence'**
+  String get invalidOccurrenceCount;
+
+  /// No description provided for @recurrenceEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The repeat end must include at least one occurrence.'**
+  String get recurrenceEndBeforeStart;
+
+  /// No description provided for @recurrenceTimezone.
+  ///
+  /// In en, this message translates to:
+  /// **'Time zone: {timezone}'**
+  String recurrenceTimezone(String timezone);
+
+  /// No description provided for @cannotReopenRecurringTask.
+  ///
+  /// In en, this message translates to:
+  /// **'This task can’t be reopened because its next occurrence has already progressed.'**
+  String get cannotReopenRecurringTask;
 
   /// No description provided for @settingsTitle.
   ///
@@ -603,6 +1257,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Timer duration rounding'**
   String get roundingLabel;
+
+  /// No description provided for @weekStartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Week starts on'**
+  String get weekStartLabel;
+
+  /// No description provided for @weekStartMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get weekStartMonday;
+
+  /// No description provided for @weekStartSunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get weekStartSunday;
+
+  /// No description provided for @timeFormatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time format'**
+  String get timeFormatLabel;
+
+  /// No description provided for @timeFormatSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get timeFormatSystem;
+
+  /// No description provided for @timeFormat12.
+  ///
+  /// In en, this message translates to:
+  /// **'12-hour'**
+  String get timeFormat12;
+
+  /// No description provided for @timeFormat24.
+  ///
+  /// In en, this message translates to:
+  /// **'24-hour'**
+  String get timeFormat24;
 
   /// No description provided for @roundingNone.
   ///
@@ -703,7 +1399,7 @@ abstract class AppLocalizations {
   /// No description provided for @emptyBillablesBody.
   ///
   /// In en, this message translates to:
-  /// **'Add a billable item with the + button.'**
+  /// **'Track time or a fixed amount you can bill later.'**
   String get emptyBillablesBody;
 
   /// No description provided for @financeModuleDisabled.
@@ -760,11 +1456,11 @@ abstract class AppLocalizations {
   /// **'Apply to all'**
   String get applyToAll;
 
-  /// No description provided for @repeatOnLabel.
+  /// No description provided for @repeatWeeklyOnLabel.
   ///
   /// In en, this message translates to:
   /// **'Repeat weekly on'**
-  String get repeatOnLabel;
+  String get repeatWeeklyOnLabel;
 
   /// No description provided for @fromLabel.
   ///
@@ -1009,7 +1705,7 @@ abstract class AppLocalizations {
   /// No description provided for @emptyContactsBody.
   ///
   /// In en, this message translates to:
-  /// **'Add a contact with the + button.'**
+  /// **'Keep the people and organizations you work with close by.'**
   String get emptyContactsBody;
 
   /// No description provided for @contactsModuleDisabled.
@@ -1180,6 +1876,12 @@ abstract class AppLocalizations {
   /// **'This event overlaps with:'**
   String get conflictBody;
 
+  /// No description provided for @moreConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more conflicts'**
+  String moreConflicts(int count);
+
   /// No description provided for @saveAnyway.
   ///
   /// In en, this message translates to:
@@ -1297,7 +1999,7 @@ abstract class AppLocalizations {
   /// No description provided for @emptyNotesBody.
   ///
   /// In en, this message translates to:
-  /// **'Add a note with the + button.'**
+  /// **'Capture useful details, ideas, and meeting notes.'**
   String get emptyNotesBody;
 
   /// No description provided for @notesModuleDisabled.
@@ -1341,6 +2043,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'\"{name}\" will be hidden everywhere. Its data is kept and nothing is permanently erased.'**
   String deleteWorkspaceBody(String name);
+
+  /// No description provided for @dataSafetyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data safety'**
+  String get dataSafetyTitle;
+
+  /// No description provided for @exportBackupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export encrypted backup'**
+  String get exportBackupTitle;
+
+  /// No description provided for @exportBackupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a password-protected copy of your Tomera data and settings.'**
+  String get exportBackupSubtitle;
+
+  /// No description provided for @restoreBackupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup'**
+  String get restoreBackupTitle;
+
+  /// No description provided for @restoreBackupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace this device\'s Tomera data with an encrypted backup.'**
+  String get restoreBackupSubtitle;
+
+  /// No description provided for @backupPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup password'**
+  String get backupPasswordTitle;
+
+  /// No description provided for @backupPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get backupPasswordLabel;
+
+  /// No description provided for @backupPasswordConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get backupPasswordConfirmLabel;
+
+  /// No description provided for @backupPasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters.'**
+  String get backupPasswordTooShort;
+
+  /// No description provided for @backupPasswordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get backupPasswordsDoNotMatch;
+
+  /// No description provided for @restoreBackupConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace Tomera data?'**
+  String get restoreBackupConfirmTitle;
+
+  /// No description provided for @restoreBackupConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomera will first create a rollback snapshot, then replace the data and settings on this device.'**
+  String get restoreBackupConfirmBody;
+
+  /// No description provided for @restoreBackupConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore backup'**
+  String get restoreBackupConfirmAction;
+
+  /// No description provided for @backupWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing backup…'**
+  String get backupWorking;
+
+  /// No description provided for @restoreWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring backup…'**
+  String get restoreWorking;
+
+  /// No description provided for @backupExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted backup ready.'**
+  String get backupExported;
+
+  /// No description provided for @backupRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored.'**
+  String get backupRestored;
+
+  /// No description provided for @backupUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Portable backups are currently available on Android only.'**
+  String get backupUnsupported;
+
+  /// No description provided for @backupAuthenticationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is incorrect or the backup was damaged.'**
+  String get backupAuthenticationFailed;
+
+  /// No description provided for @backupInvalidArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a valid Tomera backup.'**
+  String get backupInvalidArchive;
+
+  /// No description provided for @backupUnsupportedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup format is not supported by this version of Tomera.'**
+  String get backupUnsupportedVersion;
+
+  /// No description provided for @backupNewerSchema.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was created by a newer version of Tomera.'**
+  String get backupNewerSchema;
+
+  /// No description provided for @backupCorrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup failed its integrity checks and was not restored.'**
+  String get backupCorrupted;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup operation could not be completed. Your existing data was kept.'**
+  String get backupFailed;
+
+  /// No description provided for @backupExportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get backupExportAction;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueAction;
+
+  /// No description provided for @cancelAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelAction;
 }
 
 class _AppLocalizationsDelegate

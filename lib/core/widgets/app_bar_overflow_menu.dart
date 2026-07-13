@@ -19,7 +19,9 @@ class AppBarOverflowMenu extends StatelessWidget {
     return PopupMenuButton<int>(
       icon: const Icon(Icons.more_vert_rounded),
       onSelected: (index) {
-        if (index == -1) {
+        if (index == -2) {
+          context.push('/settings');
+        } else if (index == -1) {
           context.push('/workspaces');
         } else {
           entries[index].onTap();
@@ -44,6 +46,16 @@ class AppBarOverflowMenu extends StatelessWidget {
               const Icon(Icons.workspaces_outline, size: 20),
               const SizedBox(width: 12),
               Text(l10n.tabWorkspaces),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: -2,
+          child: Row(
+            children: [
+              const Icon(Icons.settings_outlined, size: 20),
+              const SizedBox(width: 12),
+              Text(l10n.settingsTitle),
             ],
           ),
         ),

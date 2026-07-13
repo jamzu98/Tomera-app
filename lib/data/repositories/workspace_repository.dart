@@ -19,19 +19,23 @@ class WorkspaceRepository {
     required int color,
     required String icon,
     required Set<ModuleKey> enabledModules,
+    int? defaultHourlyRateCents,
   }) async {
     final id = newId();
     final now = utcNowMs();
-    await _dao.insertWorkspace(WorkspacesCompanion.insert(
-      id: id,
-      name: name,
-      color: color,
-      icon: icon,
-      enabledModules: enabledModules,
-      sortOrder: Value(await _dao.nextSortOrder()),
-      createdAt: now,
-      updatedAt: now,
-    ));
+    await _dao.insertWorkspace(
+      WorkspacesCompanion.insert(
+        id: id,
+        name: name,
+        color: color,
+        icon: icon,
+        enabledModules: enabledModules,
+        defaultHourlyRateCents: Value.absentIfNull(defaultHourlyRateCents),
+        sortOrder: Value(await _dao.nextSortOrder()),
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
     return id;
   }
 
@@ -41,16 +45,17 @@ class WorkspaceRepository {
     int? color,
     String? icon,
     Set<ModuleKey>? enabledModules,
-  }) =>
-      _dao.updateWorkspace(
-        id,
-        WorkspacesCompanion(
-          name: Value.absentIfNull(name),
-          color: Value.absentIfNull(color),
-          icon: Value.absentIfNull(icon),
-          enabledModules: Value.absentIfNull(enabledModules),
-        ),
-      );
+    Value<int?> defaultHourlyRateCents = const Value.absent(),
+  }) => _dao.updateWorkspace(
+    id,
+    WorkspacesCompanion(
+      name: Value.absentIfNull(name),
+      color: Value.absentIfNull(color),
+      icon: Value.absentIfNull(icon),
+      enabledModules: Value.absentIfNull(enabledModules),
+      defaultHourlyRateCents: defaultHourlyRateCents,
+    ),
+  );
 
   /// Soft delete: hides the workspace but never deletes its data (spec §5).
   Future<void> delete(String id) => _dao.softDelete(id);

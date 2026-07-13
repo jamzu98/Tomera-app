@@ -12,9 +12,13 @@ import '../../core/widgets/soft_tile.dart';
 import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
+import '../connected/connected_timeline.dart';
+import '../connected/connected_timeline_section.dart';
 import '../contacts/contact_providers.dart';
 import '../finance/billable_math.dart';
 import '../finance/finance_screen.dart' show billableStatusLabel;
+import '../notes/note_providers.dart';
+import '../settings/date_time_format.dart';
 import 'project_providers.dart';
 import 'projects_screen.dart' show projectColor;
 
@@ -24,7 +28,10 @@ class ProjectDetailScreen extends ConsumerWidget {
   final String projectId;
 
   Future<void> _delete(
-      BuildContext context, WidgetRef ref, Project project) async {
+    BuildContext context,
+    WidgetRef ref,
+    Project project,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -65,18 +72,44 @@ class ProjectDetailScreen extends ConsumerWidget {
     final contacts = ref.watch(allContactsProvider).value ?? [];
     final events = ref.watch(eventsForProjectProvider(projectId)).value ?? [];
     final tasks = ref.watch(tasksForProjectProvider(projectId)).value ?? [];
-    final notes = ref.watch(notesForProjectProvider(projectId)).value ?? [];
+    final parentedNotes =
+        ref.watch(notesForProjectProvider(projectId)).value ?? [];
+    final backlinkNotes =
+        ref
+            .watch(
+              noteBacklinksProvider((type: ParentType.project, id: projectId)),
+            )
+            .value ??
+        [];
+    final notesById = <String, Note>{
+      for (final note in parentedNotes) note.id: note,
+      for (final note in backlinkNotes) note.id: note,
+    };
+    final notes = notesById.values.toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final billables =
         ref.watch(billablesForProjectProvider(projectId)).value ?? [];
-    final totals = ref.watch(projectTotalsProvider(projectId)).value;
+    final timers = ref.watch(timersForProjectProvider(projectId)).value ?? [];
+    final totalsByCurrency =
+        ref.watch(projectTotalsByCurrencyProvider(projectId)).value ?? {};
+    final timeline = buildConnectedTimeline(
+      events: events,
+      tasks: tasks,
+      notes: notes,
+      timers: timers,
+      billables: billables,
+    );
+    final currencies = totalsByCurrency.keys.toList()..sort();
 
-    final workspace =
-        workspaces.where((w) => w.id == project.workspaceId).firstOrNull;
-    final contact =
-        contacts.where((c) => c.id == project.contactId).firstOrNull;
+    final workspace = workspaces
+        .where((w) => w.id == project.workspaceId)
+        .firstOrNull;
+    final contact = contacts
+        .where((c) => c.id == project.contactId)
+        .firstOrNull;
     final color = Color(projectColor(project, workspaces));
     final dateFormat = DateFormat.MMMEd();
-    final timeFormat = DateFormat.Hm();
+    final timeFormat = appTimeFormat(context, ref);
 
     return Scaffold(
       appBar: AppBar(
@@ -85,7 +118,7 @@ class ProjectDetailScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             tooltip: l10n.editProject,
-            onPressed: () => context.go('/calendar/projects/$projectId/edit'),
+            onPressed: () => context.push('/work/projects/$projectId/edit'),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline_rounded),
@@ -117,10 +150,14 @@ class ProjectDetailScreen extends ConsumerWidget {
           if (project.description?.isNotEmpty == true)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(project.description!,
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(color: context.tokens.ink2)),
+              child: Text(
+                project.description!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: context.tokens.ink2,
+                ),
+              ),
             ),
+          ConnectedTimelineSection(activities: timeline),
           _Section(
             title: l10n.linkedEvents,
             action: Row(
@@ -129,14 +166,14 @@ class ProjectDetailScreen extends ConsumerWidget {
                 TextButton.icon(
                   icon: const Icon(Icons.event_repeat_rounded, size: 18),
                   label: Text(l10n.addInstances),
-                  onPressed: () => context
-                      .go('/calendar/projects/$projectId/instances'),
+                  onPressed: () =>
+                      context.push('/work/projects/$projectId/instances'),
                 ),
                 TextButton.icon(
                   icon: const Icon(Icons.add_rounded, size: 18),
                   label: Text(l10n.newEvent),
                   onPressed: () =>
-                      context.go('/calendar/new?projectId=$projectId'),
+                      context.push('/calendar/new?projectId=$projectId'),
                 ),
               ],
             ),
@@ -150,7 +187,7 @@ class ProjectDetailScreen extends ConsumerWidget {
                     '${dateFormat.format(DateTime.fromMillisecondsSinceEpoch(event.startsAt, isUtc: true).toLocal())}'
                     ' ${timeFormat.format(DateTime.fromMillisecondsSinceEpoch(event.startsAt, isUtc: true).toLocal())}',
                   ),
-                  onTap: () => context.go('/calendar/${event.id}'),
+                  onTap: () => context.push('/calendar/${event.id}'),
                 ),
             ],
           ),
@@ -160,7 +197,7 @@ class ProjectDetailScreen extends ConsumerWidget {
               icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(l10n.newTask),
               onPressed: () =>
-                  context.go('/tasks/new?projectId=$projectId'),
+                  context.push('/work/tasks/new?projectId=$projectId'),
             ),
             children: [
               for (final task in tasks)
@@ -176,7 +213,7 @@ class ProjectDetailScreen extends ConsumerWidget {
                         : context.tokens.ink3,
                   ),
                   title: Text(task.title),
-                  onTap: () => context.go('/tasks/${task.id}'),
+                  onTap: () => context.push('/work/tasks/${task.id}'),
                 ),
             ],
           ),
@@ -185,17 +222,28 @@ class ProjectDetailScreen extends ConsumerWidget {
             action: TextButton.icon(
               icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(l10n.addNoteAction),
-              onPressed: () => context.go(
-                  '/notes/new?parentType=project&parentId=$projectId'),
+              onPressed: () => context.push(
+                Uri(
+                  path: '/work/notes/new',
+                  queryParameters: {
+                    'workspaceId': project.workspaceId,
+                    'parentType': ParentType.project.dbValue,
+                    'parentId': projectId,
+                  },
+                ).toString(),
+              ),
             ),
             children: [
               for (final note in notes)
                 SoftTile(
                   margin: const EdgeInsets.symmetric(vertical: 4),
-                  leading: Icon(Icons.description_outlined,
-                      size: 20, color: context.tokens.ink2),
+                  leading: Icon(
+                    Icons.description_outlined,
+                    size: 20,
+                    color: context.tokens.ink2,
+                  ),
                   title: Text(note.title),
-                  onTap: () => context.go('/notes/${note.id}'),
+                  onTap: () => context.push('/work/notes/${note.id}'),
                 ),
             ],
           ),
@@ -205,23 +253,21 @@ class ProjectDetailScreen extends ConsumerWidget {
               icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(l10n.newBillable),
               onPressed: () =>
-                  context.go('/finance/new?projectId=$projectId'),
+                  context.push('/finance/new?projectId=$projectId'),
             ),
             children: [
               for (final item in billables)
                 SoftTile(
                   margin: const EdgeInsets.symmetric(vertical: 4),
-                  leading: Icon(Icons.receipt_long_outlined,
-                      size: 20, color: context.tokens.ink2),
+                  leading: Icon(
+                    Icons.receipt_long_outlined,
+                    size: 20,
+                    color: context.tokens.ink2,
+                  ),
                   title: Text(item.title),
                   subtitle: Text(billableStatusLabel(l10n, item.status)),
                   trailing: Text(
-                    '${formatCents(billableTotalCents(
-                      type: item.type,
-                      rateCents: item.rateCents,
-                      durationMinutes: item.durationMinutes,
-                      amountCents: item.amountCents,
-                    ))} ${item.currency}',
+                    '${formatCents(billableTotalCents(type: item.type, rateCents: item.rateCents, durationMinutes: item.durationMinutes, amountCents: item.amountCents))} ${item.currency}',
                     style: TextStyle(
                       fontFamily: bodyFontFamily,
                       fontSize: 14,
@@ -230,20 +276,37 @@ class ProjectDetailScreen extends ConsumerWidget {
                       fontFeatures: tabularFigures,
                     ),
                   ),
-                  onTap: () => context.go('/finance/${item.id}'),
+                  onTap: () => context.push('/finance/${item.id}'),
                 ),
             ],
           ),
-          if (totals != null) ...[
+          if (currencies.isNotEmpty) ...[
             SectionHeader(
               title: l10n.financialSummary,
               padding: const EdgeInsets.fromLTRB(6, 22, 6, 8),
             ),
-            FinancialSummaryCard(rows: [
-              (l10n.statusUnbilled, totals.unbilled, false),
-              (l10n.statusInvoiced, totals.invoiced, false),
-              (l10n.statusPaid, totals.paid, true),
-            ]),
+            for (final currency in currencies) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 8, 6, 6),
+                child: Text(currency, style: theme.textTheme.labelLarge),
+              ),
+              FinancialSummaryCard(
+                currency: currency,
+                rows: [
+                  (
+                    l10n.statusUnbilled,
+                    totalsByCurrency[currency]!.unbilled,
+                    false,
+                  ),
+                  (
+                    l10n.statusInvoiced,
+                    totalsByCurrency[currency]!.invoiced,
+                    false,
+                  ),
+                  (l10n.statusPaid, totalsByCurrency[currency]!.paid, true),
+                ],
+              ),
+            ],
           ],
         ],
       ),
@@ -288,8 +351,10 @@ class _Section extends StatelessWidget {
         if (children.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            child:
-                Text(l10n.nothingLinkedYet, style: theme.textTheme.bodySmall),
+            child: Text(
+              l10n.nothingLinkedYet,
+              style: theme.textTheme.bodySmall,
+            ),
           )
         else
           ...children,

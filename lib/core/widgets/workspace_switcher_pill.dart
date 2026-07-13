@@ -37,10 +37,13 @@ class WorkspaceSwitcherPill extends ConsumerWidget {
     final selectedId = ref.watch(selectedWorkspaceIdProvider);
     final selected = workspaces.where((w) => w.id == selectedId).firstOrNull;
 
-    final height = compact ? 36.0 : 40.0;
+    // Keep the visual compact while meeting Android's 48dp touch-target
+    // guidance. App bars already reserve enough vertical space for this.
+    const height = 48.0;
     final dotSize = compact ? 18.0 : 22.0;
 
-    final label = selected?.name ??
+    final label =
+        selected?.name ??
         (compact ? l10n.allWorkspacesShort : l10n.allWorkspaces);
 
     return Material(
@@ -51,7 +54,10 @@ class WorkspaceSwitcherPill extends ConsumerWidget {
         onTap: () => _showSwitcherSheet(context, ref),
         child: Container(
           height: height,
-          padding: EdgeInsets.only(left: compact ? 8 : 12, right: compact ? 5 : 6),
+          padding: EdgeInsets.only(
+            left: compact ? 8 : 12,
+            right: compact ? 5 : 6,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -182,7 +188,11 @@ class _WorkspaceMark extends StatelessWidget {
         gradient: _allGradient,
         borderRadius: BorderRadius.circular(size / 3),
       ),
-      child: Icon(Icons.grid_view_rounded, size: size * 0.62, color: Colors.white),
+      child: Icon(
+        Icons.grid_view_rounded,
+        size: size * 0.62,
+        color: Colors.white,
+      ),
     );
   }
 }

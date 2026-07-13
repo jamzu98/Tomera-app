@@ -36,16 +36,29 @@ class WorkspacesScreen extends ConsumerWidget {
         child: const Icon(Icons.add_rounded),
       ),
       body: switch (workspaces) {
-        AsyncValue(value: final items?) when items.isNotEmpty =>
-          _WorkspaceList(items: items),
-        AsyncValue(isLoading: true) =>
-          const Center(child: CircularProgressIndicator()),
-        AsyncValue(:final error?) => Center(child: Text('$error')),
+        AsyncValue(value: final items?) when items.isNotEmpty => _WorkspaceList(
+          items: items,
+        ),
+        AsyncValue(isLoading: true) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        AsyncValue(hasError: true) => EmptyState(
+          icon: Icons.error_outline_rounded,
+          title: l10n.unableToLoadTitle,
+          body: l10n.unableToLoadBody,
+          retryLabel: l10n.retry,
+          onRetry: () => ref.invalidate(allWorkspacesProvider),
+        ),
         _ => EmptyState(
-            icon: Icons.workspaces_outline,
-            title: l10n.emptyWorkspacesTitle,
-            body: l10n.emptyWorkspacesBody,
+          icon: Icons.workspaces_outline,
+          title: l10n.emptyWorkspacesTitle,
+          body: l10n.emptyWorkspacesBody,
+          primaryAction: EmptyStateAction(
+            label: l10n.newWorkspace,
+            icon: Icons.add_rounded,
+            onPressed: () => context.push('/workspaces/new'),
           ),
+        ),
       },
     );
   }
@@ -139,7 +152,9 @@ class _WorkspaceCard extends StatelessWidget {
                             for (final label in enabled)
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 3),
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: tokens.line),
@@ -164,8 +179,10 @@ class _WorkspaceCard extends StatelessWidget {
                   index: index,
                   child: Padding(
                     padding: const EdgeInsets.all(8),
-                    child:
-                        Icon(Icons.drag_indicator_rounded, color: tokens.ink3),
+                    child: Icon(
+                      Icons.drag_indicator_rounded,
+                      color: tokens.ink3,
+                    ),
                   ),
                 ),
               ],

@@ -6,6 +6,7 @@ part of 'note_dao.dart';
 mixin _$NoteDaoMixin on DatabaseAccessor<AppDatabase> {
   $WorkspacesTable get workspaces => attachedDatabase.workspaces;
   $NotesTable get notes => attachedDatabase.notes;
+  $NoteLinksTable get noteLinks => attachedDatabase.noteLinks;
   NoteDaoManager get managers => NoteDaoManager(this);
 }
 
@@ -16,4 +17,6 @@ class NoteDaoManager {
       $$WorkspacesTableTableManager(_db.attachedDatabase, _db.workspaces);
   $$NotesTableTableManager get notes =>
       $$NotesTableTableManager(_db.attachedDatabase, _db.notes);
+  $$NoteLinksTableTableManager get noteLinks =>
+      $$NoteLinksTableTableManager(_db.attachedDatabase, _db.noteLinks);
 }

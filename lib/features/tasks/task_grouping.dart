@@ -24,8 +24,10 @@ Map<DueSection, List<Task>> groupByDueDate(List<Task> tasks, DateTime now) {
   DueSection sectionOf(Task task) {
     final dueAt = task.dueAt;
     if (dueAt == null) return DueSection.noDueDate;
-    final due =
-        DateTime.fromMillisecondsSinceEpoch(dueAt, isUtc: true).toLocal();
+    final due = DateTime.fromMillisecondsSinceEpoch(
+      dueAt,
+      isUtc: true,
+    ).toLocal();
     if (due.isBefore(now)) return DueSection.overdue;
     if (due.isBefore(tomorrow)) return DueSection.today;
     if (due.isBefore(nextWeek)) return DueSection.thisWeek;

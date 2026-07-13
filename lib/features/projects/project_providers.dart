@@ -6,13 +6,15 @@ import '../finance/billable_math.dart';
 
 /// Projects under the current workspace filter. The bool argument includes
 /// archived projects (list screen toggle).
-final visibleProjectsProvider =
-    StreamProvider.autoDispose.family<List<Project>, bool>(
-  (ref, includeArchived) => ref.watch(projectRepositoryProvider).watchAll(
-        workspaceId: ref.watch(selectedWorkspaceIdProvider),
-        includeArchived: includeArchived,
-      ),
-);
+final visibleProjectsProvider = StreamProvider.autoDispose
+    .family<List<Project>, bool>(
+      (ref, includeArchived) => ref
+          .watch(projectRepositoryProvider)
+          .watchAll(
+            workspaceId: ref.watch(selectedWorkspaceIdProvider),
+            includeArchived: includeArchived,
+          ),
+    );
 
 /// All active projects across workspaces (editor dropdowns).
 final allProjectsProvider = StreamProvider.autoDispose<List<Project>>(
@@ -21,8 +23,7 @@ final allProjectsProvider = StreamProvider.autoDispose<List<Project>>(
 
 /// Every project including archived ones (color lookups for old events).
 final allProjectsForLookupProvider = StreamProvider.autoDispose<List<Project>>(
-  (ref) =>
-      ref.watch(projectRepositoryProvider).watchAll(includeArchived: true),
+  (ref) => ref.watch(projectRepositoryProvider).watchAll(includeArchived: true),
 );
 
 final projectByIdProvider = StreamProvider.autoDispose.family<Project?, String>(
@@ -30,34 +31,48 @@ final projectByIdProvider = StreamProvider.autoDispose.family<Project?, String>(
 );
 
 /// Linked entities for the project detail screen.
-final eventsForProjectProvider =
-    StreamProvider.autoDispose.family<List<Event>, String>(
-  (ref, projectId) =>
-      ref.watch(eventRepositoryProvider).watchForProject(projectId),
-);
+final eventsForProjectProvider = StreamProvider.autoDispose
+    .family<List<Event>, String>(
+      (ref, projectId) =>
+          ref.watch(eventRepositoryProvider).watchForProject(projectId),
+    );
 
-final tasksForProjectProvider =
-    StreamProvider.autoDispose.family<List<Task>, String>(
-  (ref, projectId) =>
-      ref.watch(taskRepositoryProvider).watchForProject(projectId),
-);
+final tasksForProjectProvider = StreamProvider.autoDispose
+    .family<List<Task>, String>(
+      (ref, projectId) =>
+          ref.watch(taskRepositoryProvider).watchForProject(projectId),
+    );
 
-final notesForProjectProvider =
-    StreamProvider.autoDispose.family<List<Note>, String>(
-  (ref, projectId) => ref
-      .watch(noteRepositoryProvider)
-      .watchByParent(ParentType.project, projectId),
-);
+final notesForProjectProvider = StreamProvider.autoDispose
+    .family<List<Note>, String>(
+      (ref, projectId) => ref
+          .watch(noteRepositoryProvider)
+          .watchByParent(ParentType.project, projectId),
+    );
 
-final billablesForProjectProvider =
-    StreamProvider.autoDispose.family<List<BillableItem>, String>(
-  (ref, projectId) =>
-      ref.watch(billableRepositoryProvider).watchAll(projectId: projectId),
-);
+final billablesForProjectProvider = StreamProvider.autoDispose
+    .family<List<BillableItem>, String>(
+      (ref, projectId) =>
+          ref.watch(billableRepositoryProvider).watchAll(projectId: projectId),
+    );
+
+final timersForProjectProvider = StreamProvider.autoDispose
+    .family<List<TimerSession>, String>(
+      (ref, projectId) =>
+          ref.watch(timerRepositoryProvider).watchAll(projectId: projectId),
+    );
 
 /// Unbilled/invoiced/paid totals for a project.
-final projectTotalsProvider =
-    StreamProvider.autoDispose.family<BillableTotals, String>(
-  (ref, projectId) =>
-      ref.watch(billableRepositoryProvider).watchTotalsForProject(projectId),
-);
+final projectTotalsProvider = StreamProvider.autoDispose
+    .family<BillableTotals, String>(
+      (ref, projectId) => ref
+          .watch(billableRepositoryProvider)
+          .watchTotalsForProject(projectId),
+    );
+
+final projectTotalsByCurrencyProvider = StreamProvider.autoDispose
+    .family<Map<String, BillableTotals>, String>(
+      (ref, projectId) => ref
+          .watch(billableRepositoryProvider)
+          .watchTotalsByCurrencyForProject(projectId),
+    );

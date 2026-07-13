@@ -16,6 +16,12 @@ int? reminderFireAtMs(ReminderOffset offset, int startMs) {
   return delta == null ? null : startMs - delta;
 }
 
+/// Offset stored by recurrence templates, in whole minutes.
+int? reminderOffsetMinutes(ReminderOffset offset) {
+  final delta = _offsetMs[offset];
+  return delta == null ? null : delta ~/ Duration.millisecondsPerMinute;
+}
+
 /// Reverse mapping for pre-selecting the picker when editing. Falls back to
 /// [ReminderOffset.atStart] for a custom delta (e.g. the event start moved
 /// after the reminder was created).

@@ -22,7 +22,8 @@ class ContactsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final contactsValue = ref.watch(visibleContactsProvider);
     final selectedWorkspace = ref.watch(selectedWorkspaceProvider).value;
-    final moduleDisabled = selectedWorkspace != null &&
+    final moduleDisabled =
+        selectedWorkspace != null &&
         !selectedWorkspace.enabledModules.contains(ModuleKey.contacts);
 
     return Scaffold(
@@ -34,40 +35,51 @@ class ContactsScreen extends ConsumerWidget {
           AppBarOverflowMenu(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'fab-contacts',
-        tooltip: l10n.newContact,
-        onPressed: () => context.go('/contacts/new'),
-        child: const Icon(Icons.add_rounded),
-      ),
       body: Column(
         children: [
-          if (moduleDisabled)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                l10n.contactsModuleDisabled,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
-            ),
           Expanded(
-            child: switch (contactsValue) {
-              AsyncValue(value: final contacts?) when contacts.isNotEmpty =>
-                ListView.builder(
-                  padding: const EdgeInsets.only(top: 6, bottom: 88),
-                  itemCount: contacts.length,
-                  itemBuilder: (context, index) =>
-                      _ContactTile(contact: contacts[index]),
-                ),
-              AsyncValue(isLoading: true) =>
-                const Center(child: CircularProgressIndicator()),
-              _ => EmptyState(
-                  icon: Icons.group_outlined,
-                  title: l10n.emptyContactsTitle,
-                  body: l10n.emptyContactsBody,
-                ),
-            },
+            child: moduleDisabled
+                ? EmptyState(
+                    icon: Icons.visibility_off_outlined,
+                    title: l10n.moduleDisabledTitle,
+                    body: l10n.contactsModuleDisabled,
+                    primaryAction: EmptyStateAction(
+                      label: l10n.editWorkspace,
+                      icon: Icons.tune_rounded,
+                      onPressed: () =>
+                          context.push('/workspaces/${selectedWorkspace.id}'),
+                    ),
+                  )
+                : switch (contactsValue) {
+                    AsyncValue(value: final contacts?)
+                        when contacts.isNotEmpty =>
+                      ListView.builder(
+                        padding: const EdgeInsets.only(top: 6, bottom: 88),
+                        itemCount: contacts.length,
+                        itemBuilder: (context, index) =>
+                            _ContactTile(contact: contacts[index]),
+                      ),
+                    AsyncValue(isLoading: true) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    AsyncValue(hasError: true) => EmptyState(
+                      icon: Icons.error_outline_rounded,
+                      title: l10n.unableToLoadTitle,
+                      body: l10n.unableToLoadBody,
+                      retryLabel: l10n.retry,
+                      onRetry: () => ref.invalidate(visibleContactsProvider),
+                    ),
+                    _ => EmptyState(
+                      icon: Icons.group_outlined,
+                      title: l10n.emptyContactsTitle,
+                      body: l10n.emptyContactsBody,
+                      primaryAction: EmptyStateAction(
+                        label: l10n.newContact,
+                        icon: Icons.add_rounded,
+                        onPressed: () => context.go('/contacts/new'),
+                      ),
+                    ),
+                  },
           ),
         ],
       ),
@@ -83,8 +95,9 @@ class _ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Deterministic identity color per contact from the workspace palette.
-    final color =
-        Color(workspaceColors[contact.name.hashCode % workspaceColors.length]);
+    final color = Color(
+      workspaceColors[contact.name.hashCode % workspaceColors.length],
+    );
     return SoftTile(
       leading: Container(
         width: 42,

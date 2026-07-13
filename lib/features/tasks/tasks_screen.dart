@@ -7,16 +7,53 @@ import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
 import '../../core/widgets/empty_state.dart';
+import '../../core/widgets/filter_sheet.dart';
 import '../../core/widgets/section_header.dart';
 import '../../core/widgets/soft_tile.dart';
 import '../../core/widgets/status_ring.dart';
+import '../../core/widgets/work_section_switcher.dart';
 import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
+import '../settings/date_time_format.dart';
 import 'task_grouping.dart';
 import 'task_providers.dart';
 
-enum _GroupMode { status, dueDate }
+enum TaskGroupMode { status, dueDate }
+
+@immutable
+class TaskListSessionState {
+  const TaskListSessionState({
+    this.groupMode = TaskGroupMode.status,
+    this.overdueOnly = false,
+  });
+
+  final TaskGroupMode groupMode;
+  final bool overdueOnly;
+
+  TaskListSessionState copyWith({
+    TaskGroupMode? groupMode,
+    bool? overdueOnly,
+  }) => TaskListSessionState(
+    groupMode: groupMode ?? this.groupMode,
+    overdueOnly: overdueOnly ?? this.overdueOnly,
+  );
+}
+
+class TaskListSession extends Notifier<TaskListSessionState> {
+  @override
+  TaskListSessionState build() => const TaskListSessionState();
+
+  void setGroupMode(TaskGroupMode value) =>
+      state = state.copyWith(groupMode: value);
+
+  void setOverdueOnly(bool value) => state = state.copyWith(overdueOnly: value);
+}
+
+final taskListSessionProvider =
+    NotifierProvider<TaskListSession, TaskListSessionState>(
+      TaskListSession.new,
+    );
 
 class TasksScreen extends ConsumerStatefulWidget {
   const TasksScreen({super.key});
@@ -26,15 +63,49 @@ class TasksScreen extends ConsumerStatefulWidget {
 }
 
 class _TasksScreenState extends ConsumerState<TasksScreen> {
-  _GroupMode _groupMode = _GroupMode.status;
-  bool _overdueOnly = false;
+  Future<void> _showFilters() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          final l10n = AppLocalizations.of(context)!;
+          final overdueOnly = ref.read(taskListSessionProvider).overdueOnly;
+          return FilterSheetScaffold(
+            title: l10n.filtersLabel,
+            clearAllLabel: l10n.clearFilters,
+            onClearAll: overdueOnly
+                ? () {
+                    ref
+                        .read(taskListSessionProvider.notifier)
+                        .setOverdueOnly(false);
+                    setSheetState(() {});
+                  }
+                : null,
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.filterOverdue),
+              value: overdueOnly,
+              onChanged: (value) {
+                ref
+                    .read(taskListSessionProvider.notifier)
+                    .setOverdueOnly(value);
+                setSheetState(() {});
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final session = ref.watch(taskListSessionProvider);
     final tasksValue = ref.watch(visibleTasksProvider);
     final selectedWorkspace = ref.watch(selectedWorkspaceProvider).value;
-    final moduleDisabled = selectedWorkspace != null &&
+    final moduleDisabled =
+        selectedWorkspace != null &&
         !selectedWorkspace.enabledModules.contains(ModuleKey.tasks);
 
     return Scaffold(
@@ -46,66 +117,77 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           AppBarOverflowMenu(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'fab-tasks',
-        tooltip: l10n.newTask,
-        onPressed: () => context.go('/tasks/new'),
-        child: const Icon(Icons.add_rounded),
-      ),
       body: Column(
         children: [
+          const WorkSectionSwitcher(selected: WorkSection.tasks),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Row(
               children: [
-                SegmentedButton<_GroupMode>(
+                SegmentedButton<TaskGroupMode>(
                   segments: [
                     ButtonSegment(
-                      value: _GroupMode.status,
+                      value: TaskGroupMode.status,
                       label: Text(l10n.groupByStatus),
                     ),
                     ButtonSegment(
-                      value: _GroupMode.dueDate,
+                      value: TaskGroupMode.dueDate,
                       label: Text(l10n.groupByDueDate),
                     ),
                   ],
-                  selected: {_groupMode},
-                  onSelectionChanged: (selection) =>
-                      setState(() => _groupMode = selection.first),
+                  selected: {session.groupMode},
+                  onSelectionChanged: (selection) => ref
+                      .read(taskListSessionProvider.notifier)
+                      .setGroupMode(selection.first),
                 ),
                 const Spacer(),
-                FilterChip(
-                  label: Text(l10n.filterOverdue),
-                  selected: _overdueOnly,
-                  onSelected: (selected) =>
-                      setState(() => _overdueOnly = selected),
+                FilterButton(
+                  label: l10n.filtersLabel,
+                  activeCount: session.overdueOnly ? 1 : 0,
+                  onPressed: _showFilters,
                 ),
               ],
             ),
           ),
-          if (moduleDisabled)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                l10n.tasksModuleDisabled,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
-            ),
           Expanded(
-            child: switch (tasksValue) {
-              AsyncValue(value: final tasks?) => _TaskList(
-                  tasks: _overdueOnly
-                      ? tasks
-                          .where((t) => isOverdue(t, DateTime.now()))
-                          .toList()
-                      : tasks,
-                  groupMode: _groupMode,
-                ),
-              AsyncValue(isLoading: true) =>
-                const Center(child: CircularProgressIndicator()),
-              _ => const SizedBox.shrink(),
-            },
+            child: moduleDisabled
+                ? EmptyState(
+                    icon: Icons.visibility_off_outlined,
+                    title: l10n.moduleDisabledTitle,
+                    body: l10n.tasksModuleDisabled,
+                    primaryAction: EmptyStateAction(
+                      label: l10n.editWorkspace,
+                      icon: Icons.tune_rounded,
+                      onPressed: () =>
+                          context.push('/workspaces/${selectedWorkspace.id}'),
+                    ),
+                  )
+                : switch (tasksValue) {
+                    AsyncValue(value: final tasks?) => _TaskList(
+                      tasks: session.overdueOnly
+                          ? tasks
+                                .where((t) => isOverdue(t, DateTime.now()))
+                                .toList()
+                          : tasks,
+                      groupMode: session.groupMode,
+                      onCreate: () => context.go('/work/tasks/new'),
+                      onClearFilters: session.overdueOnly && tasks.isNotEmpty
+                          ? () => ref
+                                .read(taskListSessionProvider.notifier)
+                                .setOverdueOnly(false)
+                          : null,
+                    ),
+                    AsyncValue(isLoading: true) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    _ => EmptyState(
+                      icon: Icons.error_outline_rounded,
+                      title: l10n.unableToLoadTitle,
+                      body: l10n.unableToLoadBody,
+                      retryLabel: l10n.retry,
+                      onRetry: () => ref.invalidate(visibleTasksProvider),
+                    ),
+                  },
           ),
         ],
       ),
@@ -114,10 +196,17 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 }
 
 class _TaskList extends ConsumerWidget {
-  const _TaskList({required this.tasks, required this.groupMode});
+  const _TaskList({
+    required this.tasks,
+    required this.groupMode,
+    required this.onCreate,
+    this.onClearFilters,
+  });
 
   final List<Task> tasks;
-  final _GroupMode groupMode;
+  final TaskGroupMode groupMode;
+  final VoidCallback onCreate;
+  final VoidCallback? onClearFilters;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -129,11 +218,22 @@ class _TaskList extends ConsumerWidget {
         icon: Icons.task_alt_rounded,
         title: l10n.emptyTasksTitle,
         body: l10n.emptyTasksBody,
+        primaryAction: EmptyStateAction(
+          label: l10n.newTask,
+          icon: Icons.add_rounded,
+          onPressed: onCreate,
+        ),
+        secondaryAction: onClearFilters == null
+            ? null
+            : EmptyStateAction(
+                label: l10n.clearFilters,
+                onPressed: onClearFilters!,
+              ),
       );
     }
 
     final sections = <(String, Color, List<Task>)>[];
-    if (groupMode == _GroupMode.status) {
+    if (groupMode == TaskGroupMode.status) {
       for (final entry in groupByStatus(tasks).entries) {
         final color = switch (entry.key) {
           TaskStatus.open => theme.colorScheme.onSurface,
@@ -172,6 +272,7 @@ class _TaskTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final tokens = context.tokens;
     final overdue = isOverdue(task, DateTime.now());
     final dueAt = task.dueAt;
@@ -179,10 +280,16 @@ class _TaskTile extends ConsumerWidget {
 
     // One-tap status ring: open -> in progress -> done.
     final (statusIcon, statusColor, statusFilled) = switch (task.status) {
-      TaskStatus.open =>
-        (Icons.radio_button_unchecked_rounded, tokens.ink3, false),
-      TaskStatus.inProgress =>
-        (Icons.timelapse_rounded, const Color(0xFF7C7FF2), false),
+      TaskStatus.open => (
+        Icons.radio_button_unchecked_rounded,
+        tokens.ink3,
+        false,
+      ),
+      TaskStatus.inProgress => (
+        Icons.timelapse_rounded,
+        const Color(0xFF7C7FF2),
+        false,
+      ),
       TaskStatus.done => (Icons.check_rounded, tokens.success, true),
     };
 
@@ -192,12 +299,126 @@ class _TaskTile extends ConsumerWidget {
         color: statusColor,
         filled: statusFilled,
         size: 32,
-        onTap: () {
-          // Completing a task cancels its pending reminder (spec §6.3).
-          if (task.status == TaskStatus.inProgress) {
-            ref.read(reminderCoordinatorProvider).cancelTaskReminder(task.id);
+        onTap: () async {
+          final previous = task.status;
+          final next = switch (previous) {
+            TaskStatus.open => TaskStatus.inProgress,
+            TaskStatus.inProgress => TaskStatus.done,
+            TaskStatus.done => TaskStatus.open,
+          };
+          final repository = ref.read(taskRepositoryProvider);
+          final reminders = ref.read(reminderCoordinatorProvider);
+          String? successorId;
+          // Recurring completion and reopen are transactional with successor
+          // creation/removal. Ordinary status changes keep the lightweight
+          // update path.
+          try {
+            if (next == TaskStatus.done) {
+              final result = await repository.complete(task.id);
+              successorId = result.successorTaskId;
+            } else if (previous == TaskStatus.done) {
+              successorId = await repository.undoCompletion(task.id, next);
+            } else {
+              await repository.update(task.id, status: next);
+            }
+          } on StateError {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.cannotReopenRecurringTask)),
+              );
+            }
+            return;
           }
-          ref.read(taskRepositoryProvider).cycleStatus(task);
+          try {
+            if (next == TaskStatus.done) {
+              await reminders.cancelTaskReminder(task.id);
+              if (successorId != null) {
+                final successor = await repository.getById(successorId);
+                if (successor != null) {
+                  await reminders.syncTaskReminder(
+                    taskId: successor.id,
+                    title: successor.title,
+                    reminderAtMs: successor.reminderAt,
+                  );
+                }
+              }
+            } else {
+              await reminders.syncTaskReminder(
+                taskId: task.id,
+                title: task.title,
+                reminderAtMs: task.reminderAt,
+              );
+              if (successorId != null) {
+                await reminders.cancelTaskReminder(successorId);
+              }
+            }
+          } on Object {
+            // Cold-start reconciliation repairs device-only notification
+            // state; the database remains authoritative.
+          }
+          if (!context.mounted) return;
+          final messenger = ScaffoldMessenger.of(context);
+          messenger.hideCurrentSnackBar();
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(l10n.taskStatusChanged),
+              action: SnackBarAction(
+                label: l10n.undo,
+                onPressed: () async {
+                  String? undoSuccessorId;
+                  try {
+                    if (next == TaskStatus.done) {
+                      undoSuccessorId = await repository.undoCompletion(
+                        task.id,
+                        previous,
+                      );
+                    } else if (previous == TaskStatus.done) {
+                      final result = await repository.complete(
+                        task.id,
+                        completedAtMs: task.completedAt,
+                      );
+                      undoSuccessorId = result.successorTaskId;
+                    } else {
+                      await repository.update(task.id, status: previous);
+                    }
+                  } on StateError {
+                    messenger.showSnackBar(
+                      SnackBar(content: Text(l10n.cannotReopenRecurringTask)),
+                    );
+                    return;
+                  }
+                  try {
+                    if (previous == TaskStatus.done) {
+                      await reminders.cancelTaskReminder(task.id);
+                      if (undoSuccessorId != null) {
+                        final successor = await repository.getById(
+                          undoSuccessorId,
+                        );
+                        if (successor != null) {
+                          await reminders.syncTaskReminder(
+                            taskId: successor.id,
+                            title: successor.title,
+                            reminderAtMs: successor.reminderAt,
+                          );
+                        }
+                      }
+                    } else {
+                      await reminders.syncTaskReminder(
+                        taskId: task.id,
+                        title: task.title,
+                        reminderAtMs: task.reminderAt,
+                      );
+                      if (undoSuccessorId != null) {
+                        await reminders.cancelTaskReminder(undoSuccessorId);
+                      }
+                    }
+                  } on Object {
+                    // Reconciled from persisted task state on next start.
+                  }
+                },
+              ),
+            ),
+          );
         },
       ),
       title: Text(
@@ -217,39 +438,65 @@ class _TaskTile extends ConsumerWidget {
                   overdue
                       ? Icons.event_busy_rounded
                       : (done
-                          ? Icons.check_circle_outline_rounded
-                          : Icons.schedule_rounded),
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.schedule_rounded),
                   size: 14,
                   color: overdue ? tokens.overdue : tokens.ink2,
                 ),
                 const SizedBox(width: 5),
                 Flexible(
                   child: Text(
-                    DateFormat.yMMMEd().add_Hm().format(
-                        DateTime.fromMillisecondsSinceEpoch(dueAt, isUtc: true)
-                            .toLocal()),
+                    () {
+                      final due = DateTime.fromMillisecondsSinceEpoch(
+                        dueAt,
+                        isUtc: true,
+                      ).toLocal();
+                      return '${DateFormat.yMMMEd().format(due)} '
+                          '${appTimeFormat(context, ref).format(due)}';
+                    }(),
                     overflow: TextOverflow.ellipsis,
                     style: overdue
                         ? TextStyle(
-                            color: tokens.overdue, fontWeight: FontWeight.w600)
+                            color: tokens.overdue,
+                            fontWeight: FontWeight.w600,
+                          )
                         : null,
                   ),
                 ),
               ],
             )
           : null,
-      trailing: task.priority != TaskPriority.normal
-          ? Icon(
-              task.priority == TaskPriority.high
-                  ? Icons.keyboard_double_arrow_up_rounded
-                  : Icons.keyboard_double_arrow_down_rounded,
-              size: 22,
-              color: task.priority == TaskPriority.high
-                  ? tokens.overdue
-                  : tokens.ink3,
+      trailing:
+          task.taskSeriesId != null || task.priority != TaskPriority.normal
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (task.taskSeriesId != null)
+                  Tooltip(
+                    message: l10n.recurringSeriesContext,
+                    child: Icon(
+                      Icons.repeat_rounded,
+                      size: 20,
+                      color: tokens.ink3,
+                    ),
+                  ),
+                if (task.taskSeriesId != null &&
+                    task.priority != TaskPriority.normal)
+                  const SizedBox(width: 6),
+                if (task.priority != TaskPriority.normal)
+                  Icon(
+                    task.priority == TaskPriority.high
+                        ? Icons.keyboard_double_arrow_up_rounded
+                        : Icons.keyboard_double_arrow_down_rounded,
+                    size: 22,
+                    color: task.priority == TaskPriority.high
+                        ? tokens.overdue
+                        : tokens.ink3,
+                  ),
+              ],
             )
           : null,
-      onTap: () => context.go('/tasks/${task.id}'),
+      onTap: () => context.go('/work/tasks/${task.id}'),
     );
   }
 }

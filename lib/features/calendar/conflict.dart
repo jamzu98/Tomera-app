@@ -15,10 +15,11 @@ List<Event> findConflictingEvents({
   required int startMs,
   required int endMs,
   String? excludeEventId,
-}) =>
-    candidates
-        .where((e) =>
-            e.id != excludeEventId &&
-            !e.allDay &&
-            rangesOverlap(e.startsAt, e.endsAt, startMs, endMs))
-        .toList();
+}) => candidates
+    .where(
+      (e) =>
+          e.id != excludeEventId &&
+          !e.allDay &&
+          rangesOverlap(e.startsAt, e.endsAt, startMs, endMs),
+    )
+    .toList();

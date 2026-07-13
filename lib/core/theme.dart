@@ -22,7 +22,8 @@ class _Dark {
   static const card = Color(0xFF2B2823); // raised surface
   static const ink = Color(0xFFF1EBE1); // primary text
   static const ink2 = Color(0xFFADA394); // secondary text
-  static const ink3 = Color(0xFF776D5F); // tertiary text
+  // Tertiary text still meets WCAG AA against both the background and card.
+  static const ink3 = Color(0xFF9D9283);
   static const clay = Color(0xFFEE7B3C); // accent orange
   static const clayD = Color(0xFFF4A870); // lighter orange (on tint)
   static const clayT = Color(0x29EE7B3C); // orange tint (16%)
@@ -39,7 +40,8 @@ class _Light {
   static const card = Color(0xFFFFFDF8); // paper surface
   static const ink = Color(0xFF2B2620);
   static const ink2 = Color(0xFF6F6657);
-  static const ink3 = Color(0xFF9A8F7E);
+  // 4.6:1 against the bone background; reserve lighter browns for borders.
+  static const ink3 = Color(0xFF756B5C);
   static const clay = Color(0xFFD96A2B); // slightly deeper orange for light
   static const clayD = Color(0xFFB04E14); // darker orange (on tint)
   static const clayT = Color(0x26EE7B3C);

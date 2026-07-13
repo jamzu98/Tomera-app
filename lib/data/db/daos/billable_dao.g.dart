@@ -7,7 +7,12 @@ mixin _$BillableDaoMixin on DatabaseAccessor<AppDatabase> {
   $WorkspacesTable get workspaces => attachedDatabase.workspaces;
   $ContactsTable get contacts => attachedDatabase.contacts;
   $ProjectsTable get projects => attachedDatabase.projects;
+  $EventSeriesTableTable get eventSeriesTable =>
+      attachedDatabase.eventSeriesTable;
   $EventsTable get events => attachedDatabase.events;
+  $TaskSeriesTableTable get taskSeriesTable => attachedDatabase.taskSeriesTable;
+  $TasksTable get tasks => attachedDatabase.tasks;
+  $TimerSessionsTable get timerSessions => attachedDatabase.timerSessions;
   $BillableItemsTable get billableItems => attachedDatabase.billableItems;
   BillableDaoManager get managers => BillableDaoManager(this);
 }
@@ -21,8 +26,22 @@ class BillableDaoManager {
       $$ContactsTableTableManager(_db.attachedDatabase, _db.contacts);
   $$ProjectsTableTableManager get projects =>
       $$ProjectsTableTableManager(_db.attachedDatabase, _db.projects);
+  $$EventSeriesTableTableTableManager get eventSeriesTable =>
+      $$EventSeriesTableTableTableManager(
+        _db.attachedDatabase,
+        _db.eventSeriesTable,
+      );
   $$EventsTableTableManager get events =>
       $$EventsTableTableManager(_db.attachedDatabase, _db.events);
+  $$TaskSeriesTableTableTableManager get taskSeriesTable =>
+      $$TaskSeriesTableTableTableManager(
+        _db.attachedDatabase,
+        _db.taskSeriesTable,
+      );
+  $$TasksTableTableManager get tasks =>
+      $$TasksTableTableManager(_db.attachedDatabase, _db.tasks);
+  $$TimerSessionsTableTableManager get timerSessions =>
+      $$TimerSessionsTableTableManager(_db.attachedDatabase, _db.timerSessions);
   $$BillableItemsTableTableManager get billableItems =>
       $$BillableItemsTableTableManager(_db.attachedDatabase, _db.billableItems);
 }

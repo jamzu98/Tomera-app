@@ -32,5 +32,12 @@ END;
 searchNotes:
 SELECT n.** FROM notes_fts
 INNER JOIN notes AS n ON n."rowid" = notes_fts."rowid"
-WHERE notes_fts MATCH :query AND n.deleted_at IS NULL
+WHERE notes_fts MATCH :query
+  AND n.deleted_at IS NULL
+  AND (
+    n.workspace_id IS NULL OR EXISTS (
+      SELECT 1 FROM workspaces AS nw
+      WHERE nw.id = n.workspace_id AND nw.deleted_at IS NULL
+    )
+  )
 ORDER BY rank;

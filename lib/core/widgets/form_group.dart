@@ -76,10 +76,7 @@ class FormFieldRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          SizedBox(
-            width: 24,
-            child: Icon(icon, size: 21, color: tokens.ink3),
-          ),
+          SizedBox(width: 24, child: Icon(icon, size: 21, color: tokens.ink3)),
           const SizedBox(width: 13),
           Expanded(
             child: Column(
@@ -102,10 +99,7 @@ class FormFieldRow extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) ...[
-            const SizedBox(width: 8),
-            trailing!,
-          ],
+          if (trailing != null) ...[const SizedBox(width: 8), trailing!],
         ],
       ),
     );
@@ -138,18 +132,36 @@ InputDecoration inlineFieldDecoration(BuildContext context, {String? hint}) {
 
 /// Text style for values/inputs inside form rows.
 TextStyle inlineFieldStyle(BuildContext context) => TextStyle(
-      fontFamily: bodyFontFamily,
-      fontSize: 15,
-      fontWeight: FontWeight.w600,
-      color: Theme.of(context).colorScheme.onSurface,
-    );
+  fontFamily: bodyFontFamily,
+  fontSize: 15,
+  fontWeight: FontWeight.w600,
+  color: Theme.of(context).colorScheme.onSurface,
+);
 
 /// Pinned bottom bar with the primary save action.
-class SaveBar extends StatelessWidget {
+class SaveBar extends StatefulWidget {
   const SaveBar({super.key, required this.label, this.onPressed});
 
   final String label;
-  final VoidCallback? onPressed;
+  final Future<void> Function()? onPressed;
+
+  @override
+  State<SaveBar> createState() => _SaveBarState();
+}
+
+class _SaveBarState extends State<SaveBar> {
+  bool _saving = false;
+
+  Future<void> _save() async {
+    final save = widget.onPressed;
+    if (save == null || _saving) return;
+    setState(() => _saving = true);
+    try {
+      await save();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,11 +172,17 @@ class SaveBar extends StatelessWidget {
           height: 52,
           width: double.infinity,
           child: FilledButton.icon(
-            icon: const Icon(Icons.check_rounded, size: 20),
-            label: Text(label),
+            icon: _saving
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.check_rounded, size: 20),
+            label: Text(widget.label),
             style: FilledButton.styleFrom(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+                borderRadius: BorderRadius.circular(16),
+              ),
               textStyle: const TextStyle(
                 fontFamily: bodyFontFamily,
                 fontSize: 16,
@@ -172,7 +190,7 @@ class SaveBar extends StatelessWidget {
               ),
               elevation: 4,
             ),
-            onPressed: onPressed,
+            onPressed: widget.onPressed == null || _saving ? null : _save,
           ),
         ),
       ),

@@ -21,6 +21,10 @@ abstract interface class NotificationService {
   });
 
   Future<void> cancel(int id);
+
+  /// Clears Tomera's scheduled reminders and ongoing timer before rebuilding
+  /// platform state from a restored database.
+  Future<void> cancelAll();
 }
 
 class NoopNotificationService implements NotificationService {
@@ -43,6 +47,9 @@ class NoopNotificationService implements NotificationService {
 
   @override
   Future<void> cancel(int id) async {}
+
+  @override
+  Future<void> cancelAll() async {}
 }
 
 /// Deterministic 31-bit notification id from an entity key (FNV-1a). Stable

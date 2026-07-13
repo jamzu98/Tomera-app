@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/soft_tile.dart';
+import '../../core/widgets/work_section_switcher.dart';
 import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
@@ -31,10 +32,10 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   }
 
   void _closeSearch() => setState(() {
-        _searching = false;
-        _query = '';
-        _searchController.clear();
-      });
+    _searching = false;
+    _query = '';
+    _searchController.clear();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,8 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         : ref.watch(visibleNotesProvider);
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
     final selectedWorkspace = ref.watch(selectedWorkspaceProvider).value;
-    final moduleDisabled = selectedWorkspace != null &&
+    final moduleDisabled =
+        selectedWorkspace != null &&
         !selectedWorkspace.enabledModules.contains(ModuleKey.notes);
 
     return Scaffold(
@@ -79,73 +81,94 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
           const AppBarOverflowMenu(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'fab-notes',
-        tooltip: l10n.newNote,
-        onPressed: () => context.go('/notes/new'),
-        child: const Icon(Icons.add_rounded),
-      ),
       body: Column(
         children: [
-          if (moduleDisabled)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                l10n.notesModuleDisabled,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
-            ),
+          const WorkSectionSwitcher(selected: WorkSection.notes),
           Expanded(
-            child: switch (notesValue) {
-              AsyncValue(value: final notes?) when notes.isNotEmpty =>
-                ListView.builder(
-                  padding: const EdgeInsets.only(top: 6, bottom: 88),
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) {
-                    final note = notes[index];
-                    final workspace = workspaces
-                        .where((w) => w.id == note.workspaceId)
-                        .firstOrNull;
-                    final color = workspace != null
-                        ? Color(workspace.color)
-                        : context.tokens.ink3;
-                    return SoftTile(
-                      leading: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.16),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(Icons.description_outlined,
-                            size: 19, color: color),
-                      ),
-                      title: Text(note.title),
-                      subtitle: note.body.isNotEmpty
-                          ? Text(
-                              note.body,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          : null,
-                      onTap: () => context.go('/notes/${note.id}'),
-                    );
-                  },
-                ),
-              AsyncValue(isLoading: true) =>
-                const Center(child: CircularProgressIndicator()),
-              _ => searchActive
-                  ? EmptyState(
-                      icon: Icons.search_off_rounded,
-                      title: l10n.noSearchResults,
-                    )
-                  : EmptyState(
-                      icon: Icons.notes_rounded,
-                      title: l10n.emptyNotesTitle,
-                      body: l10n.emptyNotesBody,
+            child: moduleDisabled
+                ? EmptyState(
+                    icon: Icons.visibility_off_outlined,
+                    title: l10n.moduleDisabledTitle,
+                    body: l10n.notesModuleDisabled,
+                    primaryAction: EmptyStateAction(
+                      label: l10n.editWorkspace,
+                      icon: Icons.tune_rounded,
+                      onPressed: () =>
+                          context.push('/workspaces/${selectedWorkspace.id}'),
                     ),
-            },
+                  )
+                : switch (notesValue) {
+                    AsyncValue(value: final notes?) when notes.isNotEmpty =>
+                      ListView.builder(
+                        padding: const EdgeInsets.only(top: 6, bottom: 88),
+                        itemCount: notes.length,
+                        itemBuilder: (context, index) {
+                          final note = notes[index];
+                          final workspace = workspaces
+                              .where((w) => w.id == note.workspaceId)
+                              .firstOrNull;
+                          final color = workspace != null
+                              ? Color(workspace.color)
+                              : context.tokens.ink3;
+                          return SoftTile(
+                            leading: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.16),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.description_outlined,
+                                size: 19,
+                                color: color,
+                              ),
+                            ),
+                            title: Text(note.title),
+                            subtitle: note.body.isNotEmpty
+                                ? Text(
+                                    note.body,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                : null,
+                            onTap: () => context.go('/work/notes/${note.id}'),
+                          );
+                        },
+                      ),
+                    AsyncValue(isLoading: true) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    AsyncValue(hasError: true) => EmptyState(
+                      icon: Icons.error_outline_rounded,
+                      title: l10n.unableToLoadTitle,
+                      body: l10n.unableToLoadBody,
+                      retryLabel: l10n.retry,
+                      onRetry: () => searchActive
+                          ? ref.invalidate(noteSearchProvider(_query))
+                          : ref.invalidate(visibleNotesProvider),
+                    ),
+                    _ =>
+                      searchActive
+                          ? EmptyState(
+                              icon: Icons.search_off_rounded,
+                              title: l10n.noSearchResults,
+                              secondaryAction: EmptyStateAction(
+                                label: l10n.closeSearch,
+                                onPressed: _closeSearch,
+                              ),
+                            )
+                          : EmptyState(
+                              icon: Icons.notes_rounded,
+                              title: l10n.emptyNotesTitle,
+                              body: l10n.emptyNotesBody,
+                              primaryAction: EmptyStateAction(
+                                label: l10n.newNote,
+                                icon: Icons.add_rounded,
+                                onPressed: () => context.go('/work/notes/new'),
+                              ),
+                            ),
+                  },
           ),
         ],
       ),

@@ -11,8 +11,9 @@ import '../../data/db/database.dart';
 ///   enabled — disabling a module hides its data but never deletes it.
 final visibleTasksProvider = StreamProvider.autoDispose<List<Task>>((ref) {
   final workspaceId = ref.watch(selectedWorkspaceIdProvider);
-  final tasks =
-      ref.watch(taskRepositoryProvider).watchAll(workspaceId: workspaceId);
+  final tasks = ref
+      .watch(taskRepositoryProvider)
+      .watchAll(workspaceId: workspaceId);
   if (workspaceId != null) return tasks;
 
   final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
@@ -29,3 +30,8 @@ final visibleTasksProvider = StreamProvider.autoDispose<List<Task>>((ref) {
 final taskByIdProvider = StreamProvider.autoDispose.family<Task?, String>(
   (ref, id) => ref.watch(taskRepositoryProvider).watchById(id),
 );
+
+final taskSeriesProvider = StreamProvider.autoDispose
+    .family<TaskSeriesRecord?, String>(
+      (ref, id) => ref.watch(taskRepositoryProvider).watchSeries(id),
+    );

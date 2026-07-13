@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_riverpod/flutter_riverpod.dart' show StreamProvider;
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show Notifier, NotifierProvider, Provider, StreamProvider;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/db/database.dart';
@@ -22,11 +25,58 @@ part 'providers.g.dart';
 // resolves this file before drift_dev's outputs exist in its build phase,
 // so such signatures fail codegen with an InvalidTypeException.
 
+/// Owns the native Drift connection so restore can await a full close before
+/// atomically replacing the SQLite file, then reopen it for all repositories.
+class DatabaseLifecycle {
+  AppDatabase _database = AppDatabase.open();
+  var _closed = false;
+
+  AppDatabase get database {
+    if (_closed) {
+      throw StateError('The Tomera database is temporarily closed.');
+    }
+    return _database;
+  }
+
+  Future<void> closeForReplacement() async {
+    if (_closed) return;
+    _closed = true;
+    await _database.close();
+  }
+
+  void reopen() {
+    if (!_closed) return;
+    _database = AppDatabase.open();
+    _closed = false;
+  }
+
+  Future<void> dispose() async {
+    if (_closed) return;
+    _closed = true;
+    await _database.close();
+  }
+}
+
+final databaseLifecycleProvider = Provider<DatabaseLifecycle>((ref) {
+  final lifecycle = DatabaseLifecycle();
+  ref.onDispose(() => unawaited(lifecycle.dispose()));
+  return lifecycle;
+});
+
+class DatabaseRestoreEpoch extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void bump() => state++;
+}
+
+final databaseRestoreEpochProvider =
+    NotifierProvider<DatabaseRestoreEpoch, int>(DatabaseRestoreEpoch.new);
+
 @Riverpod(keepAlive: true)
 AppDatabase appDatabase(Ref ref) {
-  final db = AppDatabase.open();
-  ref.onDispose(db.close);
-  return db;
+  ref.watch(databaseRestoreEpochProvider);
+  return ref.watch(databaseLifecycleProvider).database;
 }
 
 @Riverpod(keepAlive: true)
@@ -63,23 +113,25 @@ NoteRepository noteRepository(Ref ref) =>
 @Riverpod(keepAlive: true)
 NotificationService notificationService(Ref ref) => kIsWeb
     ? const NoopNotificationService()
-    : LocalNotificationService(onAction: (actionId) {
-        if (actionId == LocalNotificationService.stopTimerAction) {
-          ref.read(timerRepositoryProvider).stopRunning();
-        }
-      });
+    : LocalNotificationService(
+        onAction: (actionId) {
+          if (actionId == LocalNotificationService.stopTimerAction) {
+            ref.read(timerRepositoryProvider).stopRunning();
+          }
+        },
+      );
 
 @Riverpod(keepAlive: true)
 TimerRepository timerRepository(Ref ref) => TimerRepository(
-      ref.watch(appDatabaseProvider).timerDao,
-      ref.watch(notificationServiceProvider),
-    );
+  ref.watch(appDatabaseProvider).timerDao,
+  ref.watch(notificationServiceProvider),
+);
 
 @Riverpod(keepAlive: true)
 ReminderCoordinator reminderCoordinator(Ref ref) => ReminderCoordinator(
-      ref.watch(notificationServiceProvider),
-      ref.watch(appDatabaseProvider).reminderDao,
-    );
+  ref.watch(notificationServiceProvider),
+  ref.watch(appDatabaseProvider),
+);
 
 /// The workspace the list screens are filtered to; null means all workspaces
 /// (spec §6.1 global view). Kept alive so the choice survives navigation.
@@ -97,16 +149,14 @@ final allWorkspacesProvider = StreamProvider.autoDispose<List<Workspace>>(
 );
 
 /// One workspace by id (for detail/edit screens).
-final workspaceByIdProvider =
-    StreamProvider.autoDispose.family<Workspace?, String>(
-  (ref, id) => ref.watch(workspaceRepositoryProvider).watchById(id),
-);
+final workspaceByIdProvider = StreamProvider.autoDispose
+    .family<Workspace?, String>(
+      (ref, id) => ref.watch(workspaceRepositoryProvider).watchById(id),
+    );
 
 /// The currently selected workspace row, or null in the "all" view.
-final selectedWorkspaceProvider = StreamProvider.autoDispose<Workspace?>(
-  (ref) {
-    final id = ref.watch(selectedWorkspaceIdProvider);
-    if (id == null) return Stream.value(null);
-    return ref.watch(workspaceRepositoryProvider).watchById(id);
-  },
-);
+final selectedWorkspaceProvider = StreamProvider.autoDispose<Workspace?>((ref) {
+  final id = ref.watch(selectedWorkspaceIdProvider);
+  if (id == null) return Stream.value(null);
+  return ref.watch(workspaceRepositoryProvider).watchById(id);
+});

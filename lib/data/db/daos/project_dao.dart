@@ -11,12 +11,22 @@ class ProjectDao extends DatabaseAccessor<AppDatabase> with _$ProjectDaoMixin {
   ProjectDao(super.db);
 
   SimpleSelectStatement<$ProjectsTable, Project> get _active =>
-      select(projects)..where((p) => p.deletedAt.isNull());
+      select(projects)..where(
+        (p) =>
+            p.deletedAt.isNull() &
+            existsQuery(
+              select(attachedDatabase.workspaces)..where(
+                (w) => w.id.equalsExp(p.workspaceId) & w.deletedAt.isNull(),
+              ),
+            ),
+      );
 
   /// Live projects ordered by name; optionally one workspace, optionally
   /// including archived ones.
-  Stream<List<Project>> watchAll(
-      {String? workspaceId, bool includeArchived = false}) {
+  Stream<List<Project>> watchAll({
+    String? workspaceId,
+    bool includeArchived = false,
+  }) {
     final query = _active;
     if (workspaceId != null) {
       query.where((p) => p.workspaceId.equals(workspaceId));

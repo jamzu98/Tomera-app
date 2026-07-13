@@ -44,6 +44,20 @@ enum TaskPriority implements DbEnum {
   final String dbValue;
 }
 
+/// User-facing edit/delete scope for a materialized recurrence occurrence.
+enum RecurrenceEditScope { occurrence, currentAndFuture }
+
+/// The instant from which a repeating task's next due date advances.
+enum TaskRepeatAnchor implements DbEnum {
+  schedule('schedule'),
+  completion('completion');
+
+  const TaskRepeatAnchor(this.dbValue);
+
+  @override
+  final String dbValue;
+}
+
 enum BillableType implements DbEnum {
   hourly('hourly'),
   fixed('fixed');
@@ -71,7 +85,9 @@ enum ParentType implements DbEnum {
   event('event'),
   task('task'),
   contact('contact'),
-  project('project');
+  project('project'),
+  billable('billable'),
+  timerSession('timer_session');
 
   const ParentType(this.dbValue);
 

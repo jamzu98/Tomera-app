@@ -19,7 +19,7 @@ import 'package:tomera/main.dart';
 /// Boots the full app against a seeded in-memory database and walks every
 /// tab plus the root-level screens, so render exceptions, overflows, and
 /// theme-token wiring break the build in both dark and light mode.
-Future<void> _seed(AppDatabase db) async {
+Future<({String projectId, String workspaceId})> _seed(AppDatabase db) async {
   final workspaces = WorkspaceRepository(db.workspaceDao);
   final workspaceId = await workspaces.create(
     name: 'Freelance',
@@ -81,7 +81,9 @@ Future<void> _seed(AppDatabase db) async {
 
   final notes = NoteRepository(db.noteDao);
   await notes.create(
-      title: 'Meeting notes', body: '# Agenda\n- invoicing\n- **next steps**');
+    title: 'Meeting notes',
+    body: '# Agenda\n- invoicing\n- **next steps**',
+  );
 
   final billables = BillableRepository(db.billableDao);
   await billables.create(
@@ -101,22 +103,21 @@ Future<void> _seed(AppDatabase db) async {
     amountCents: 12000,
     status: BillableStatus.paid,
   );
+  return (projectId: projectId, workspaceId: workspaceId);
 }
 
 Future<void> _walkApp(WidgetTester tester, ThemeMode mode) async {
-  SharedPreferences.setMockInitialValues(
-      {'settings.themeMode': mode.name});
+  SharedPreferences.setMockInitialValues({'settings.themeMode': mode.name});
   final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
   await _seed(db);
 
-  final container = ProviderContainer(overrides: [
-    appDatabaseProvider.overrideWith((ref) => db),
-  ]);
+  final container = ProviderContainer(
+    overrides: [appDatabaseProvider.overrideWith((ref) => db)],
+  );
 
-  await tester.pumpWidget(UncontrolledProviderScope(
-    container: container,
-    child: const TomeraApp(),
-  ));
+  await tester.pumpWidget(
+    UncontrolledProviderScope(container: container, child: const TomeraApp()),
+  );
   // Let streams emit and the calendar lay out.
   await tester.pump(const Duration(milliseconds: 400));
   await tester.pump(const Duration(milliseconds: 400));
@@ -159,5 +160,159 @@ void main() {
 
   testWidgets('all main screens render in light mode', (tester) async {
     await _walkApp(tester, ThemeMode.light);
+  });
+
+  testWidgets('legacy Work links preserve query for canonical routes', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
+    await _seed(db);
+    final container = ProviderContainer(
+      overrides: [appDatabaseProvider.overrideWith((ref) => db)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const TomeraApp()),
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    final router = container.read(routerProvider);
+    router.go('/tasks/new?source=legacy-link');
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final location = router.routerDelegate.currentConfiguration.uri;
+    expect(location.path, '/work/tasks/new');
+    expect(location.queryParameters['source'], 'legacy-link');
+
+    router.go('/notes?query=meeting');
+    await tester.pump(const Duration(milliseconds: 300));
+    final notesLocation = router.routeInformationProvider.value.uri;
+    expect(notesLocation.path, '/work/notes');
+    expect(notesLocation.queryParameters['query'], 'meeting');
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 10));
+    container.dispose();
+    await tester.pump(const Duration(milliseconds: 10));
+  });
+
+  testWidgets('shell quick-add inherits project route context', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
+    final seed = await _seed(db);
+    final container = ProviderContainer(
+      overrides: [appDatabaseProvider.overrideWith((ref) => db)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const TomeraApp()),
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    final router = container.read(routerProvider);
+    router.go('/work/projects/${seed.projectId}');
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.byTooltip('Quick add'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+    final noteActionFinder = find.widgetWithText(ListTile, 'New note');
+    final noteAction = tester.widget<ListTile>(noteActionFinder);
+    expect(noteAction.enabled, isTrue);
+    await tester.tap(noteActionFinder);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Quick add'), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    final location = router.routerDelegate.currentConfiguration.uri;
+    expect(location.path, '/work/notes/new');
+    expect(location.queryParameters['workspaceId'], seed.workspaceId);
+    expect(location.queryParameters['projectId'], seed.projectId);
+    expect(location.queryParameters['parentType'], 'project');
+    expect(location.queryParameters['parentId'], seed.projectId);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 10));
+    container.dispose();
+    await tester.pump(const Duration(milliseconds: 10));
+  });
+
+  testWidgets('empty databases are gated through first-workspace setup', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
+    final container = ProviderContainer(
+      overrides: [appDatabaseProvider.overrideWith((ref) => db)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const TomeraApp()),
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    final router = container.read(routerProvider);
+    expect(router.routeInformationProvider.value.uri.path, '/setup');
+    expect(find.text('Set up your first workspace'), findsOneWidget);
+
+    await WorkspaceRepository(db.workspaceDao).create(
+      name: 'Studio',
+      color: 0xFF7C7FF2,
+      icon: 'work',
+      enabledModules: {...ModuleKey.values},
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(router.routeInformationProvider.value.uri.path, '/today');
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 10));
+    container.dispose();
+    await tester.pump(const Duration(milliseconds: 10));
+  });
+
+  testWidgets('deleting the last workspace redirects safely to setup', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
+    final workspaceId = await WorkspaceRepository(db.workspaceDao).create(
+      name: 'Only workspace',
+      color: 0xFF7C7FF2,
+      icon: 'work',
+      enabledModules: {...ModuleKey.values},
+    );
+    final container = ProviderContainer(
+      overrides: [appDatabaseProvider.overrideWith((ref) => db)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const TomeraApp()),
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    final router = container.read(routerProvider);
+    router.go('/workspaces/$workspaceId');
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(
+      router.routerDelegate.currentConfiguration.uri.path,
+      '/workspaces/$workspaceId',
+    );
+    await tester.tap(find.byTooltip('Delete'));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/setup');
+    expect(find.text('Set up your first workspace'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 10));
+    container.dispose();
+    await tester.pump(const Duration(milliseconds: 10));
   });
 }

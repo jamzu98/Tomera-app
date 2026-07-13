@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
@@ -12,6 +11,8 @@ import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
 import '../projects/project_providers.dart';
+import '../settings/date_time_format.dart';
+import '../settings/settings_providers.dart';
 import '../workspaces/workspace_style.dart';
 import 'calendar_providers.dart';
 
@@ -33,9 +34,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   late MsRange _range = _rangeAround(DateTime.now());
 
   static MsRange _rangeAround(DateTime anchor) => (
-        start: DateTime(anchor.year, anchor.month - 1, 1).millisecondsSinceEpoch,
-        end: DateTime(anchor.year, anchor.month + 2, 1).millisecondsSinceEpoch,
-      );
+    start: DateTime(anchor.year, anchor.month - 1, 1).millisecondsSinceEpoch,
+    end: DateTime(anchor.year, anchor.month + 2, 1).millisecondsSinceEpoch,
+  );
 
   @override
   void dispose() {
@@ -48,10 +49,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final first = details.visibleDates.first;
     final last = details.visibleDates.last;
     final range = (
-      start: DateTime(first.year, first.month, first.day)
-          .millisecondsSinceEpoch,
-      end: DateTime(last.year, last.month, last.day + 1)
-          .millisecondsSinceEpoch,
+      start: DateTime(
+        first.year,
+        first.month,
+        first.day,
+      ).millisecondsSinceEpoch,
+      end: DateTime(last.year, last.month, last.day + 1).millisecondsSinceEpoch,
     );
     if (range == _range) return;
     // onViewChanged can fire during build; defer the provider switch.
@@ -67,16 +70,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     } else if (details.targetElement == CalendarElement.calendarCell &&
         details.date != null &&
         _controller.view != CalendarView.month) {
-      context.go(
-          '/calendar/new?start=${details.date!.millisecondsSinceEpoch}');
+      context.push(
+        '/calendar/new?start=${details.date!.millisecondsSinceEpoch}',
+      );
     }
   }
 
   void _openAppointment(String id) {
     if (id.startsWith(_eventPrefix)) {
-      context.go('/calendar/${id.substring(_eventPrefix.length)}');
+      context.push('/calendar/${id.substring(_eventPrefix.length)}');
     } else if (id.startsWith(_taskPrefix)) {
-      context.go('/tasks/${id.substring(_taskPrefix.length)}');
+      context.push('/work/tasks/${id.substring(_taskPrefix.length)}');
     }
   }
 
@@ -91,18 +95,54 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final startMs = appointment.startTime.toUtc().millisecondsSinceEpoch;
     final endMs = appointment.endTime.toUtc().millisecondsSinceEpoch;
     final repository = ref.read(eventRepositoryProvider);
+    final reminders = ref.read(reminderCoordinatorProvider);
+    final before = await repository.getById(eventId);
+    if (before == null) return;
+    final reminder = await reminders.watchEventReminder(eventId).first;
+    final reminderOffset = reminder == null
+        ? null
+        : reminder.fireAt - before.startsAt;
     await repository.update(eventId, startsAt: startMs, endsAt: endMs);
+    if (reminderOffset != null) {
+      await reminders.syncEventReminder(
+        eventId: eventId,
+        title: before.title,
+        fireAtMs: startMs + reminderOffset,
+      );
+    }
     final conflicts = await repository.findConflicts(
       startMs: startMs,
       endMs: endMs,
       excludeEventId: eventId,
       allDay: appointment.isAllDay,
     );
-    if (conflicts.isNotEmpty) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.movedEventConflicts(conflicts.length))),
-      );
-    }
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          conflicts.isEmpty
+              ? l10n.eventMoved
+              : l10n.movedEventConflicts(conflicts.length),
+        ),
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () async {
+            await repository.update(
+              eventId,
+              startsAt: before.startsAt,
+              endsAt: before.endsAt,
+            );
+            if (reminder != null) {
+              await reminders.syncEventReminder(
+                eventId: eventId,
+                title: before.title,
+                fireAtMs: reminder.fireAt,
+              );
+            }
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -110,18 +150,30 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final tokens = context.tokens;
+    final accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
+    final weekStart = ref.watch(weekStartSettingProvider);
+    final uses24Hour = ref
+        .watch(timeFormatSettingProvider)
+        .resolveUses24Hour(
+          systemUses24Hour: MediaQuery.alwaysUse24HourFormatOf(context),
+        );
     final events = ref.watch(calendarEventsProvider(_range)).value ?? [];
     final tasks = ref.watch(agendaTasksProvider(_range)).value ?? [];
     final workspaces = ref.watch(allWorkspacesProvider).value ?? [];
     final projects = ref.watch(allProjectsForLookupProvider).value ?? [];
 
     Color colorOf(Event event) {
-      final project =
-          projects.where((p) => p.id == event.projectId).firstOrNull;
-      final workspace =
-          workspaces.where((w) => w.id == event.workspaceId).firstOrNull;
+      final project = projects
+          .where((p) => p.id == event.projectId)
+          .firstOrNull;
+      final workspace = workspaces
+          .where((w) => w.id == event.workspaceId)
+          .firstOrNull;
       return Color(
-          project?.color ?? workspace?.color ?? theme.colorScheme.primary.toARGB32());
+        project?.color ??
+            workspace?.color ??
+            theme.colorScheme.primary.toARGB32(),
+      );
     }
 
     final appointments = <Appointment>[
@@ -130,12 +182,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           id: '$_eventPrefix${event.id}',
           subject: event.title,
           notes: event.location,
-          startTime: DateTime.fromMillisecondsSinceEpoch(event.startsAt,
-                  isUtc: true)
-              .toLocal(),
-          endTime:
-              DateTime.fromMillisecondsSinceEpoch(event.endsAt, isUtc: true)
-                  .toLocal(),
+          startTime: DateTime.fromMillisecondsSinceEpoch(
+            event.startsAt,
+            isUtc: true,
+          ).toLocal(),
+          endTime: DateTime.fromMillisecondsSinceEpoch(
+            event.endsAt,
+            isUtc: true,
+          ).toLocal(),
           isAllDay: event.allDay,
           color: colorOf(event),
         ),
@@ -144,13 +198,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Appointment(
             id: '$_taskPrefix${task.id}',
             subject: task.title,
-            startTime:
-                DateTime.fromMillisecondsSinceEpoch(task.dueAt!, isUtc: true)
-                    .toLocal(),
-            endTime:
-                DateTime.fromMillisecondsSinceEpoch(task.dueAt!, isUtc: true)
-                    .toLocal()
-                    .add(const Duration(minutes: 30)),
+            startTime: DateTime.fromMillisecondsSinceEpoch(
+              task.dueAt!,
+              isUtc: true,
+            ).toLocal(),
+            endTime: DateTime.fromMillisecondsSinceEpoch(
+              task.dueAt!,
+              isUtc: true,
+            ).toLocal().add(const Duration(minutes: 30)),
             color: theme.colorScheme.tertiary,
           ),
     ];
@@ -166,31 +221,27 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           IconButton(
             icon: const Icon(Icons.layers_outlined),
             tooltip: l10n.projectsTitle,
-            onPressed: () => context.go('/calendar/projects'),
+            onPressed: () => context.go('/work/projects'),
           ),
           const AppBarOverflowMenu(),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        // Tab screens coexist in the shell's IndexedStack, so each FAB needs
-        // its own hero tag to avoid duplicate-tag conflicts.
-        heroTag: 'fab-calendar',
-        tooltip: l10n.newEvent,
-        onPressed: () => context.go('/calendar/new'),
-        child: const Icon(Icons.add_rounded),
       ),
       body: SfCalendarTheme(
         data: _calendarTheme(theme, tokens),
         child: SfCalendar(
           controller: _controller,
-          view: CalendarView.week,
+          // The time grid produces a very noisy semantics tree. Prefer the
+          // linear schedule view when assistive navigation is active.
+          view: accessibleNavigation
+              ? CalendarView.schedule
+              : CalendarView.week,
           allowedViews: const [
             CalendarView.day,
             CalendarView.week,
             CalendarView.month,
             CalendarView.schedule,
           ],
-          firstDayOfWeek: 1,
+          firstDayOfWeek: weekStart.calendarDay,
           dataSource: _AppointmentSource(appointments),
           showDatePickerButton: true,
           showTodayButton: true,
@@ -279,6 +330,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           timeSlotViewSettings: TimeSlotViewSettings(
             startHour: 6,
             endHour: 24,
+            timeFormat: uses24Hour ? 'HH:mm' : 'h a',
             timeTextStyle: TextStyle(
               fontFamily: bodyFontFamily,
               fontSize: 11,
@@ -340,7 +392,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// a colored left rail; task deadlines get a dashed-feel outline card with
   /// a status glyph instead.
   Widget _buildAppointment(
-      BuildContext context, CalendarAppointmentDetails details) {
+    BuildContext context,
+    CalendarAppointmentDetails details,
+  ) {
     final theme = Theme.of(context);
     final tokens = context.tokens;
     final appointment = details.appointments.first as Appointment;
@@ -374,9 +428,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       );
     }
 
+    final timeFormat = appTimeFormat(context, ref);
     final timeLabel =
-        '${DateFormat.Hm().format(appointment.startTime)} – '
-        '${DateFormat.Hm().format(appointment.endTime)}';
+        '${timeFormat.format(appointment.startTime)} – '
+        '${timeFormat.format(appointment.endTime)}';
 
     if (isTask) {
       return Container(
@@ -393,8 +448,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
         child: Row(
           children: [
-            Icon(Icons.radio_button_unchecked_rounded,
-                size: 14, color: tokens.ink3),
+            Icon(
+              Icons.radio_button_unchecked_rounded,
+              size: 14,
+              color: tokens.ink3,
+            ),
             const SizedBox(width: 5),
             Expanded(
               child: Text(

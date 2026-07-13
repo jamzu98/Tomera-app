@@ -8,19 +8,26 @@ int billableTotalCents({
   int? rateCents,
   int? durationMinutes,
   int? amountCents,
-}) =>
-    switch (type) {
-      BillableType.hourly =>
-        ((rateCents ?? 0) * (durationMinutes ?? 0) + 30) ~/ 60,
-      BillableType.fixed => amountCents ?? 0,
-    };
+}) => switch (type) {
+  BillableType.hourly => ((rateCents ?? 0) * (durationMinutes ?? 0) + 30) ~/ 60,
+  BillableType.fixed => amountCents ?? 0,
+};
 
 /// Per-status totals for a set of billables, in cents.
 typedef BillableTotals = ({int unbilled, int invoiced, int paid});
 
 BillableTotals sumBillableTotals(
-    Iterable<({BillableType type, BillableStatus status, int? rateCents, int? durationMinutes, int? amountCents})>
-        items) {
+  Iterable<
+    ({
+      BillableType type,
+      BillableStatus status,
+      int? rateCents,
+      int? durationMinutes,
+      int? amountCents,
+    })
+  >
+  items,
+) {
   var unbilled = 0, invoiced = 0, paid = 0;
   for (final item in items) {
     final total = billableTotalCents(
@@ -39,4 +46,47 @@ BillableTotals sumBillableTotals(
     }
   }
   return (unbilled: unbilled, invoiced: invoiced, paid: paid);
+}
+
+/// The safe aggregation shape for sets which may contain more than one
+/// currency. Callers must render each map entry independently.
+Map<String, BillableTotals> sumBillableTotalsByCurrency(
+  Iterable<
+    ({
+      String currency,
+      BillableType type,
+      BillableStatus status,
+      int? rateCents,
+      int? durationMinutes,
+      int? amountCents,
+    })
+  >
+  items,
+) {
+  final grouped =
+      <
+        String,
+        List<
+          ({
+            BillableType type,
+            BillableStatus status,
+            int? rateCents,
+            int? durationMinutes,
+            int? amountCents,
+          })
+        >
+      >{};
+  for (final item in items) {
+    grouped.putIfAbsent(item.currency, () => []).add((
+      type: item.type,
+      status: item.status,
+      rateCents: item.rateCents,
+      durationMinutes: item.durationMinutes,
+      amountCents: item.amountCents,
+    ));
+  }
+  return {
+    for (final entry in grouped.entries)
+      entry.key: sumBillableTotals(entry.value),
+  };
 }

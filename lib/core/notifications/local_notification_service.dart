@@ -43,9 +43,10 @@ class LocalNotificationService implements NotificationService {
     );
   }
 
-  AndroidFlutterLocalNotificationsPlugin? get _android =>
-      _plugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+  AndroidFlutterLocalNotificationsPlugin? get _android => _plugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
 
   @override
   Future<void> schedule({
@@ -69,8 +70,10 @@ class LocalNotificationService implements NotificationService {
       id: id,
       title: title,
       body: body,
-      scheduledDate:
-          tz.TZDateTime.fromMillisecondsSinceEpoch(tz.local, fireAtMs),
+      scheduledDate: tz.TZDateTime.fromMillisecondsSinceEpoch(
+        tz.local,
+        fireAtMs,
+      ),
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'reminders',
@@ -110,9 +113,7 @@ class LocalNotificationService implements NotificationService {
           usesChronometer: true,
           showWhen: true,
           when: startedAtMs,
-          actions: const [
-            AndroidNotificationAction(stopTimerAction, 'Stop'),
-          ],
+          actions: const [AndroidNotificationAction(stopTimerAction, 'Stop')],
         ),
       ),
     );
@@ -122,5 +123,11 @@ class LocalNotificationService implements NotificationService {
   Future<void> cancel(int id) async {
     await _ensureInitialized();
     await _plugin.cancel(id: id);
+  }
+
+  @override
+  Future<void> cancelAll() async {
+    await _ensureInitialized();
+    await _plugin.cancelAll();
   }
 }
