@@ -10,13 +10,15 @@ Tomera brings calendars, tasks, notes, contacts, projects, and finances into one
 ## Preview
 
 <p align="center">
-  <img src="docs/screenshots/calendar.png" alt="Tomera calendar screen" width="23%" />
+  <img src="docs/screenshots/today.jpg" alt="Tomera today screen" width="18%" />
   &nbsp;
-  <img src="docs/screenshots/tasks.png" alt="Tomera tasks screen" width="23%" />
+  <img src="docs/screenshots/calendar.jpg" alt="Tomera calendar screen" width="18%" />
   &nbsp;
-  <img src="docs/screenshots/notes.png" alt="Tomera notes screen" width="23%" />
+  <img src="docs/screenshots/work.jpg" alt="Tomera work screen" width="18%" />
   &nbsp;
-  <img src="docs/screenshots/finance.png" alt="Tomera finance screen" width="23%" />
+  <img src="docs/screenshots/contacts.jpg" alt="Tomera contacts screen" width="18%" />
+  &nbsp;
+  <img src="docs/screenshots/finance.jpg" alt="Tomera finance screen" width="18%" />
 </p>
 
 ## Highlights
