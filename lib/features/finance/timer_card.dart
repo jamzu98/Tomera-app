@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
+import '../../core/widgets/editorial.dart';
 import '../../core/widgets/pulsing_dot.dart';
 import '../../core/widgets/workspace_avatar.dart';
 import '../../data/db/database.dart';
@@ -31,8 +32,7 @@ Future<void> showStartTimerSheet(
   ),
 );
 
-/// Work timer hero on the Finance tab: a dark card with a living Bricolage
-/// clock while running, and a calm start state when idle (spec §6.6).
+/// Featured work timer card for the Finance tab.
 class TimerCard extends ConsumerWidget {
   const TimerCard({super.key});
 
@@ -64,66 +64,24 @@ class TimerCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(runningTimerProvider).value;
-    final tokens = context.tokens;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(26),
-        child: Container(
-          decoration: BoxDecoration(
-            color: tokens.heroBackground,
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(color: tokens.heroInk.withValues(alpha: 0.06)),
-          ),
-          child: Stack(
-            children: [
-              // Orange radial glow rising from the top-right corner.
-              Positioned(
-                right: -40,
-                top: -50,
-                child: IgnorePointer(
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          const Color(
-                            0xFFEE7B3C,
-                          ).withValues(alpha: session == null ? 0.25 : 0.55),
-                          Colors.transparent,
-                        ],
-                        stops: const [0.0, 0.7],
-                      ),
-                    ),
-                  ),
-                ),
+    return EditorialFeaturedCard(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+      child: session == null
+          ? _IdleTimer(
+              onStart: () => showStartTimerSheet(
+                context,
+                workspaceId: ref.read(selectedWorkspaceIdProvider),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(22, 18, 22, 20),
-                child: session == null
-                    ? _IdleTimer(
-                        onStart: () => showStartTimerSheet(
-                          context,
-                          workspaceId: ref.read(selectedWorkspaceIdProvider),
-                        ),
-                      )
-                    : _RunningTimer(
-                        session: session,
-                        onStop: () => _stop(context, ref, session),
-                      ),
-              ),
-            ],
-          ),
-        ),
-      ),
+            )
+          : _RunningTimer(
+              session: session,
+              onStop: () => _stop(context, ref, session),
+            ),
     );
   }
 }
 
-/// Uppercase letter-spaced label row at the top of the hero card.
+/// Quiet label row at the top of the timer card.
 class _HeroLabel extends StatelessWidget {
   const _HeroLabel({required this.text, this.leading});
 
@@ -137,13 +95,13 @@ class _HeroLabel extends StatelessWidget {
       children: [
         if (leading != null) ...[leading!, const SizedBox(width: 8)],
         Text(
-          text.toUpperCase(),
+          text,
           style: TextStyle(
             fontFamily: bodyFontFamily,
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.8,
-            color: tokens.heroMutedInk,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2,
+            color: tokens.textTertiary,
           ),
         ),
       ],
@@ -159,7 +117,7 @@ class _IdleTimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final tokens = context.tokens;
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -168,31 +126,21 @@ class _IdleTimer extends StatelessWidget {
           '0:00:00',
           style: TextStyle(
             fontFamily: displayFontFamily,
-            fontSize: 44,
-            fontWeight: FontWeight.w700,
+            fontSize: 40,
+            fontWeight: FontWeight.w600,
             height: 1.1,
-            letterSpacing: -0.5,
-            color: tokens.heroInk.withValues(alpha: 0.35),
+            letterSpacing: -0.35,
+            color: theme.colorScheme.onSurfaceVariant,
             fontFeatures: tabularFigures,
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          height: 50,
+          height: 48,
           child: FilledButton.icon(
             icon: const Icon(Icons.play_arrow_rounded, size: 22),
             label: Text(l10n.startTimer),
-            style: FilledButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              textStyle: const TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
             onPressed: onStart,
           ),
         ),
@@ -210,6 +158,7 @@ class _RunningTimer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final tokens = context.tokens;
     ref.watch(timerTickProvider);
     final elapsed = elapsedMs(
@@ -239,17 +188,20 @@ class _RunningTimer extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _HeroLabel(text: l10n.timerRunning, leading: const PulsingDot(size: 8)),
+        _HeroLabel(
+          text: l10n.timerRunning,
+          leading: PulsingDot(size: 8, color: theme.colorScheme.primary),
+        ),
         const SizedBox(height: 10),
         Text(
           formatElapsed(elapsed),
           style: TextStyle(
             fontFamily: displayFontFamily,
-            fontSize: 52,
-            fontWeight: FontWeight.w700,
+            fontSize: 44,
+            fontWeight: FontWeight.w600,
             height: 1,
-            letterSpacing: -0.5,
-            color: tokens.heroInk,
+            letterSpacing: -0.35,
+            color: theme.colorScheme.onSurface,
             fontFeatures: tabularFigures,
           ),
         ),
@@ -265,33 +217,23 @@ class _RunningTimer extends ConsumerWidget {
                 contextParts.join(' · '),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: bodyFontFamily,
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFEADFCB),
+                  fontWeight: FontWeight.w400,
+                  color: tokens.textSecondary,
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
-          height: 50,
+          height: 48,
           child: FilledButton.icon(
             icon: const Icon(Icons.stop_rounded, size: 22),
             label: Text(l10n.stopTimer),
-            style: FilledButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              textStyle: const TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
             onPressed: onStop,
           ),
         ),

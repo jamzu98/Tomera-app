@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/editorial.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/soft_tile.dart';
 import '../../core/widgets/work_section_switcher.dart';
@@ -45,7 +46,6 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.projectsTitle),
         actions: const [
           Center(child: WorkspaceSwitcherPill(compact: true)),
           SizedBox(width: 4),
@@ -54,11 +54,16 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
       ),
       body: Column(
         children: [
+          EditorialScreenHeader(
+            title: l10n.tabWork,
+            subtitle: l10n.projectsTitle,
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+          ),
           const WorkSectionSwitcher(selected: WorkSection.projects),
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
               child: FilterChip(
                 label: Text(l10n.showArchived),
                 selected: showArchived,
@@ -84,13 +89,20 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                 : switch (projectsValue) {
                     AsyncValue(value: final projects?)
                         when projects.isNotEmpty =>
-                      ListView.builder(
+                      ListView(
                         padding: const EdgeInsets.only(top: 8, bottom: 88),
-                        itemCount: projects.length,
-                        itemBuilder: (context, index) => _ProjectTile(
-                          project: projects[index],
-                          workspaces: workspaces,
-                        ),
+                        children: [
+                          EditorialPanel(
+                            children: [
+                              for (final project in projects)
+                                _ProjectTile(
+                                  project: project,
+                                  workspaces: workspaces,
+                                  embedded: true,
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
                     AsyncValue(isLoading: true) => const Center(
                       child: CircularProgressIndicator(),
@@ -128,10 +140,15 @@ int projectColor(Project project, List<Workspace> workspaces) =>
     0xFFB7AD9C;
 
 class _ProjectTile extends ConsumerWidget {
-  const _ProjectTile({required this.project, required this.workspaces});
+  const _ProjectTile({
+    required this.project,
+    required this.workspaces,
+    this.embedded = false,
+  });
 
   final Project project;
   final List<Workspace> workspaces;
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -145,6 +162,10 @@ class _ProjectTile extends ConsumerWidget {
     ];
     final color = Color(projectColor(project, workspaces));
     return SoftTile(
+      embedded: embedded,
+      margin: embedded
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       leading: WorkspaceAvatar(
         color: color,
         icon: Icons.layers_rounded,

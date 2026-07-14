@@ -4,7 +4,7 @@ import '../money.dart';
 import '../theme.dart';
 
 /// Card of label/amount rows with hairline separators; the highlighted row
-/// renders larger with the accent color (mock's financial summary).
+/// renders larger while remaining within the monochrome hierarchy.
 class FinancialSummaryCard extends StatelessWidget {
   const FinancialSummaryCard({
     super.key,
@@ -24,8 +24,7 @@ class FinancialSummaryCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: tokens.hairline),
+        borderRadius: BorderRadius.circular(editorialCardRadius),
       ),
       child: Column(
         children: [
@@ -35,7 +34,7 @@ class FinancialSummaryCard extends StatelessWidget {
               decoration: BoxDecoration(
                 border: i == rows.length - 1
                     ? null
-                    : Border(bottom: BorderSide(color: tokens.hairline)),
+                    : Border(bottom: BorderSide(color: tokens.borderSubtle)),
               ),
               child: Row(
                 children: [
@@ -46,11 +45,11 @@ class FinancialSummaryCard extends StatelessWidget {
                         fontFamily: bodyFontFamily,
                         fontSize: 13.5,
                         fontWeight: highlighted
-                            ? FontWeight.w800
-                            : FontWeight.w600,
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                         color: highlighted
                             ? theme.colorScheme.onSurface
-                            : tokens.ink2,
+                            : tokens.textSecondary,
                       ),
                     ),
                   ),
@@ -59,11 +58,9 @@ class FinancialSummaryCard extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: bodyFontFamily,
                       fontSize: highlighted ? 16 : 14.5,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: -0.1,
-                      color: highlighted
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurface,
+                      color: theme.colorScheme.onSurface,
                       fontFeatures: tabularFigures,
                     ),
                   ),

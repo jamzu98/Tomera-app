@@ -153,7 +153,7 @@ class ProjectDetailScreen extends ConsumerWidget {
               child: Text(
                 project.description!,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: context.tokens.ink2,
+                  color: context.tokens.textSecondary,
                 ),
               ),
             ),
@@ -210,7 +210,7 @@ class ProjectDetailScreen extends ConsumerWidget {
                     size: 20,
                     color: task.status == TaskStatus.done
                         ? context.tokens.success
-                        : context.tokens.ink3,
+                        : context.tokens.textTertiary,
                   ),
                   title: Text(task.title),
                   onTap: () => context.push('/work/tasks/${task.id}'),
@@ -240,7 +240,7 @@ class ProjectDetailScreen extends ConsumerWidget {
                   leading: Icon(
                     Icons.description_outlined,
                     size: 20,
-                    color: context.tokens.ink2,
+                    color: context.tokens.textSecondary,
                   ),
                   title: Text(note.title),
                   onTap: () => context.push('/work/notes/${note.id}'),
@@ -262,7 +262,7 @@ class ProjectDetailScreen extends ConsumerWidget {
                   leading: Icon(
                     Icons.receipt_long_outlined,
                     size: 20,
-                    color: context.tokens.ink2,
+                    color: context.tokens.textSecondary,
                   ),
                   title: Text(item.title),
                   subtitle: Text(billableStatusLabel(l10n, item.status)),
@@ -340,7 +340,7 @@ class _Section extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.3,
-                    color: context.tokens.ink3,
+                    color: context.tokens.textTertiary,
                   ),
                 ),
               ),

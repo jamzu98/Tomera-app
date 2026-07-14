@@ -153,10 +153,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
-          16,
+          20,
           0,
-          16,
-          16 + MediaQuery.viewInsetsOf(context).bottom,
+          20,
+          20 + MediaQuery.viewInsetsOf(context).bottom,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

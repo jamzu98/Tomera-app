@@ -8,6 +8,7 @@ import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/utils.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/editorial.dart';
 import '../../core/widgets/pulsing_dot.dart';
 import '../../core/widgets/section_header.dart';
 import '../../core/widgets/soft_tile.dart';
@@ -71,9 +72,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final now = ref.watch(todayClockProvider);
+    final dateLabel = DateFormat.yMMMMEEEEd(
+      Localizations.localeOf(context).toLanguageTag(),
+    ).format(now);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.tabToday),
         actions: const [
           Center(child: WorkspaceSwitcherPill(compact: true)),
           SizedBox(width: 4),
@@ -82,19 +86,47 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       ),
       body: RefreshIndicator(
         onRefresh: () async => _refreshSections(),
-        child: const CustomScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            SliverToBoxAdapter(child: SetupChecklistCard()),
-            SliverToBoxAdapter(child: _ActiveTimerSection()),
-            SliverToBoxAdapter(child: _RecoverableTimersSection()),
-            SliverToBoxAdapter(child: _EventSection()),
-            SliverToBoxAdapter(child: _TasksSection()),
-            SliverToBoxAdapter(child: _UnbilledSection()),
-            SliverToBoxAdapter(child: _NotesSection()),
-            SliverToBoxAdapter(child: SizedBox(height: 88)),
+            SliverToBoxAdapter(
+              child: EditorialScreenHeader(
+                title: l10n.tabToday,
+                subtitle: dateLabel,
+              ),
+            ),
+            const SliverToBoxAdapter(child: SetupChecklistCard()),
+            const SliverToBoxAdapter(child: _NowAndNextRail()),
+            const SliverToBoxAdapter(child: _RecoverableTimersSection()),
+            const SliverToBoxAdapter(child: _TasksSection()),
+            const SliverToBoxAdapter(child: _UnbilledSection()),
+            const SliverToBoxAdapter(child: _NotesSection()),
+            const SliverToBoxAdapter(child: SizedBox(height: 88)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _NowAndNextRail extends StatelessWidget {
+  const _NowAndNextRail();
+
+  @override
+  Widget build(BuildContext context) {
+    final width = (MediaQuery.sizeOf(context).width - 56)
+        .clamp(280.0, 340.0)
+        .toDouble();
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: width, child: const _ActiveTimerSection()),
+          const SizedBox(width: 12),
+          SizedBox(width: width, child: const _EventSection()),
+        ],
       ),
     );
   }
@@ -153,6 +185,7 @@ class _ActiveTimerSection extends ConsumerWidget {
     final value = ref.watch(todayActiveTimerProvider);
     return _TodaySection(
       title: l10n.todayActiveTimer,
+      featured: true,
       child: value.when(
         loading: () => const _SectionLoading(),
         error: (error, stackTrace) => _SectionError(
@@ -216,6 +249,7 @@ class _EventSection extends ConsumerWidget {
     final clockFormat = _clockFormat(context, ref);
     return _TodaySection(
       title: l10n.todaySchedule,
+      featured: true,
       child: value.when(
         loading: () => const _SectionLoading(),
         error: (error, stackTrace) =>
@@ -345,9 +379,9 @@ class _UnbilledSection extends ConsumerWidget {
               : l10n.todayHoursMinutes(hours, minutes);
           return Material(
             color: Theme.of(context).colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(editorialCardRadius),
             child: InkWell(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(editorialCardRadius),
               onTap: () => context.go('/finance'),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -421,22 +455,39 @@ class _NotesSection extends ConsumerWidget {
 }
 
 class _TodaySection extends StatelessWidget {
-  const _TodaySection({required this.title, required this.child});
+  const _TodaySection({
+    required this.title,
+    required this.child,
+    this.featured = false,
+  });
 
   final String title;
   final Widget child;
+  final bool featured;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SectionHeader(title: title),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: child,
-      ),
-    ],
-  );
+  Widget build(BuildContext context) {
+    if (featured) {
+      return EditorialFeaturedCard(
+        margin: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 14),
+            child,
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(title: title),
+        Padding(padding: editorialPagePadding, child: child),
+      ],
+    );
+  }
 }
 
 class _SectionLoading extends StatelessWidget {
@@ -480,7 +531,7 @@ class _SectionEmpty extends StatelessWidget {
   Widget build(BuildContext context) => _SectionSurface(
     child: Row(
       children: [
-        Icon(icon, color: context.tokens.ink3),
+        Icon(icon, color: context.tokens.textTertiary),
         const SizedBox(width: 12),
         Expanded(child: Text(message)),
       ],
@@ -499,8 +550,7 @@ class _SectionSurface extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      borderRadius: BorderRadius.circular(editorialControlRadius),
     ),
     child: child,
   );
@@ -515,8 +565,8 @@ class _LeadingIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = error
-        ? context.tokens.overdue
-        : Theme.of(context).colorScheme.primary;
+        ? context.tokens.danger
+        : Theme.of(context).colorScheme.onSurface;
     return Container(
       width: 38,
       height: 38,

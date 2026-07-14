@@ -13,7 +13,7 @@ class MoreOptionsSection extends StatefulWidget {
     super.key,
     required this.children,
     this.initiallyExpanded = false,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
   });
 
   final List<Widget> children;
@@ -45,8 +45,7 @@ class _MoreOptionsSectionState extends State<MoreOptionsSection> {
       child: Material(
         color: theme.colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: tokens.hairline),
+          borderRadius: BorderRadius.circular(editorialCardRadius),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -57,12 +56,16 @@ class _MoreOptionsSectionState extends State<MoreOptionsSection> {
                 button: true,
                 expanded: _expanded,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 52),
+                  constraints: const BoxConstraints(minHeight: 48),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: [
-                        Icon(Icons.tune_rounded, size: 21, color: tokens.ink3),
+                        Icon(
+                          Icons.tune_rounded,
+                          size: 21,
+                          color: tokens.textTertiary,
+                        ),
                         const SizedBox(width: 13),
                         Expanded(
                           child: Text(
@@ -74,7 +77,7 @@ class _MoreOptionsSectionState extends State<MoreOptionsSection> {
                           _expanded
                               ? Icons.expand_less_rounded
                               : Icons.expand_more_rounded,
-                          color: tokens.ink3,
+                          color: tokens.textTertiary,
                         ),
                       ],
                     ),
@@ -83,14 +86,15 @@ class _MoreOptionsSectionState extends State<MoreOptionsSection> {
               ),
             ),
             if (_expanded) ...[
-              Divider(color: tokens.hairline, height: 1),
+              Divider(color: tokens.borderSubtle, height: 1),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final (index, child) in widget.children.indexed) ...[
-                      if (index > 0) Divider(color: tokens.hairline, height: 1),
+                      if (index > 0)
+                        Divider(color: tokens.borderSubtle, height: 1),
                       child,
                     ],
                   ],

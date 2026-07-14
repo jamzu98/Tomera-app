@@ -3,8 +3,7 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 import 'theme.dart';
 
-/// Markdown stylesheet matching the warm design system: Bricolage headings,
-/// Hanken body, hairline rules and tinted code spans.
+/// Markdown stylesheet matching the editorial monochrome design system.
 MarkdownStyleSheet tomeraMarkdownStyleSheet(BuildContext context) {
   final theme = Theme.of(context);
   final tokens = context.tokens;
@@ -19,7 +18,7 @@ MarkdownStyleSheet tomeraMarkdownStyleSheet(BuildContext context) {
     h4: textTheme.titleMedium,
     h5: textTheme.titleSmall,
     h6: textTheme.labelSmall,
-    blockquote: textTheme.bodyMedium?.copyWith(color: tokens.ink2),
+    blockquote: textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
     blockquoteDecoration: BoxDecoration(
       border: Border(
         left: BorderSide(color: theme.colorScheme.primary, width: 3),
@@ -34,21 +33,22 @@ MarkdownStyleSheet tomeraMarkdownStyleSheet(BuildContext context) {
     ),
     codeblockDecoration: BoxDecoration(
       color: codeBackground,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: tokens.hairline),
+      borderRadius: BorderRadius.circular(editorialControlRadius),
     ),
     codeblockPadding: const EdgeInsets.all(12),
     horizontalRuleDecoration: BoxDecoration(
-      border: Border(top: BorderSide(color: tokens.line)),
+      border: Border(top: BorderSide(color: tokens.borderStrong)),
     ),
-    listBullet: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),
+    listBullet: textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.primary,
+    ),
     a: TextStyle(
       color: theme.colorScheme.primary,
       fontWeight: FontWeight.w600,
       decoration: TextDecoration.underline,
       decorationColor: theme.colorScheme.primary.withValues(alpha: 0.4),
     ),
-    tableBorder: TableBorder.all(color: tokens.line, width: 1),
+    tableBorder: TableBorder.all(color: tokens.borderStrong, width: 1),
     tableHead: textTheme.titleSmall,
   );
 }

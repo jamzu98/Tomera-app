@@ -8,19 +8,7 @@ import '../providers.dart';
 import '../theme.dart';
 import 'workspace_avatar.dart';
 
-const _allGradient = LinearGradient(
-  begin: Alignment.topLeft,
-  end: Alignment.bottomRight,
-  colors: [
-    Color(0xFF7C7FF2),
-    Color(0xFFE4AB3C),
-    Color(0xFF23A896),
-    Color(0xFFC169B4),
-  ],
-  stops: [0.0, 0.45, 0.78, 1.0],
-);
-
-/// The app's flagship control: a labeled pill in the app bar showing which
+/// Compact app-bar control showing which
 /// workspace the current tab is filtered to. Tapping opens a bottom sheet
 /// to switch between "All workspaces" and individual ones.
 class WorkspaceSwitcherPill extends ConsumerWidget {
@@ -37,57 +25,59 @@ class WorkspaceSwitcherPill extends ConsumerWidget {
     final selectedId = ref.watch(selectedWorkspaceIdProvider);
     final selected = workspaces.where((w) => w.id == selectedId).firstOrNull;
 
-    // Keep the visual compact while meeting Android's 48dp touch-target
-    // guidance. App bars already reserve enough vertical space for this.
     const height = 48.0;
-    final dotSize = compact ? 18.0 : 22.0;
+    final dotSize = compact ? 24.0 : 22.0;
 
     final label =
         selected?.name ??
         (compact ? l10n.allWorkspacesShort : l10n.allWorkspaces);
 
-    return Material(
-      color: theme.colorScheme.surfaceContainer,
-      shape: StadiumBorder(side: BorderSide(color: theme.colorScheme.outline)),
+    final control = Material(
+      color: theme.colorScheme.surfaceContainerHigh,
+      shape: compact ? const CircleBorder() : const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
-        customBorder: const StadiumBorder(),
         onTap: () => _showSwitcherSheet(context, ref),
-        child: Container(
-          height: height,
-          padding: EdgeInsets.only(
-            left: compact ? 8 : 12,
-            right: compact ? 5 : 6,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _WorkspaceMark(workspace: selected, size: dotSize),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: bodyFontFamily,
-                    fontSize: compact ? 13 : 14.5,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.1,
-                    color: theme.colorScheme.onSurface,
-                  ),
+        child: compact
+            ? SizedBox.square(
+                dimension: 48,
+                child: Center(
+                  child: _WorkspaceMark(workspace: selected, size: dotSize),
+                ),
+              )
+            : Container(
+                height: height,
+                padding: const EdgeInsets.only(left: 12, right: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _WorkspaceMark(workspace: selected, size: dotSize),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: bodyFontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.expand_more_rounded,
+                      size: 20,
+                      color: context.tokens.textTertiary,
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 2),
-              Icon(
-                Icons.expand_more_rounded,
-                size: compact ? 18 : 20,
-                color: context.tokens.ink3,
-              ),
-            ],
-          ),
-        ),
       ),
     );
+    return compact ? Tooltip(message: label, child: control) : control;
   }
 
   void _showSwitcherSheet(BuildContext context, WidgetRef ref) {
@@ -153,7 +143,7 @@ class _SwitcherRow extends StatelessWidget {
       title: Text(
         label,
         style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
         ),
       ),
       trailing: selected
@@ -163,8 +153,7 @@ class _SwitcherRow extends StatelessWidget {
   }
 }
 
-/// The pill's identity mark: a workspace avatar, or the multicolour gradient
-/// tile representing the "all workspaces" view.
+/// A workspace avatar, or a neutral grid for the "all workspaces" view.
 class _WorkspaceMark extends StatelessWidget {
   const _WorkspaceMark({required this.workspace, required this.size});
 
@@ -185,13 +174,14 @@ class _WorkspaceMark extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: _allGradient,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(size / 3),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Icon(
         Icons.grid_view_rounded,
-        size: size * 0.62,
-        color: Colors.white,
+        size: size * 0.56,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }

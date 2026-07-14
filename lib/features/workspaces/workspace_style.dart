@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// key (spec §4), so entries must never be renamed — only added.
 ///
 /// Rounded (filled) variants approximate the Material Symbols Rounded set
-/// used by the warm redesign.
+/// used for workspace identity within the monochrome editorial system.
 const workspaceIcons = <String, IconData>{
   'work': Icons.work_rounded,
   'school': Icons.school_rounded,
@@ -31,7 +31,7 @@ const workspaceIcons = <String, IconData>{
 IconData workspaceIcon(String name) =>
     workspaceIcons[name] ?? Icons.folder_rounded;
 
-/// Preset ARGB palette for workspace colors (warm redesign accents).
+/// Preset ARGB palette for workspace identity and calendar markers.
 const workspaceColors = <int>[
   0xFF7C7FF2, // indigo
   0xFFE4AB3C, // amber

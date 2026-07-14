@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/editorial.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/soft_tile.dart';
 import '../../core/widgets/work_section_switcher.dart';
@@ -62,7 +63,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                 ),
                 onChanged: (value) => setState(() => _query = value),
               )
-            : Text(l10n.tabNotes),
+            : null,
         actions: [
           if (_searching)
             IconButton(
@@ -83,6 +84,11 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       ),
       body: Column(
         children: [
+          EditorialScreenHeader(
+            title: l10n.tabWork,
+            subtitle: l10n.tabNotes,
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+          ),
           const WorkSectionSwitcher(selected: WorkSection.notes),
           Expanded(
             child: moduleDisabled
@@ -99,42 +105,21 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                   )
                 : switch (notesValue) {
                     AsyncValue(value: final notes?) when notes.isNotEmpty =>
-                      ListView.builder(
+                      ListView(
                         padding: const EdgeInsets.only(top: 6, bottom: 88),
-                        itemCount: notes.length,
-                        itemBuilder: (context, index) {
-                          final note = notes[index];
-                          final workspace = workspaces
-                              .where((w) => w.id == note.workspaceId)
-                              .firstOrNull;
-                          final color = workspace != null
-                              ? Color(workspace.color)
-                              : context.tokens.ink3;
-                          return SoftTile(
-                            leading: Container(
-                              width: 38,
-                              height: 38,
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.16),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.description_outlined,
-                                size: 19,
-                                color: color,
-                              ),
-                            ),
-                            title: Text(note.title),
-                            subtitle: note.body.isNotEmpty
-                                ? Text(
-                                    note.body,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  )
-                                : null,
-                            onTap: () => context.go('/work/notes/${note.id}'),
-                          );
-                        },
+                        children: [
+                          EditorialPanel(
+                            children: [
+                              for (final note in notes)
+                                _NoteTile(
+                                  note: note,
+                                  workspace: workspaces
+                                      .where((w) => w.id == note.workspaceId)
+                                      .firstOrNull,
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
                     AsyncValue(isLoading: true) => const Center(
                       child: CircularProgressIndicator(),
@@ -172,6 +157,38 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _NoteTile extends StatelessWidget {
+  const _NoteTile({required this.note, required this.workspace});
+
+  final Note note;
+  final Workspace? workspace;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = workspace != null
+        ? Color(workspace!.color)
+        : context.tokens.textTertiary;
+    return SoftTile(
+      embedded: true,
+      margin: EdgeInsets.zero,
+      leading: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(Icons.description_outlined, size: 19, color: color),
+      ),
+      title: Text(note.title),
+      subtitle: note.body.isNotEmpty
+          ? Text(note.body, maxLines: 1, overflow: TextOverflow.ellipsis)
+          : null,
+      onTap: () => context.go('/work/notes/${note.id}'),
     );
   }
 }

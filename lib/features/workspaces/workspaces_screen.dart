@@ -111,15 +111,14 @@ class _WorkspaceCard extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: Material(
         color: theme.colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(editorialCardRadius),
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(editorialCardRadius),
           onTap: () => context.push('/workspaces/${workspace.id}'),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
@@ -157,7 +156,9 @@ class _WorkspaceCard extends StatelessWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: tokens.line),
+                                  border: Border.all(
+                                    color: tokens.borderStrong,
+                                  ),
                                 ),
                                 child: Text(
                                   label,
@@ -165,7 +166,7 @@ class _WorkspaceCard extends StatelessWidget {
                                     fontFamily: bodyFontFamily,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: tokens.ink2,
+                                    color: tokens.textSecondary,
                                   ),
                                 ),
                               ),
@@ -181,7 +182,7 @@ class _WorkspaceCard extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     child: Icon(
                       Icons.drag_indicator_rounded,
-                      color: tokens.ink3,
+                      color: tokens.textTertiary,
                     ),
                   ),
                 ),

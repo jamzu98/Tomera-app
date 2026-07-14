@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme.dart';
 
-/// Grouped form card: an uppercase group label above a soft card whose rows
-/// are separated by hairlines (the redesign's replacement for flat forms).
+/// Grouped form card with editorial spacing and quiet row separators.
 class FormGroupCard extends StatelessWidget {
   const FormGroupCard({super.key, this.title, required this.children});
 
@@ -15,13 +14,12 @@ class FormGroupCard extends StatelessWidget {
     final theme = Theme.of(context);
     final tokens = context.tokens;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: tokens.hairline),
+          borderRadius: BorderRadius.circular(editorialCardRadius),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,18 +28,17 @@ class FormGroupCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 14, 0, 4),
                 child: Text(
-                  title!.toUpperCase(),
+                  title!,
                   style: TextStyle(
                     fontFamily: bodyFontFamily,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
-                    color: tokens.ink3,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: tokens.textTertiary,
                   ),
                 ),
               ),
             for (final (i, child) in children.indexed) ...[
-              if (i > 0) Divider(color: tokens.hairline, height: 1),
+              if (i > 0) Divider(color: tokens.borderSubtle, height: 1),
               child,
             ],
           ],
@@ -51,7 +48,7 @@ class FormGroupCard extends StatelessWidget {
   }
 }
 
-/// A single form row: leading glyph, small uppercase field label, and the
+/// A single form row: leading glyph, small field label, and the
 /// live input (or value) beneath it, with an optional trailing affordance.
 class FormFieldRow extends StatelessWidget {
   const FormFieldRow({
@@ -73,10 +70,13 @@ class FormFieldRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final row = Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          SizedBox(width: 24, child: Icon(icon, size: 21, color: tokens.ink3)),
+          SizedBox(
+            width: 24,
+            child: Icon(icon, size: 21, color: tokens.textTertiary),
+          ),
           const SizedBox(width: 13),
           Expanded(
             child: Column(
@@ -84,13 +84,13 @@ class FormFieldRow extends StatelessWidget {
               children: [
                 if (label != null) ...[
                   Text(
-                    label!.toUpperCase(),
+                    label!,
                     style: TextStyle(
                       fontFamily: bodyFontFamily,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      letterSpacing: 0.7,
-                      color: tokens.ink3,
+                      letterSpacing: 0.15,
+                      color: tokens.textTertiary,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -124,8 +124,8 @@ InputDecoration inlineFieldDecoration(BuildContext context, {String? hint}) {
     hintStyle: TextStyle(
       fontFamily: bodyFontFamily,
       fontSize: 15,
-      fontWeight: FontWeight.w500,
-      color: tokens.ink3,
+      fontWeight: FontWeight.w400,
+      color: tokens.textTertiary,
     ),
   );
 }
@@ -134,7 +134,7 @@ InputDecoration inlineFieldDecoration(BuildContext context, {String? hint}) {
 TextStyle inlineFieldStyle(BuildContext context) => TextStyle(
   fontFamily: bodyFontFamily,
   fontSize: 15,
-  fontWeight: FontWeight.w600,
+  fontWeight: FontWeight.w500,
   color: Theme.of(context).colorScheme.onSurface,
 );
 
@@ -167,7 +167,7 @@ class _SaveBarState extends State<SaveBar> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
         child: SizedBox(
           height: 52,
           width: double.infinity,
@@ -179,17 +179,6 @@ class _SaveBarState extends State<SaveBar> {
                   )
                 : const Icon(Icons.check_rounded, size: 20),
             label: Text(widget.label),
-            style: FilledButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              textStyle: const TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-              elevation: 4,
-            ),
             onPressed: widget.onPressed == null || _saving ? null : _save,
           ),
         ),

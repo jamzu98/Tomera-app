@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
+import '../../core/theme.dart';
 import '../../core/widgets/soft_tile.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
@@ -126,7 +127,7 @@ class _RecoverableTimerTile extends ConsumerWidget {
           alignment: Alignment.centerRight,
           decoration: BoxDecoration(
             color: colorScheme.errorContainer,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(editorialCardRadius),
           ),
           child: Icon(
             Icons.delete_outline_rounded,

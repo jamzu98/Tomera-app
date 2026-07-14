@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme.dart';
 
-/// Uppercase, letter-spaced section label with an optional trailing action.
+/// Strong editorial section title with an optional trailing action.
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     super.key,
@@ -10,7 +10,7 @@ class SectionHeader extends StatelessWidget {
     this.actionLabel,
     this.actionIcon,
     this.onAction,
-    this.padding = const EdgeInsets.fromLTRB(20, 22, 20, 8),
+    this.padding = const EdgeInsets.fromLTRB(20, 28, 20, 10),
   });
 
   final String title;
@@ -22,20 +22,19 @@ class SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final tokens = context.tokens;
     return Padding(
       padding: padding,
       child: Row(
         children: [
           Expanded(
             child: Text(
-              title.toUpperCase(),
+              title,
               style: TextStyle(
                 fontFamily: bodyFontFamily,
-                fontSize: 12,
+                fontSize: 18,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 1.3,
-                color: tokens.ink3,
+                letterSpacing: -0.25,
+                color: theme.colorScheme.onSurface,
               ),
             ),
           ),
@@ -49,7 +48,11 @@ class SectionHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (actionIcon != null) ...[
-                      Icon(actionIcon, size: 17, color: theme.colorScheme.primary),
+                      Icon(
+                        actionIcon,
+                        size: 17,
+                        color: theme.colorScheme.onSurface,
+                      ),
                       const SizedBox(width: 4),
                     ],
                     if (actionLabel != null)
@@ -58,8 +61,8 @@ class SectionHeader extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: bodyFontFamily,
                           fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                   ],
@@ -72,7 +75,7 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
-/// Group header for task-style lists: colored dot, uppercase label, count.
+/// Group header for task-style lists: colored dot, label, and count.
 class GroupHeader extends StatelessWidget {
   const GroupHeader({
     super.key,
@@ -105,12 +108,12 @@ class GroupHeader extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            title.toUpperCase(),
+            title,
             style: TextStyle(
               fontFamily: bodyFontFamily,
               fontSize: 12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.1,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.15,
               color: labelColor ?? color,
             ),
           ),
@@ -127,8 +130,8 @@ class GroupHeader extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: bodyFontFamily,
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: tokens.ink3,
+                  fontWeight: FontWeight.w600,
+                  color: tokens.textTertiary,
                 ),
               ),
             ),

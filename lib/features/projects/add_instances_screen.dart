@@ -313,7 +313,7 @@ class _AddInstancesScreenState extends ConsumerState<AddInstancesScreen> {
           fontSize: 12,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.3,
-          color: context.tokens.ink3,
+          color: context.tokens.textTertiary,
         ),
       ),
     );

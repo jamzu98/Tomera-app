@@ -104,7 +104,7 @@ void main() {
         true,
       );
       await tester.pump();
-      expect(find.text('FREQUENCY'), findsOneWidget);
+      expect(find.text('Frequency'), findsOneWidget);
       expect(find.byType(FilterChip), findsNWidgets(7));
 
       await tester.ensureVisible(

@@ -17,6 +17,11 @@ class AppBarOverflowMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return PopupMenuButton<int>(
+      style: IconButton.styleFrom(
+        minimumSize: const Size.square(44),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        shape: const CircleBorder(),
+      ),
       icon: const Icon(Icons.more_vert_rounded),
       onSelected: (index) {
         if (index == -2) {

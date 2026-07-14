@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/editorial.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/filter_sheet.dart';
 import '../../core/widgets/section_header.dart';
@@ -110,7 +111,6 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.tabTasks),
         actions: const [
           Center(child: WorkspaceSwitcherPill(compact: true)),
           SizedBox(width: 4),
@@ -119,12 +119,22 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       ),
       body: Column(
         children: [
+          EditorialScreenHeader(
+            title: l10n.tabWork,
+            subtitle: l10n.tabTasks,
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+          ),
           const WorkSectionSwitcher(selected: WorkSection.tasks),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 SegmentedButton<TaskGroupMode>(
+                  showSelectedIcon: false,
                   segments: [
                     ButtonSegment(
                       value: TaskGroupMode.status,
@@ -140,7 +150,6 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                       .read(taskListSessionProvider.notifier)
                       .setGroupMode(selection.first),
                 ),
-                const Spacer(),
                 FilterButton(
                   label: l10n.filtersLabel,
                   activeCount: session.overdueOnly ? 1 : 0,
@@ -237,7 +246,7 @@ class _TaskList extends ConsumerWidget {
       for (final entry in groupByStatus(tasks).entries) {
         final color = switch (entry.key) {
           TaskStatus.open => theme.colorScheme.onSurface,
-          TaskStatus.inProgress => const Color(0xFF7C7FF2),
+          TaskStatus.inProgress => tokens.warning,
           TaskStatus.done => tokens.success,
         };
         sections.add((_statusLabel(l10n, entry.key), color, entry.value));
@@ -245,9 +254,9 @@ class _TaskList extends ConsumerWidget {
     } else {
       for (final entry in groupByDueDate(tasks, DateTime.now()).entries) {
         final color = switch (entry.key) {
-          DueSection.overdue => tokens.overdue,
+          DueSection.overdue => tokens.danger,
           DueSection.today => theme.colorScheme.onSurface,
-          _ => tokens.ink3,
+          _ => tokens.textTertiary,
         };
         sections.add((_dueSectionLabel(l10n, entry.key), color, entry.value));
       }
@@ -258,7 +267,12 @@ class _TaskList extends ConsumerWidget {
       children: [
         for (final (title, color, sectionTasks) in sections) ...[
           GroupHeader(title: title, color: color, count: sectionTasks.length),
-          for (final task in sectionTasks) _TaskTile(task: task),
+          EditorialPanel(
+            children: [
+              for (final task in sectionTasks)
+                _TaskTile(task: task, embedded: true),
+            ],
+          ),
         ],
       ],
     );
@@ -266,9 +280,10 @@ class _TaskList extends ConsumerWidget {
 }
 
 class _TaskTile extends ConsumerWidget {
-  const _TaskTile({required this.task});
+  const _TaskTile({required this.task, this.embedded = false});
 
   final Task task;
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -282,18 +297,18 @@ class _TaskTile extends ConsumerWidget {
     final (statusIcon, statusColor, statusFilled) = switch (task.status) {
       TaskStatus.open => (
         Icons.radio_button_unchecked_rounded,
-        tokens.ink3,
+        tokens.textTertiary,
         false,
       ),
-      TaskStatus.inProgress => (
-        Icons.timelapse_rounded,
-        const Color(0xFF7C7FF2),
-        false,
-      ),
+      TaskStatus.inProgress => (Icons.timelapse_rounded, tokens.warning, false),
       TaskStatus.done => (Icons.check_rounded, tokens.success, true),
     };
 
     return SoftTile(
+      embedded: embedded,
+      margin: embedded
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       leading: StatusRing(
         icon: statusIcon,
         color: statusColor,
@@ -427,7 +442,7 @@ class _TaskTile extends ConsumerWidget {
             ? TextStyle(
                 decoration: TextDecoration.lineThrough,
                 decorationThickness: 1.5,
-                color: tokens.ink3,
+                color: tokens.textTertiary,
               )
             : null,
       ),
@@ -441,7 +456,7 @@ class _TaskTile extends ConsumerWidget {
                             ? Icons.check_circle_outline_rounded
                             : Icons.schedule_rounded),
                   size: 14,
-                  color: overdue ? tokens.overdue : tokens.ink2,
+                  color: overdue ? tokens.danger : tokens.textSecondary,
                 ),
                 const SizedBox(width: 5),
                 Flexible(
@@ -457,7 +472,7 @@ class _TaskTile extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                     style: overdue
                         ? TextStyle(
-                            color: tokens.overdue,
+                            color: tokens.danger,
                             fontWeight: FontWeight.w600,
                           )
                         : null,
@@ -477,7 +492,7 @@ class _TaskTile extends ConsumerWidget {
                     child: Icon(
                       Icons.repeat_rounded,
                       size: 20,
-                      color: tokens.ink3,
+                      color: tokens.textTertiary,
                     ),
                   ),
                 if (task.taskSeriesId != null &&
@@ -490,8 +505,8 @@ class _TaskTile extends ConsumerWidget {
                         : Icons.keyboard_double_arrow_down_rounded,
                     size: 22,
                     color: task.priority == TaskPriority.high
-                        ? tokens.overdue
-                        : tokens.ink3,
+                        ? tokens.danger
+                        : tokens.textTertiary,
                   ),
               ],
             )

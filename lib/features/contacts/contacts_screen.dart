@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/editorial.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/soft_tile.dart';
 import '../../core/widgets/workspace_switcher_pill.dart';
@@ -28,7 +29,6 @@ class ContactsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.tabContacts),
         actions: const [
           Center(child: WorkspaceSwitcherPill(compact: true)),
           SizedBox(width: 4),
@@ -37,6 +37,10 @@ class ContactsScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
+          EditorialScreenHeader(
+            title: l10n.tabContacts,
+            subtitle: selectedWorkspace?.name,
+          ),
           Expanded(
             child: moduleDisabled
                 ? EmptyState(
@@ -53,11 +57,16 @@ class ContactsScreen extends ConsumerWidget {
                 : switch (contactsValue) {
                     AsyncValue(value: final contacts?)
                         when contacts.isNotEmpty =>
-                      ListView.builder(
-                        padding: const EdgeInsets.only(top: 6, bottom: 88),
-                        itemCount: contacts.length,
-                        itemBuilder: (context, index) =>
-                            _ContactTile(contact: contacts[index]),
+                      ListView(
+                        padding: const EdgeInsets.only(bottom: 88),
+                        children: [
+                          EditorialPanel(
+                            children: [
+                              for (final contact in contacts)
+                                _ContactTile(contact: contact, embedded: true),
+                            ],
+                          ),
+                        ],
                       ),
                     AsyncValue(isLoading: true) => const Center(
                       child: CircularProgressIndicator(),
@@ -88,9 +97,10 @@ class ContactsScreen extends ConsumerWidget {
 }
 
 class _ContactTile extends StatelessWidget {
-  const _ContactTile({required this.contact});
+  const _ContactTile({required this.contact, this.embedded = false});
 
   final Contact contact;
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +109,10 @@ class _ContactTile extends StatelessWidget {
       workspaceColors[contact.name.hashCode % workspaceColors.length],
     );
     return SoftTile(
+      embedded: embedded,
+      margin: embedded
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       leading: Container(
         width: 42,
         height: 42,

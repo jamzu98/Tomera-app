@@ -7,6 +7,7 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/editorial.dart';
 import '../../core/widgets/workspace_switcher_pill.dart';
 import '../../data/db/database.dart';
 import '../../l10n/app_localizations.dart';
@@ -212,12 +213,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: 16,
-        title: const Align(
-          alignment: Alignment.centerLeft,
-          child: WorkspaceSwitcherPill(),
-        ),
         actions: [
+          const Center(child: WorkspaceSwitcherPill(compact: true)),
+          const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.layers_outlined),
             tooltip: l10n.projectsTitle,
@@ -226,154 +224,165 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           const AppBarOverflowMenu(),
         ],
       ),
-      body: SfCalendarTheme(
-        data: _calendarTheme(theme, tokens),
-        child: SfCalendar(
-          controller: _controller,
-          // The time grid produces a very noisy semantics tree. Prefer the
-          // linear schedule view when assistive navigation is active.
-          view: accessibleNavigation
-              ? CalendarView.schedule
-              : CalendarView.week,
-          allowedViews: const [
-            CalendarView.day,
-            CalendarView.week,
-            CalendarView.month,
-            CalendarView.schedule,
-          ],
-          firstDayOfWeek: weekStart.calendarDay,
-          dataSource: _AppointmentSource(appointments),
-          showDatePickerButton: true,
-          showTodayButton: true,
-          allowDragAndDrop: true,
-          allowAppointmentResize: true,
-          onViewChanged: _onViewChanged,
-          onTap: _onTap,
-          onDragEnd: (details) {
-            final appointment = details.appointment as Appointment?;
-            if (appointment != null) _applyMove(appointment);
-          },
-          onAppointmentResizeEnd: (details) {
-            final appointment = details.appointment as Appointment?;
-            if (appointment != null) _applyMove(appointment);
-          },
-          backgroundColor: Colors.transparent,
-          cellBorderColor: tokens.hairline,
-          todayHighlightColor: theme.colorScheme.primary,
-          selectionDecoration: BoxDecoration(
-            border: Border.all(color: theme.colorScheme.primary, width: 1.6),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          headerStyle: CalendarHeaderStyle(
-            backgroundColor: Colors.transparent,
-            textStyle: TextStyle(
-              fontFamily: displayFontFamily,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.3,
-              color: theme.colorScheme.onSurface,
+      body: Column(
+        children: [
+          EditorialScreenHeader(title: l10n.tabCalendar),
+          Expanded(
+            child: SfCalendarTheme(
+              data: _calendarTheme(theme, tokens),
+              child: SfCalendar(
+                controller: _controller,
+                // The time grid produces a very noisy semantics tree. Prefer the
+                // linear schedule view when assistive navigation is active.
+                view: accessibleNavigation
+                    ? CalendarView.schedule
+                    : CalendarView.week,
+                allowedViews: const [
+                  CalendarView.day,
+                  CalendarView.week,
+                  CalendarView.month,
+                  CalendarView.schedule,
+                ],
+                firstDayOfWeek: weekStart.calendarDay,
+                dataSource: _AppointmentSource(appointments),
+                showDatePickerButton: true,
+                showTodayButton: true,
+                allowDragAndDrop: true,
+                allowAppointmentResize: true,
+                onViewChanged: _onViewChanged,
+                onTap: _onTap,
+                onDragEnd: (details) {
+                  final appointment = details.appointment as Appointment?;
+                  if (appointment != null) _applyMove(appointment);
+                },
+                onAppointmentResizeEnd: (details) {
+                  final appointment = details.appointment as Appointment?;
+                  if (appointment != null) _applyMove(appointment);
+                },
+                backgroundColor: Colors.transparent,
+                cellBorderColor: tokens.borderSubtle,
+                todayHighlightColor: theme.colorScheme.primary,
+                selectionDecoration: BoxDecoration(
+                  border: Border.all(
+                    color: theme.colorScheme.primary,
+                    width: 1.6,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                headerStyle: CalendarHeaderStyle(
+                  backgroundColor: Colors.transparent,
+                  textStyle: TextStyle(
+                    fontFamily: displayFontFamily,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                viewHeaderStyle: ViewHeaderStyle(
+                  dayTextStyle: TextStyle(
+                    fontFamily: bodyFontFamily,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: tokens.textTertiary,
+                  ),
+                  dateTextStyle: TextStyle(
+                    fontFamily: bodyFontFamily,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: tokens.textSecondary,
+                  ),
+                ),
+                appointmentBuilder: _buildAppointment,
+                monthViewSettings: MonthViewSettings(
+                  appointmentDisplayMode:
+                      MonthAppointmentDisplayMode.appointment,
+                  showAgenda: true,
+                  monthCellStyle: MonthCellStyle(
+                    textStyle: TextStyle(
+                      fontFamily: bodyFontFamily,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    trailingDatesTextStyle: TextStyle(
+                      fontFamily: bodyFontFamily,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: tokens.textTertiary,
+                    ),
+                    leadingDatesTextStyle: TextStyle(
+                      fontFamily: bodyFontFamily,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: tokens.textTertiary,
+                    ),
+                  ),
+                  agendaStyle: AgendaStyle(
+                    dayTextStyle: TextStyle(
+                      fontFamily: bodyFontFamily,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: tokens.textTertiary,
+                    ),
+                    dateTextStyle: TextStyle(
+                      fontFamily: displayFontFamily,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                timeSlotViewSettings: TimeSlotViewSettings(
+                  startHour: 6,
+                  endHour: 24,
+                  timeFormat: uses24Hour ? 'HH:mm' : 'h a',
+                  timeTextStyle: TextStyle(
+                    fontFamily: bodyFontFamily,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: tokens.textTertiary,
+                  ),
+                ),
+                scheduleViewSettings: ScheduleViewSettings(
+                  hideEmptyScheduleWeek: true,
+                  monthHeaderSettings: MonthHeaderSettings(
+                    backgroundColor: theme.colorScheme.surfaceContainer,
+                    monthTextStyle: TextStyle(
+                      fontFamily: displayFontFamily,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  weekHeaderSettings: WeekHeaderSettings(
+                    weekTextStyle: TextStyle(
+                      fontFamily: bodyFontFamily,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.1,
+                      color: tokens.textTertiary,
+                    ),
+                  ),
+                  dayHeaderSettings: DayHeaderSettings(
+                    dayTextStyle: TextStyle(
+                      fontFamily: bodyFontFamily,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: tokens.textTertiary,
+                    ),
+                    dateTextStyle: TextStyle(
+                      fontFamily: displayFontFamily,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
-          viewHeaderStyle: ViewHeaderStyle(
-            dayTextStyle: TextStyle(
-              fontFamily: bodyFontFamily,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: tokens.ink3,
-            ),
-            dateTextStyle: TextStyle(
-              fontFamily: bodyFontFamily,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: tokens.ink2,
-            ),
-          ),
-          appointmentBuilder: _buildAppointment,
-          monthViewSettings: MonthViewSettings(
-            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-            showAgenda: true,
-            monthCellStyle: MonthCellStyle(
-              textStyle: TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-              ),
-              trailingDatesTextStyle: TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: tokens.ink3,
-              ),
-              leadingDatesTextStyle: TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: tokens.ink3,
-              ),
-            ),
-            agendaStyle: AgendaStyle(
-              dayTextStyle: TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: tokens.ink3,
-              ),
-              dateTextStyle: TextStyle(
-                fontFamily: displayFontFamily,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-          ),
-          timeSlotViewSettings: TimeSlotViewSettings(
-            startHour: 6,
-            endHour: 24,
-            timeFormat: uses24Hour ? 'HH:mm' : 'h a',
-            timeTextStyle: TextStyle(
-              fontFamily: bodyFontFamily,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: tokens.ink3,
-            ),
-          ),
-          scheduleViewSettings: ScheduleViewSettings(
-            hideEmptyScheduleWeek: true,
-            monthHeaderSettings: MonthHeaderSettings(
-              backgroundColor: theme.colorScheme.surfaceContainer,
-              monthTextStyle: TextStyle(
-                fontFamily: displayFontFamily,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-            weekHeaderSettings: WeekHeaderSettings(
-              weekTextStyle: TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.1,
-                color: tokens.ink3,
-              ),
-            ),
-            dayHeaderSettings: DayHeaderSettings(
-              dayTextStyle: TextStyle(
-                fontFamily: bodyFontFamily,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: tokens.ink3,
-              ),
-              dateTextStyle: TextStyle(
-                fontFamily: displayFontFamily,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -382,7 +391,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return SfCalendarThemeData(
       backgroundColor: Colors.transparent,
       headerBackgroundColor: Colors.transparent,
-      cellBorderColor: tokens.hairline,
+      cellBorderColor: tokens.borderSubtle,
       todayHighlightColor: theme.colorScheme.primary,
       selectionBorderColor: theme.colorScheme.primary,
     );
@@ -440,10 +449,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           color: theme.colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(9),
           border: Border(
-            left: BorderSide(color: tokens.ink3, width: 3),
-            top: BorderSide(color: tokens.line),
-            right: BorderSide(color: tokens.line),
-            bottom: BorderSide(color: tokens.line),
+            left: BorderSide(color: tokens.textTertiary, width: 3),
+            top: BorderSide(color: tokens.borderStrong),
+            right: BorderSide(color: tokens.borderStrong),
+            bottom: BorderSide(color: tokens.borderStrong),
           ),
         ),
         child: Row(
@@ -451,7 +460,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             Icon(
               Icons.radio_button_unchecked_rounded,
               size: 14,
-              color: tokens.ink3,
+              color: tokens.textTertiary,
             ),
             const SizedBox(width: 5),
             Expanded(
@@ -511,7 +520,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 fontFamily: bodyFontFamily,
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
-                color: tokens.ink2,
+                color: tokens.textSecondary,
               ),
             ),
         ],

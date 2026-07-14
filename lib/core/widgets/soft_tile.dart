@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// The redesign's list row: a soft rounded card with a leading identity,
+/// Editorial list row with a leading identity,
 /// a title + meta column, and an optional trailing value.
 class SoftTile extends StatelessWidget {
   const SoftTile({
@@ -10,8 +10,9 @@ class SoftTile extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
-    this.margin = const EdgeInsets.symmetric(horizontal: 16, vertical: 4.5),
-    this.padding = const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+    this.margin = const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    this.embedded = false,
   });
 
   final Widget? leading;
@@ -21,6 +22,7 @@ class SoftTile extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsetsGeometry margin;
   final EdgeInsetsGeometry padding;
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
@@ -28,29 +30,27 @@ class SoftTile extends StatelessWidget {
     return Padding(
       padding: margin,
       child: Material(
-        color: theme.colorScheme.surfaceContainer,
+        color: embedded
+            ? Colors.transparent
+            : theme.colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(embedded ? 0 : 20),
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(embedded ? 0 : 20),
           onTap: onTap,
           child: Padding(
             padding: padding,
             child: Row(
               children: [
-                if (leading != null) ...[
-                  leading!,
-                  const SizedBox(width: 13),
-                ],
+                if (leading != null) ...[leading!, const SizedBox(width: 14)],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       DefaultTextStyle.merge(
                         style: theme.textTheme.titleMedium!.copyWith(
-                          fontSize: 14.5,
+                          fontSize: 14,
                           overflow: TextOverflow.ellipsis,
                         ),
                         maxLines: 1,
@@ -67,10 +67,7 @@ class SoftTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (trailing != null) ...[
-                  const SizedBox(width: 12),
-                  trailing!,
-                ],
+                if (trailing != null) ...[const SizedBox(width: 12), trailing!],
               ],
             ),
           ),

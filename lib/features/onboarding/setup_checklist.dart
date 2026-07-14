@@ -51,7 +51,7 @@ class SetupChecklistCard extends ConsumerWidget {
     final completeCount = items.where((item) => item.complete).length;
 
     return Card(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      margin: const EdgeInsets.fromLTRB(20, 8, 20, 8),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 10, 14),
         child: Column(
@@ -70,7 +70,7 @@ class SetupChecklistCard extends ConsumerWidget {
                       Text(
                         l10n.checklistProgress(completeCount, items.length),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: tokens.ink2,
+                          color: tokens.textSecondary,
                         ),
                       ),
                     ],
@@ -93,7 +93,7 @@ class SetupChecklistCard extends ConsumerWidget {
                   item.complete
                       ? Icons.check_circle_rounded
                       : Icons.radio_button_unchecked_rounded,
-                  color: item.complete ? tokens.success : tokens.ink2,
+                  color: item.complete ? tokens.success : tokens.textSecondary,
                 ),
                 title: Text(item.label),
                 trailing: item.complete

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme.dart';
 import '../../core/widgets/section_header.dart';
 import '../../l10n/app_localizations.dart';
 import 'backup/portable_backup_provider.dart';
@@ -352,13 +353,12 @@ class _SettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       // Material (not a decorated Container) so ListTile ink renders on it.
       child: Material(
         color: theme.colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(editorialCardRadius),
         ),
         clipBehavior: Clip.antiAlias,
         child: Padding(

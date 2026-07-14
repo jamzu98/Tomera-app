@@ -43,7 +43,7 @@ class StatusRing extends StatelessWidget {
       child: Icon(
         icon,
         size: size * 0.56,
-        color: filled ? const Color(0xFFFFFDF8) : color,
+        color: filled ? Theme.of(context).colorScheme.onPrimary : color,
       ),
     );
 
@@ -51,7 +51,7 @@ class StatusRing extends StatelessWidget {
       return tooltip == null ? ring : Tooltip(message: tooltip!, child: ring);
     }
 
-    final borderRadius = squared ? BorderRadius.circular(15) : null;
+    final borderRadius = squared ? BorderRadius.circular(10) : null;
     Widget target = Semantics(
       button: true,
       label: tooltip,

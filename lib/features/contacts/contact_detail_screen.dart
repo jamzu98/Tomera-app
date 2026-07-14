@@ -139,7 +139,7 @@ class ContactDetailScreen extends ConsumerWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
         children: [
           _IdentityHeader(
             contact: contact,
@@ -189,7 +189,9 @@ class ContactDetailScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(6, 12, 6, 0),
               child: Text(
                 contact.notesText!,
-                style: theme.textTheme.bodyMedium?.copyWith(color: tokens.ink2),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: tokens.textSecondary,
+                ),
               ),
             ),
           ConnectedTimelineSection(activities: timeline),
@@ -206,7 +208,7 @@ class ContactDetailScreen extends ConsumerWidget {
                     size: 20,
                     color: task.status == TaskStatus.done
                         ? tokens.success
-                        : tokens.ink3,
+                        : tokens.textTertiary,
                   ),
                   title: Text(task.title),
                   onTap: () => context.push('/work/tasks/${task.id}'),
@@ -258,7 +260,7 @@ class ContactDetailScreen extends ConsumerWidget {
                   leading: Icon(
                     Icons.description_outlined,
                     size: 20,
-                    color: tokens.ink2,
+                    color: tokens.textSecondary,
                   ),
                   title: Text(note.title),
                   onTap: () => context.push('/work/notes/${note.id}'),
@@ -276,7 +278,7 @@ class ContactDetailScreen extends ConsumerWidget {
                   leading: Icon(
                     Icons.receipt_long_outlined,
                     size: 20,
-                    color: tokens.ink2,
+                    color: tokens.textSecondary,
                   ),
                   title: Text(item.title),
                   subtitle: Text(billableStatusLabel(l10n, item.status)),
@@ -347,35 +349,29 @@ class _IdentityHeader extends StatelessWidget {
       children: [
         const SizedBox(height: 10),
         Container(
-          width: 84,
-          height: 84,
+          width: 64,
+          height: 64,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 24,
-                offset: const Offset(0, 10),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: tokens.borderStrong),
           ),
           alignment: Alignment.center,
           child: Text(
             initialsOf(contact.name),
             style: TextStyle(
               fontFamily: displayFontFamily,
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
               color: workspaceForeground(color),
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Text(
           contact.name,
           textAlign: TextAlign.center,
-          style: theme.textTheme.headlineSmall?.copyWith(fontSize: 24),
+          style: theme.textTheme.headlineSmall,
         ),
         if (contact.organization?.isNotEmpty == true) ...[
           const SizedBox(height: 2),
@@ -386,7 +382,7 @@ class _IdentityHeader extends StatelessWidget {
               fontFamily: bodyFontFamily,
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: tokens.ink2,
+              color: tokens.textSecondary,
             ),
           ),
         ],
@@ -418,8 +414,7 @@ class _RoleChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 11),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: theme.colorScheme.outline),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -562,7 +557,7 @@ class _InfoRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 11),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: tokens.hairline)),
+        border: Border(bottom: BorderSide(color: tokens.borderSubtle)),
       ),
       child: Row(
         children: [
@@ -582,7 +577,7 @@ class _InfoRow extends StatelessWidget {
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.8,
-                    color: tokens.ink3,
+                    color: tokens.textTertiary,
                   ),
                 ),
                 const SizedBox(height: 2),

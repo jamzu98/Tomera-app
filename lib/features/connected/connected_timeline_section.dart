@@ -40,7 +40,7 @@ class ConnectedTimelineSection extends ConsumerWidget {
             leading: Icon(
               _icon(activity.type),
               size: 20,
-              color: context.tokens.ink2,
+              color: context.tokens.textSecondary,
             ),
             title: Text(activity.title),
             subtitle: Text(

@@ -45,7 +45,7 @@ class ThemeModeSetting extends _$ThemeModeSetting {
   @override
   ThemeMode build() {
     _load();
-    return ThemeMode.system;
+    return ThemeMode.light;
   }
 
   Future<void> _load() async {

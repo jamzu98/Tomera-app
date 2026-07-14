@@ -40,10 +40,10 @@ class NoteBacklinksSection extends ConsumerWidget {
       children: [
         SectionHeader(
           title: l10n.linkedNotes,
-          padding: const EdgeInsets.fromLTRB(22, 18, 16, 4),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
@@ -73,11 +73,11 @@ class NoteBacklinksSection extends ConsumerWidget {
         else
           for (final note in notes)
             SoftTile(
-              margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              margin: const EdgeInsets.fromLTRB(20, 4, 20, 4),
               leading: Icon(
                 Icons.description_outlined,
                 size: 20,
-                color: context.tokens.ink2,
+                color: context.tokens.textSecondary,
               ),
               title: Text(note.title),
               onTap: () => context.push('/work/notes/${note.id}'),

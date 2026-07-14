@@ -202,7 +202,7 @@ void main() {
     await _pumpStreams(tester);
 
     expect(find.byType(ConnectedTimelineSection), findsOneWidget);
-    expect(find.text('ACTIVITY'), findsOneWidget);
+    expect(find.text('Activity'), findsOneWidget);
     expect(find.text('Completed work'), findsOneWidget);
     expect(find.byType(FinancialSummaryCard), findsNWidgets(2));
     expect(find.text('10.00 EUR'), findsWidgets);

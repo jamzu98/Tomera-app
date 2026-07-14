@@ -597,7 +597,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                         : Icon(
                             Icons.edit_calendar_outlined,
                             size: 20,
-                            color: context.tokens.ink3,
+                            color: context.tokens.textTertiary,
                           ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -609,7 +609,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                           style: _dueDate == null
                               ? inlineFieldStyle(
                                   context,
-                                ).copyWith(color: context.tokens.ink3)
+                                ).copyWith(color: context.tokens.textTertiary)
                               : inlineFieldStyle(context),
                         ),
                         const SizedBox(height: 8),
@@ -650,7 +650,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                       style: _dueTime == null
                           ? inlineFieldStyle(
                               context,
-                            ).copyWith(color: context.tokens.ink3)
+                            ).copyWith(color: context.tokens.textTertiary)
                           : inlineFieldStyle(context),
                     ),
                   ),
@@ -698,6 +698,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: SegmentedButton<TaskPriority>(
+                        showSelectedIcon: false,
                         segments: [
                           ButtonSegment(
                             value: TaskPriority.low,
@@ -737,7 +738,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                       style: _reminderAt == null
                           ? inlineFieldStyle(
                               context,
-                            ).copyWith(color: context.tokens.ink3)
+                            ).copyWith(color: context.tokens.textTertiary)
                           : inlineFieldStyle(context),
                     ),
                   ),

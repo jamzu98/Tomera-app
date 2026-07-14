@@ -9,6 +9,7 @@ import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_bar_overflow_menu.dart';
+import '../../core/widgets/editorial.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/filter_sheet.dart';
 import '../../core/widgets/soft_tile.dart';
@@ -184,7 +185,6 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.tabFinance),
         actions: [
           const Center(child: WorkspaceSwitcherPill(compact: true)),
           const SizedBox(width: 4),
@@ -202,12 +202,16 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          SliverToBoxAdapter(
+            child: EditorialScreenHeader(title: l10n.tabFinance),
+          ),
           const SliverToBoxAdapter(child: TimerCard()),
           const SliverToBoxAdapter(child: _RecoverableTimersPanel()),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: SegmentedButton<bool>(
+                showSelectedIcon: false,
                 segments: [
                   ButtonSegment(value: false, label: Text(l10n.itemsTab)),
                   ButtonSegment(value: true, label: Text(l10n.summaryTab)),
@@ -221,7 +225,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
           if (!_showSummary)
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: FilterButton(
@@ -253,7 +257,7 @@ class _RecoverableTimersPanel extends ConsumerWidget {
       data: (sessions) {
         if (sessions.isEmpty) return const SizedBox.shrink();
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -359,12 +363,12 @@ class _BillableTile extends ConsumerWidget {
     final (statusIcon, statusColor, statusFilled) = switch (item.status) {
       BillableStatus.unbilled => (
         Icons.radio_button_unchecked_rounded,
-        tokens.ink3,
+        tokens.textTertiary,
         false,
       ),
       BillableStatus.invoiced => (
         Icons.schedule_rounded,
-        const Color(0xFFE4AB3C),
+        tokens.warning,
         false,
       ),
       BillableStatus.paid => (Icons.check_rounded, tokens.success, true),
@@ -442,7 +446,7 @@ class _BillableTile extends ConsumerWidget {
               fontSize: 10,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.8,
-              color: tokens.ink3,
+              color: tokens.textTertiary,
             ),
           ),
         ],

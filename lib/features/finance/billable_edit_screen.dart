@@ -426,6 +426,7 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
                             );
                           }
                           return SegmentedButton<BillableStatus>(
+                            showSelectedIcon: false,
                             segments: [
                               for (final status in BillableStatus.values)
                                 ButtonSegment(
@@ -455,6 +456,7 @@ class _BillableEditScreenState extends ConsumerState<BillableEditScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 2),
                       child: SegmentedButton<BillableType>(
+                        showSelectedIcon: false,
                         segments: [
                           ButtonSegment(
                             value: BillableType.hourly,

@@ -79,8 +79,12 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                   onPressed: () => _shiftMonth(1),
                 ),
                 TextButton(
-                  onPressed: () => setState(() => _month =
-                      DateTime(DateTime.now().year, DateTime.now().month)),
+                  onPressed: () => setState(
+                    () => _month = DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                    ),
+                  ),
                   child: Text(l10n.thisMonthButton),
                 ),
               ],
@@ -94,13 +98,16 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
               _GroupTile(
                 leading: WorkspaceDot(
                   size: 12,
-                  color: Color(workspaces
-                          .where((w) => w.id == entry.key)
-                          .firstOrNull
-                          ?.color ??
-                      0xFFB7AD9C),
+                  color: Color(
+                    workspaces
+                            .where((w) => w.id == entry.key)
+                            .firstOrNull
+                            ?.color ??
+                        0xFFB7AD9C,
+                  ),
                 ),
-                name: workspaces
+                name:
+                    workspaces
                         .where((w) => w.id == entry.key)
                         .firstOrNull
                         ?.name ??
@@ -113,7 +120,8 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
             for (final entry in summary.byContact.entries)
               _GroupTile(
                 leading: const Icon(Icons.person_outline_rounded, size: 18),
-                name: contacts
+                name:
+                    contacts
                         .where((c) => c.id == entry.key)
                         .firstOrNull
                         ?.name ??
@@ -148,11 +156,10 @@ class _SummaryCard extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: bodyFontFamily,
                     fontSize: 13.5,
-                    fontWeight:
-                        highlighted ? FontWeight.w800 : FontWeight.w600,
+                    fontWeight: highlighted ? FontWeight.w800 : FontWeight.w600,
                     color: highlighted
                         ? theme.colorScheme.onSurface
-                        : tokens.ink2,
+                        : tokens.textSecondary,
                   ),
                 ),
               ),
@@ -163,9 +170,7 @@ class _SummaryCard extends StatelessWidget {
                   fontSize: highlighted ? 16 : 14.5,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.1,
-                  color: highlighted
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface,
+                  color: theme.colorScheme.onSurface,
                   fontFeatures: tabularFigures,
                 ),
               ),
@@ -174,20 +179,28 @@ class _SummaryCard extends StatelessWidget {
         );
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           children: [
-            row(l10n.hoursThisMonth,
-                formatMinutesAsHours(summary.minutesThisMonth)),
-            row(l10n.statusUnbilled,
-                '${formatCents(summary.unbilledCents)} EUR'),
-            row(l10n.invoicedUnpaid,
-                '${formatCents(summary.invoicedUnpaidCents)} EUR'),
-            row(l10n.paidThisMonth,
-                '${formatCents(summary.paidThisMonthCents)} EUR',
-                highlighted: true),
+            row(
+              l10n.hoursThisMonth,
+              formatMinutesAsHours(summary.minutesThisMonth),
+            ),
+            row(
+              l10n.statusUnbilled,
+              '${formatCents(summary.unbilledCents)} EUR',
+            ),
+            row(
+              l10n.invoicedUnpaid,
+              '${formatCents(summary.invoicedUnpaidCents)} EUR',
+            ),
+            row(
+              l10n.paidThisMonth,
+              '${formatCents(summary.paidThisMonthCents)} EUR',
+              highlighted: true,
+            ),
           ],
         ),
       ),
@@ -241,7 +254,7 @@ class _GroupTile extends StatelessWidget {
               fontSize: 10,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.8,
-              color: tokens.ink3,
+              color: tokens.textTertiary,
             ),
           ),
         ],

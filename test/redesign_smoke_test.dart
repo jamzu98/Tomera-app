@@ -154,6 +154,56 @@ Future<void> _walkApp(WidgetTester tester, ThemeMode mode) async {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  testWidgets('editorial dock reaches all destinations on a narrow screen', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(320, 720));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    SharedPreferences.setMockInitialValues({
+      'settings.themeMode': ThemeMode.light.name,
+    });
+    final db = AppDatabase(DatabaseConnection(NativeDatabase.memory()));
+    await _seed(db);
+    final container = ProviderContainer(
+      overrides: [appDatabaseProvider.overrideWith((ref) => db)],
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const TomeraApp()),
+    );
+    await tester.pump(const Duration(milliseconds: 800));
+
+    final destinations = <(String, String)>[
+      ('Today', '/today'),
+      ('Calendar', '/calendar'),
+      ('Work', '/work/tasks'),
+      ('Contacts', '/contacts'),
+      ('Finance', '/finance'),
+    ];
+    expect(find.byType(NavigationDestination), findsNWidgets(5));
+    for (final (index, (label, path)) in destinations.indexed) {
+      final destination = find.byWidgetPredicate(
+        (widget) => widget is NavigationDestination && widget.label == label,
+      );
+      expect(destination, findsOneWidget);
+      await tester.tap(destination);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(
+        container.read(routerProvider).routeInformationProvider.value.uri.path,
+        path,
+      );
+      expect(
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+        index,
+      );
+      expect(tester.takeException(), isNull, reason: label);
+    }
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 10));
+    container.dispose();
+    await tester.pump(const Duration(milliseconds: 10));
+  });
+
   testWidgets('all main screens render in dark mode', (tester) async {
     await _walkApp(tester, ThemeMode.dark);
   });

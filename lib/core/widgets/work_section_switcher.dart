@@ -5,7 +5,7 @@ import '../../l10n/app_localizations.dart';
 
 enum WorkSection { tasks, projects, notes }
 
-/// Compact secondary navigation for the three route-addressable Work lists.
+/// Editorial pill navigation for the three route-addressable Work lists.
 /// It lives in list content so the app retains a single primary bottom bar.
 class WorkSectionSwitcher extends StatelessWidget {
   const WorkSectionSwitcher({super.key, required this.selected});
@@ -22,10 +22,10 @@ class WorkSectionSwitcher extends StatelessWidget {
       (WorkSection.notes, l10n.tabNotes, '/work/notes'),
     ];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
       child: Material(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(14),
+        color: theme.colorScheme.surfaceContainerHigh,
+        shape: const StadiumBorder(),
         clipBehavior: Clip.antiAlias,
         child: Row(
           children: [
@@ -42,9 +42,9 @@ class WorkSectionSwitcher extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: section == selected
-                            ? theme.colorScheme.secondaryContainer
+                            ? theme.colorScheme.primary
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(999),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 6),
                       child: Text(
@@ -54,11 +54,11 @@ class WorkSectionSwitcher extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: theme.textTheme.labelLarge?.copyWith(
                           color: section == selected
-                              ? theme.colorScheme.onSecondaryContainer
+                              ? theme.colorScheme.onPrimary
                               : theme.colorScheme.onSurfaceVariant,
                           fontWeight: section == selected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
+                              ? FontWeight.w600
+                              : FontWeight.w500,
                         ),
                       ),
                     ),

@@ -29,6 +29,7 @@ import '../features/workspaces/workspace_edit_screen.dart';
 import '../features/workspaces/workspaces_screen.dart';
 import '../l10n/app_localizations.dart';
 import 'providers.dart';
+import 'theme.dart';
 import 'widgets/quick_add_sheet.dart';
 
 part 'router.g.dart';
@@ -418,67 +419,108 @@ class AppShell extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final creationContext = _creationContext(context, ref);
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(child: shell),
-          const TimerBanner(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'shell-quick-add',
-        tooltip: l10n.quickAdd,
-        onPressed: () async {
-          final router = GoRouter.of(context);
-          final selection = await showQuickAddSheet(
-            context,
-            creationContext: creationContext,
-          );
-          if (selection == null) return;
-          if (selection.action == QuickAddAction.startTimer) {
-            if (!context.mounted) return;
-            await showStartTimerSheet(
+      body: shell,
+      floatingActionButton: SizedBox.square(
+        dimension: 54,
+        child: FloatingActionButton(
+          heroTag: 'shell-quick-add',
+          tooltip: l10n.quickAdd,
+          onPressed: () async {
+            final router = GoRouter.of(context);
+            final selection = await showQuickAddSheet(
               context,
-              workspaceId: selection.context.workspaceId,
-              contactId: selection.context.contactId,
-              projectId: selection.context.projectId,
+              creationContext: creationContext,
             );
-            return;
-          }
-          router.go(selection.destination.toString());
-        },
-        child: const Icon(Icons.add_rounded),
+            if (selection == null) return;
+            if (selection.action == QuickAddAction.startTimer) {
+              if (!context.mounted) return;
+              await showStartTimerSheet(
+                context,
+                workspaceId: selection.context.workspaceId,
+                contactId: selection.context.contactId,
+                projectId: selection.context.projectId,
+              );
+              return;
+            }
+            router.go(selection.destination.toString());
+          },
+          child: const Icon(Icons.add_rounded),
+        ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: shell.currentIndex,
-        onDestinationSelected: (index) =>
-            shell.goBranch(index, initialLocation: index == shell.currentIndex),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.today_outlined),
-            selectedIcon: const Icon(Icons.today_rounded),
-            label: l10n.tabToday,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.calendar_month_outlined),
-            selectedIcon: const Icon(Icons.calendar_month_rounded),
-            label: l10n.tabCalendar,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.work_outline_rounded),
-            selectedIcon: const Icon(Icons.work_rounded),
-            label: l10n.tabWork,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.group_outlined),
-            selectedIcon: const Icon(Icons.group_rounded),
-            label: l10n.tabContacts,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.euro_outlined),
-            selectedIcon: const Icon(Icons.euro_rounded),
-            label: l10n.tabFinance,
-          ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const TimerBanner(),
+          _EditorialBottomDock(shell: shell),
         ],
+      ),
+    );
+  }
+}
+
+class _EditorialBottomDock extends StatelessWidget {
+  const _EditorialBottomDock({required this.shell});
+
+  final StatefulNavigationShell shell;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final tokens = context.tokens;
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: tokens.dockBackground,
+          borderRadius: BorderRadius.circular(36),
+          boxShadow: editorialShadow(context, strong: true),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(36),
+          clipBehavior: Clip.antiAlias,
+          child: NavigationBar(
+            selectedIndex: shell.currentIndex,
+            onDestinationSelected: (index) => shell.goBranch(
+              index,
+              initialLocation: index == shell.currentIndex,
+            ),
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.today_outlined),
+                selectedIcon: const Icon(Icons.today_rounded),
+                label: l10n.tabToday,
+                tooltip: l10n.tabToday,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.calendar_month_outlined),
+                selectedIcon: const Icon(Icons.calendar_month_rounded),
+                label: l10n.tabCalendar,
+                tooltip: l10n.tabCalendar,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.work_outline_rounded),
+                selectedIcon: const Icon(Icons.work_rounded),
+                label: l10n.tabWork,
+                tooltip: l10n.tabWork,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.group_outlined),
+                selectedIcon: const Icon(Icons.group_rounded),
+                label: l10n.tabContacts,
+                tooltip: l10n.tabContacts,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.euro_outlined),
+                selectedIcon: const Icon(Icons.euro_rounded),
+                label: l10n.tabFinance,
+                tooltip: l10n.tabFinance,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
