@@ -1614,6 +1614,337 @@ class NotesFtsCompanion extends UpdateCompanion<NotesFt> {
   }
 }
 
+class $SyncStatesTable extends SyncStates
+    with TableInfo<$SyncStatesTable, SyncState> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncStatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('default'),
+  );
+  static const VerificationMeta _lastPulledVersionMeta = const VerificationMeta(
+    'lastPulledVersion',
+  );
+  @override
+  late final GeneratedColumn<int> lastPulledVersion = GeneratedColumn<int>(
+    'last_pulled_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSuccessfulSyncAtMeta =
+      const VerificationMeta('lastSuccessfulSyncAt');
+  @override
+  late final GeneratedColumn<int> lastSuccessfulSyncAt = GeneratedColumn<int>(
+    'last_successful_sync_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastErrorMeta = const VerificationMeta(
+    'lastError',
+  );
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+    'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    lastPulledVersion,
+    lastSuccessfulSyncAt,
+    lastError,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_states';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncState> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('last_pulled_version')) {
+      context.handle(
+        _lastPulledVersionMeta,
+        lastPulledVersion.isAcceptableOrUnknown(
+          data['last_pulled_version']!,
+          _lastPulledVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_successful_sync_at')) {
+      context.handle(
+        _lastSuccessfulSyncAtMeta,
+        lastSuccessfulSyncAt.isAcceptableOrUnknown(
+          data['last_successful_sync_at']!,
+          _lastSuccessfulSyncAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(
+        _lastErrorMeta,
+        lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SyncState map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncState(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      lastPulledVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_pulled_version'],
+      )!,
+      lastSuccessfulSyncAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_successful_sync_at'],
+      ),
+      lastError: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_error'],
+      ),
+    );
+  }
+
+  @override
+  $SyncStatesTable createAlias(String alias) {
+    return $SyncStatesTable(attachedDatabase, alias);
+  }
+}
+
+class SyncState extends DataClass implements Insertable<SyncState> {
+  final String id;
+  final int lastPulledVersion;
+  final int? lastSuccessfulSyncAt;
+  final String? lastError;
+  const SyncState({
+    required this.id,
+    required this.lastPulledVersion,
+    this.lastSuccessfulSyncAt,
+    this.lastError,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['last_pulled_version'] = Variable<int>(lastPulledVersion);
+    if (!nullToAbsent || lastSuccessfulSyncAt != null) {
+      map['last_successful_sync_at'] = Variable<int>(lastSuccessfulSyncAt);
+    }
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    return map;
+  }
+
+  SyncStatesCompanion toCompanion(bool nullToAbsent) {
+    return SyncStatesCompanion(
+      id: Value(id),
+      lastPulledVersion: Value(lastPulledVersion),
+      lastSuccessfulSyncAt: lastSuccessfulSyncAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSuccessfulSyncAt),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+    );
+  }
+
+  factory SyncState.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncState(
+      id: serializer.fromJson<String>(json['id']),
+      lastPulledVersion: serializer.fromJson<int>(json['lastPulledVersion']),
+      lastSuccessfulSyncAt: serializer.fromJson<int?>(
+        json['lastSuccessfulSyncAt'],
+      ),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'lastPulledVersion': serializer.toJson<int>(lastPulledVersion),
+      'lastSuccessfulSyncAt': serializer.toJson<int?>(lastSuccessfulSyncAt),
+      'lastError': serializer.toJson<String?>(lastError),
+    };
+  }
+
+  SyncState copyWith({
+    String? id,
+    int? lastPulledVersion,
+    Value<int?> lastSuccessfulSyncAt = const Value.absent(),
+    Value<String?> lastError = const Value.absent(),
+  }) => SyncState(
+    id: id ?? this.id,
+    lastPulledVersion: lastPulledVersion ?? this.lastPulledVersion,
+    lastSuccessfulSyncAt: lastSuccessfulSyncAt.present
+        ? lastSuccessfulSyncAt.value
+        : this.lastSuccessfulSyncAt,
+    lastError: lastError.present ? lastError.value : this.lastError,
+  );
+  SyncState copyWithCompanion(SyncStatesCompanion data) {
+    return SyncState(
+      id: data.id.present ? data.id.value : this.id,
+      lastPulledVersion: data.lastPulledVersion.present
+          ? data.lastPulledVersion.value
+          : this.lastPulledVersion,
+      lastSuccessfulSyncAt: data.lastSuccessfulSyncAt.present
+          ? data.lastSuccessfulSyncAt.value
+          : this.lastSuccessfulSyncAt,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncState(')
+          ..write('id: $id, ')
+          ..write('lastPulledVersion: $lastPulledVersion, ')
+          ..write('lastSuccessfulSyncAt: $lastSuccessfulSyncAt, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, lastPulledVersion, lastSuccessfulSyncAt, lastError);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncState &&
+          other.id == this.id &&
+          other.lastPulledVersion == this.lastPulledVersion &&
+          other.lastSuccessfulSyncAt == this.lastSuccessfulSyncAt &&
+          other.lastError == this.lastError);
+}
+
+class SyncStatesCompanion extends UpdateCompanion<SyncState> {
+  final Value<String> id;
+  final Value<int> lastPulledVersion;
+  final Value<int?> lastSuccessfulSyncAt;
+  final Value<String?> lastError;
+  final Value<int> rowid;
+  const SyncStatesCompanion({
+    this.id = const Value.absent(),
+    this.lastPulledVersion = const Value.absent(),
+    this.lastSuccessfulSyncAt = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncStatesCompanion.insert({
+    this.id = const Value.absent(),
+    this.lastPulledVersion = const Value.absent(),
+    this.lastSuccessfulSyncAt = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  static Insertable<SyncState> custom({
+    Expression<String>? id,
+    Expression<int>? lastPulledVersion,
+    Expression<int>? lastSuccessfulSyncAt,
+    Expression<String>? lastError,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (lastPulledVersion != null) 'last_pulled_version': lastPulledVersion,
+      if (lastSuccessfulSyncAt != null)
+        'last_successful_sync_at': lastSuccessfulSyncAt,
+      if (lastError != null) 'last_error': lastError,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncStatesCompanion copyWith({
+    Value<String>? id,
+    Value<int>? lastPulledVersion,
+    Value<int?>? lastSuccessfulSyncAt,
+    Value<String?>? lastError,
+    Value<int>? rowid,
+  }) {
+    return SyncStatesCompanion(
+      id: id ?? this.id,
+      lastPulledVersion: lastPulledVersion ?? this.lastPulledVersion,
+      lastSuccessfulSyncAt: lastSuccessfulSyncAt ?? this.lastSuccessfulSyncAt,
+      lastError: lastError ?? this.lastError,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (lastPulledVersion.present) {
+      map['last_pulled_version'] = Variable<int>(lastPulledVersion.value);
+    }
+    if (lastSuccessfulSyncAt.present) {
+      map['last_successful_sync_at'] = Variable<int>(
+        lastSuccessfulSyncAt.value,
+      );
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStatesCompanion(')
+          ..write('id: $id, ')
+          ..write('lastPulledVersion: $lastPulledVersion, ')
+          ..write('lastSuccessfulSyncAt: $lastSuccessfulSyncAt, ')
+          ..write('lastError: $lastError, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -12288,6 +12619,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'CREATE TRIGGER notes_fts_update AFTER UPDATE ON notes BEGIN INSERT INTO notes_fts (notes_fts, "rowid", title, body) VALUES (\'delete\', old."rowid", old.title, old.body);INSERT INTO notes_fts ("rowid", title, body) VALUES (new."rowid", new.title, new.body);END',
     'notes_fts_update',
   );
+  late final $SyncStatesTable syncStates = $SyncStatesTable(this);
   late final $ContactsTable contacts = $ContactsTable(this);
   late final $WorkspaceContactsTable workspaceContacts =
       $WorkspaceContactsTable(this);
@@ -12447,6 +12779,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     notesFtsInsert,
     notesFtsDelete,
     notesFtsUpdate,
+    syncStates,
     contacts,
     workspaceContacts,
     projects,
@@ -14368,6 +14701,188 @@ typedef $NotesFtsProcessedTableManager =
       $NotesFtsUpdateCompanionBuilder,
       (NotesFt, BaseReferences<_$AppDatabase, NotesFts, NotesFt>),
       NotesFt,
+      PrefetchHooks Function()
+    >;
+typedef $$SyncStatesTableCreateCompanionBuilder =
+    SyncStatesCompanion Function({
+      Value<String> id,
+      Value<int> lastPulledVersion,
+      Value<int?> lastSuccessfulSyncAt,
+      Value<String?> lastError,
+      Value<int> rowid,
+    });
+typedef $$SyncStatesTableUpdateCompanionBuilder =
+    SyncStatesCompanion Function({
+      Value<String> id,
+      Value<int> lastPulledVersion,
+      Value<int?> lastSuccessfulSyncAt,
+      Value<String?> lastError,
+      Value<int> rowid,
+    });
+
+class $$SyncStatesTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncStatesTable> {
+  $$SyncStatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastPulledVersion => $composableBuilder(
+    column: $table.lastPulledVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastSuccessfulSyncAt => $composableBuilder(
+    column: $table.lastSuccessfulSyncAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncStatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncStatesTable> {
+  $$SyncStatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastPulledVersion => $composableBuilder(
+    column: $table.lastPulledVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastSuccessfulSyncAt => $composableBuilder(
+    column: $table.lastSuccessfulSyncAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncStatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncStatesTable> {
+  $$SyncStatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get lastPulledVersion => $composableBuilder(
+    column: $table.lastPulledVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lastSuccessfulSyncAt => $composableBuilder(
+    column: $table.lastSuccessfulSyncAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+}
+
+class $$SyncStatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncStatesTable,
+          SyncState,
+          $$SyncStatesTableFilterComposer,
+          $$SyncStatesTableOrderingComposer,
+          $$SyncStatesTableAnnotationComposer,
+          $$SyncStatesTableCreateCompanionBuilder,
+          $$SyncStatesTableUpdateCompanionBuilder,
+          (
+            SyncState,
+            BaseReferences<_$AppDatabase, $SyncStatesTable, SyncState>,
+          ),
+          SyncState,
+          PrefetchHooks Function()
+        > {
+  $$SyncStatesTableTableManager(_$AppDatabase db, $SyncStatesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncStatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncStatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncStatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> lastPulledVersion = const Value.absent(),
+                Value<int?> lastSuccessfulSyncAt = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncStatesCompanion(
+                id: id,
+                lastPulledVersion: lastPulledVersion,
+                lastSuccessfulSyncAt: lastSuccessfulSyncAt,
+                lastError: lastError,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> lastPulledVersion = const Value.absent(),
+                Value<int?> lastSuccessfulSyncAt = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncStatesCompanion.insert(
+                id: id,
+                lastPulledVersion: lastPulledVersion,
+                lastSuccessfulSyncAt: lastSuccessfulSyncAt,
+                lastError: lastError,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncStatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncStatesTable,
+      SyncState,
+      $$SyncStatesTableFilterComposer,
+      $$SyncStatesTableOrderingComposer,
+      $$SyncStatesTableAnnotationComposer,
+      $$SyncStatesTableCreateCompanionBuilder,
+      $$SyncStatesTableUpdateCompanionBuilder,
+      (SyncState, BaseReferences<_$AppDatabase, $SyncStatesTable, SyncState>),
+      SyncState,
       PrefetchHooks Function()
     >;
 typedef $$ContactsTableCreateCompanionBuilder =
@@ -24584,6 +25099,8 @@ class $AppDatabaseManager {
       $$NotesTableTableManager(_db, _db.notes);
   $NotesFtsTableManager get notesFts =>
       $NotesFtsTableManager(_db, _db.notesFts);
+  $$SyncStatesTableTableManager get syncStates =>
+      $$SyncStatesTableTableManager(_db, _db.syncStates);
   $$ContactsTableTableManager get contacts =>
       $$ContactsTableTableManager(_db, _db.contacts);
   $$WorkspaceContactsTableTableManager get workspaceContacts =>

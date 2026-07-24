@@ -4,7 +4,10 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/app_config.dart';
 import 'core/debug_seed_stub.dart'
     if (dart.library.js_interop) 'core/debug_seed_web.dart';
 import 'core/providers.dart';
@@ -12,9 +15,21 @@ import 'core/router.dart';
 import 'core/theme.dart';
 import 'features/settings/settings_providers.dart';
 import 'l10n/app_localizations.dart';
+import 'sync/sync_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final preferences = await SharedPreferences.getInstance();
+  configureInitialDataProfile(preferences.getString('account.activeProfileId'));
+  if (AppConfig.hasSupabase) {
+    await Supabase.initialize(
+      url: AppConfig.supabaseUrl,
+      publishableKey: AppConfig.supabasePublishableKey,
+      authOptions: const FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.pkce,
+      ),
+    );
+  }
   final container = ProviderContainer();
   if (kDebugMode && kIsWeb) installDebugSeedHook(container);
   try {
@@ -63,6 +78,7 @@ class _TomeraAppState extends ConsumerState<TomeraApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       unawaited(_refreshRecurrence());
+      unawaited(ref.read(syncCoordinatorProvider.notifier).syncNow());
     }
   }
 
@@ -85,6 +101,7 @@ class _TomeraAppState extends ConsumerState<TomeraApp>
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(syncCoordinatorProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       localizationsDelegates: const [

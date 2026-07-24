@@ -92,6 +92,201 @@ class AppLocalizationsEn extends AppLocalizations {
       'Example data is optional and can be removed from Today.';
 
   @override
+  String get welcomeTitle => 'Your work, wherever you need it';
+
+  @override
+  String get welcomeBody =>
+      'Sign in to keep your data in sync, or use Tomera entirely on this device.';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithEmail => 'Continue with email';
+
+  @override
+  String get useLocallyAction => 'Use locally';
+
+  @override
+  String get localModeNote => 'You can create an account later from Settings.';
+
+  @override
+  String get signInTitle => 'Sign in';
+
+  @override
+  String get signUpTitle => 'Create your account';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get passwordMinimum => 'Use at least 8 characters';
+
+  @override
+  String get emailRequired => 'Enter your email address';
+
+  @override
+  String get invalidEmail => 'Enter a valid email address';
+
+  @override
+  String get signInAction => 'Sign in';
+
+  @override
+  String get signUpAction => 'Create account';
+
+  @override
+  String get forgotPasswordAction => 'Forgot password?';
+
+  @override
+  String get needAccountAction => 'Create an account';
+
+  @override
+  String get haveAccountAction => 'Already have an account? Sign in';
+
+  @override
+  String get checkEmailTitle => 'Check your email';
+
+  @override
+  String get checkEmailBody =>
+      'Open the confirmation link we sent you, then return to Tomera.';
+
+  @override
+  String get backToSignInAction => 'Back to sign in';
+
+  @override
+  String get resetPasswordTitle => 'Reset password';
+
+  @override
+  String get resetPasswordBody =>
+      'Enter your email and we’ll send you a secure reset link.';
+
+  @override
+  String get sendResetLinkAction => 'Send reset link';
+
+  @override
+  String get resetLinkSent => 'Password reset link sent.';
+
+  @override
+  String get newPasswordTitle => 'Choose a new password';
+
+  @override
+  String get updatePasswordAction => 'Update password';
+
+  @override
+  String get passwordUpdated => 'Password updated.';
+
+  @override
+  String get authCallbackTitle => 'Finishing sign in…';
+
+  @override
+  String get authConfigurationMissing =>
+      'Cloud accounts are not configured in this build.';
+
+  @override
+  String get authGenericError =>
+      'We couldn’t complete that request. Check your details and try again.';
+
+  @override
+  String get authInvalidCredentials =>
+      'The email address or password is incorrect.';
+
+  @override
+  String get authEmailUnconfirmed =>
+      'Confirm your email address before signing in.';
+
+  @override
+  String get authEmailAlreadyRegistered =>
+      'An account already exists for this email address.';
+
+  @override
+  String get authRateLimited =>
+      'Too many attempts. Wait a moment and try again.';
+
+  @override
+  String get authWeakPassword =>
+      'Choose a stronger password with at least 8 characters.';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get localAccountTitle => 'Local only';
+
+  @override
+  String get localAccountSubtitle => 'Your data is stored only on this device.';
+
+  @override
+  String get cloudAccountSubtitle =>
+      'Your data is available offline and syncs with Supabase.';
+
+  @override
+  String get reconnectAccountTitle => 'Reconnect your account';
+
+  @override
+  String get reconnectAccountSubtitle =>
+      'Your account data remains safely cached on this device. Sign in again to resume syncing.';
+
+  @override
+  String get signOutAction => 'Sign out';
+
+  @override
+  String get deleteAccountAction => 'Delete account';
+
+  @override
+  String get deleteAccountTitle => 'Delete account permanently?';
+
+  @override
+  String get deleteAccountBody =>
+      'This removes the account and all cloud data. Enter your email to confirm.';
+
+  @override
+  String get deleteAccountEmailMismatch => 'The email address does not match.';
+
+  @override
+  String get syncNowAction => 'Sync now';
+
+  @override
+  String get syncStatusIdle => 'All changes synced';
+
+  @override
+  String get syncStatusWorking => 'Syncing…';
+
+  @override
+  String get syncStatusOffline => 'Offline — changes will retry automatically';
+
+  @override
+  String get syncStatusError => 'Sync paused — tap to retry';
+
+  @override
+  String syncPendingChanges(int count) {
+    return '$count pending';
+  }
+
+  @override
+  String syncLastSuccessful(String time) {
+    return 'Last synced $time';
+  }
+
+  @override
+  String get importLocalDataAction => 'Import local data';
+
+  @override
+  String get mergeLocalTitle => 'Add local data to this account?';
+
+  @override
+  String get mergeLocalBody =>
+      'This device and the account both contain data. You can merge them or keep the local profile separate.';
+
+  @override
+  String get mergeAction => 'Merge data';
+
+  @override
+  String get keepSeparateAction => 'Keep separate';
+
+  @override
   String get checklistTitle => 'Finish setting up Tomera';
 
   @override
@@ -814,9 +1009,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactName => 'Name';
-
-  @override
-  String get emailLabel => 'Email';
 
   @override
   String get phoneLabel => 'Phone';

@@ -15,13 +15,13 @@ void main() {
   });
 
   group('historical schema migrations', () {
-    for (final fromVersion in GeneratedHelper.versions.where((v) => v < 7)) {
-      test('v$fromVersion migrates to v7', () async {
+    for (final fromVersion in GeneratedHelper.versions.where((v) => v < 8)) {
+      test('v$fromVersion migrates to v8', () async {
         final schema = await verifier.schemaAt(fromVersion);
         addTearDown(schema.close);
         final db = AppDatabase(schema.newConnection());
 
-        await verifier.migrateAndValidate(db, 7);
+        await verifier.migrateAndValidate(db, 8);
         await db.close();
       });
     }
@@ -74,7 +74,7 @@ void main() {
       ''');
 
         final db = AppDatabase(schema.newConnection());
-        await verifier.migrateAndValidate(db, 7);
+        await verifier.migrateAndValidate(db, 8);
 
         final activeRoles = await db.customSelect('''
         SELECT id FROM workspace_contacts WHERE deleted_at IS NULL
@@ -104,7 +104,7 @@ void main() {
       },
     );
 
-    test('v5 data survives v7 and done tasks receive a timestamp', () async {
+    test('v5 data survives v8 and done tasks receive a timestamp', () async {
       final schema = await verifier.schemaAt(5);
       addTearDown(schema.close);
       final raw = schema.rawDatabase;
@@ -125,7 +125,7 @@ void main() {
       ''');
 
       final db = AppDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(db, 7);
+      await verifier.migrateAndValidate(db, 8);
 
       final task = await db
           .customSelect("SELECT title, completed_at FROM tasks WHERE id = 't'")
@@ -174,7 +174,7 @@ void main() {
       ''');
 
       final db = AppDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(db, 7);
+      await verifier.migrateAndValidate(db, 8);
 
       final event = await db.customSelect('''
         SELECT title, series_id, occurrence_key, recurrence_suppressed

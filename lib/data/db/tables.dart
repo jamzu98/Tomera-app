@@ -22,6 +22,17 @@ mixin SyncColumns on Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+/// Device-local cursor and health metadata. This table is never uploaded.
+class SyncStates extends Table {
+  TextColumn get id => text().withDefault(const Constant('default'))();
+  IntColumn get lastPulledVersion => integer().withDefault(const Constant(0))();
+  IntColumn get lastSuccessfulSyncAt => integer().nullable()();
+  TextColumn get lastError => text().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 @TableIndex.sql(
   'CREATE INDEX workspaces_active_sort '
   'ON workspaces (sort_order) WHERE deleted_at IS NULL',

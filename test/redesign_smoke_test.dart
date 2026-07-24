@@ -290,7 +290,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 10));
   });
 
-  testWidgets('empty databases are gated through first-workspace setup', (
+  testWidgets('fresh installs choose account mode before workspace setup', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
@@ -305,6 +305,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     final router = container.read(routerProvider);
+    expect(router.routeInformationProvider.value.uri.path, '/welcome');
+    expect(find.text('Your work, wherever you need it'), findsOneWidget);
+    await tester.tap(find.text('Use locally'));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
     expect(router.routeInformationProvider.value.uri.path, '/setup');
     expect(find.text('Set up your first workspace'), findsOneWidget);
 

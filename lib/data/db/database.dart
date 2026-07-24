@@ -37,6 +37,7 @@ const _legacyColorRemap = <int, int>{
 @DriftDatabase(
   include: {'notes_fts.drift'},
   tables: [
+    SyncStates,
     Workspaces,
     Contacts,
     WorkspaceContacts,
@@ -69,9 +70,9 @@ class AppDatabase extends _$AppDatabase {
   /// Takes an explicit executor so tests can pass an in-memory database.
   AppDatabase(super.e);
 
-  factory AppDatabase.open() => AppDatabase(
+  factory AppDatabase.open({String name = 'tomera'}) => AppDatabase(
     driftDatabase(
-      name: 'tomera',
+      name: name,
       web: DriftWebOptions(
         sqlite3Wasm: Uri.parse('sqlite3.wasm'),
         driftWorker: Uri.parse('drift_worker.js'),
@@ -86,8 +87,30 @@ class AppDatabase extends _$AppDatabase {
   Future<void> createSnapshot(String destinationPath) =>
       customStatement('VACUUM INTO ?', [destinationPath]);
 
+  /// Clears one profile cache after its remote account has been deleted.
+  Future<void> clearProfileData() => transaction(() async {
+    await batch((batch) {
+      batch.deleteAll(syncStates);
+      batch.deleteAll(reminders);
+      batch.deleteAll(billableItems);
+      batch.deleteAll(timerSessions);
+      batch.deleteAll(noteLinks);
+      batch.deleteAll(notes);
+      batch.deleteAll(tasks);
+      batch.deleteAll(taskSeriesTable);
+      batch.deleteAll(eventContacts);
+      batch.deleteAll(events);
+      batch.deleteAll(eventSeriesContacts);
+      batch.deleteAll(eventSeriesTable);
+      batch.deleteAll(projects);
+      batch.deleteAll(workspaceContacts);
+      batch.deleteAll(contacts);
+      batch.deleteAll(workspaces);
+    });
+  });
+
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -255,6 +278,9 @@ class AppDatabase extends _$AppDatabase {
         for (final statement in _schemaV7Indexes) {
           await customStatement(statement);
         }
+      }
+      if (from < 8) {
+        await m.createTable(syncStates);
       }
     },
     beforeOpen: (details) async {

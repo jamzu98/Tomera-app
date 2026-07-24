@@ -256,6 +256,360 @@ abstract class AppLocalizations {
   /// **'Example data is optional and can be removed from Today.'**
   String get demoDataNote;
 
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your work, wherever you need it'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to keep your data in sync, or use Tomera entirely on this device.'**
+  String get welcomeBody;
+
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @continueWithEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with email'**
+  String get continueWithEmail;
+
+  /// No description provided for @useLocallyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Use locally'**
+  String get useLocallyAction;
+
+  /// No description provided for @localModeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can create an account later from Settings.'**
+  String get localModeNote;
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInTitle;
+
+  /// No description provided for @signUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get signUpTitle;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @passwordMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters'**
+  String get passwordMinimum;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address'**
+  String get emailRequired;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get invalidEmail;
+
+  /// No description provided for @signInAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInAction;
+
+  /// No description provided for @signUpAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get signUpAction;
+
+  /// No description provided for @forgotPasswordAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPasswordAction;
+
+  /// No description provided for @needAccountAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get needAccountAction;
+
+  /// No description provided for @haveAccountAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get haveAccountAction;
+
+  /// No description provided for @checkEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get checkEmailTitle;
+
+  /// No description provided for @checkEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the confirmation link we sent you, then return to Tomera.'**
+  String get checkEmailBody;
+
+  /// No description provided for @backToSignInAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get backToSignInAction;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we’ll send you a secure reset link.'**
+  String get resetPasswordBody;
+
+  /// No description provided for @sendResetLinkAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get sendResetLinkAction;
+
+  /// No description provided for @resetLinkSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset link sent.'**
+  String get resetLinkSent;
+
+  /// No description provided for @newPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password'**
+  String get newPasswordTitle;
+
+  /// No description provided for @updatePasswordAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update password'**
+  String get updatePasswordAction;
+
+  /// No description provided for @passwordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated.'**
+  String get passwordUpdated;
+
+  /// No description provided for @authCallbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishing sign in…'**
+  String get authCallbackTitle;
+
+  /// No description provided for @authConfigurationMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud accounts are not configured in this build.'**
+  String get authConfigurationMissing;
+
+  /// No description provided for @authGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t complete that request. Check your details and try again.'**
+  String get authGenericError;
+
+  /// No description provided for @authInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'The email address or password is incorrect.'**
+  String get authInvalidCredentials;
+
+  /// No description provided for @authEmailUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email address before signing in.'**
+  String get authEmailUnconfirmed;
+
+  /// No description provided for @authEmailAlreadyRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'An account already exists for this email address.'**
+  String get authEmailAlreadyRegistered;
+
+  /// No description provided for @authRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait a moment and try again.'**
+  String get authRateLimited;
+
+  /// No description provided for @authWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a stronger password with at least 8 characters.'**
+  String get authWeakPassword;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountTitle;
+
+  /// No description provided for @localAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local only'**
+  String get localAccountTitle;
+
+  /// No description provided for @localAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is stored only on this device.'**
+  String get localAccountSubtitle;
+
+  /// No description provided for @cloudAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is available offline and syncs with Supabase.'**
+  String get cloudAccountSubtitle;
+
+  /// No description provided for @reconnectAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnect your account'**
+  String get reconnectAccountTitle;
+
+  /// No description provided for @reconnectAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account data remains safely cached on this device. Sign in again to resume syncing.'**
+  String get reconnectAccountSubtitle;
+
+  /// No description provided for @signOutAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOutAction;
+
+  /// No description provided for @deleteAccountAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccountAction;
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account permanently?'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the account and all cloud data. Enter your email to confirm.'**
+  String get deleteAccountBody;
+
+  /// No description provided for @deleteAccountEmailMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The email address does not match.'**
+  String get deleteAccountEmailMismatch;
+
+  /// No description provided for @syncNowAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNowAction;
+
+  /// No description provided for @syncStatusIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'All changes synced'**
+  String get syncStatusIdle;
+
+  /// No description provided for @syncStatusWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get syncStatusWorking;
+
+  /// No description provided for @syncStatusOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — changes will retry automatically'**
+  String get syncStatusOffline;
+
+  /// No description provided for @syncStatusError.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync paused — tap to retry'**
+  String get syncStatusError;
+
+  /// No description provided for @syncPendingChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pending'**
+  String syncPendingChanges(int count);
+
+  /// No description provided for @syncLastSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced {time}'**
+  String syncLastSuccessful(String time);
+
+  /// No description provided for @importLocalDataAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Import local data'**
+  String get importLocalDataAction;
+
+  /// No description provided for @mergeLocalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add local data to this account?'**
+  String get mergeLocalTitle;
+
+  /// No description provided for @mergeLocalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This device and the account both contain data. You can merge them or keep the local profile separate.'**
+  String get mergeLocalBody;
+
+  /// No description provided for @mergeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge data'**
+  String get mergeAction;
+
+  /// No description provided for @keepSeparateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep separate'**
+  String get keepSeparateAction;
+
   /// No description provided for @checklistTitle.
   ///
   /// In en, this message translates to:
@@ -1635,12 +1989,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Name'**
   String get contactName;
-
-  /// No description provided for @emailLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Email'**
-  String get emailLabel;
 
   /// No description provided for @phoneLabel.
   ///

@@ -8,7 +8,7 @@ import 'package:tomera/features/settings/backup/backup_database_validator.dart';
 import 'generated_schema.dart/schema.dart';
 
 void main() {
-  test('real backup validator migrates a v5 database to v7', () async {
+  test('real backup validator migrates a v5 database to v8', () async {
     final directory = await Directory.systemTemp.createTemp(
       'tomera-backup-validator-',
     );
@@ -36,7 +36,7 @@ void main() {
 
     await validateAndMigrateBackupDatabase(
       databasePath,
-      currentSchemaVersion: 7,
+      currentSchemaVersion: 8,
     );
 
     final migrated = sqlite.sqlite3.open(
@@ -44,7 +44,7 @@ void main() {
       mode: sqlite.OpenMode.readOnly,
     );
     addTearDown(migrated.close);
-    expect(migrated.select('PRAGMA user_version').single.values.single, 7);
+    expect(migrated.select('PRAGMA user_version').single.values.single, 8);
     final task = migrated.select('''
       SELECT title, completed_at, task_series_id
       FROM tasks WHERE id = 'task'
@@ -56,10 +56,15 @@ void main() {
       migrated
           .select(
             "SELECT name FROM sqlite_schema WHERE type = 'table' "
-            "AND name IN ('event_series', 'task_series', 'note_links')",
+            "AND name IN ('event_series', 'task_series', 'note_links', 'sync_states')",
           )
           .map((row) => row['name']),
-      containsAll(<String>['event_series', 'task_series', 'note_links']),
+      containsAll(<String>[
+        'event_series',
+        'task_series',
+        'note_links',
+        'sync_states',
+      ]),
     );
     expect(
       migrated.select('PRAGMA integrity_check').single.values.single,

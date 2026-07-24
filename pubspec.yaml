@@ -58,6 +58,8 @@ dependencies:
   syncfusion_flutter_calendar: ^33.2.15
   syncfusion_flutter_core: ^33.2.15
   syncfusion_flutter_datepicker: ^33.2.15
+  supabase_flutter: ^2.16.0
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:

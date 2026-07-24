@@ -27,9 +27,36 @@ part 'providers.g.dart';
 
 /// Owns the native Drift connection so restore can await a full close before
 /// atomically replacing the SQLite file, then reopen it for all repositories.
+String? _initialProfileUserId;
+
+void configureInitialDataProfile(String? userId) {
+  _initialProfileUserId = userId;
+}
+
+String _databaseNameForUser(String? userId) =>
+    userId == null ? 'tomera' : 'tomera_user_${userId.replaceAll('-', '')}';
+
+class DataProfile {
+  const DataProfile.guest() : userId = null;
+  const DataProfile.user(this.userId);
+
+  final String? userId;
+  bool get isGuest => userId == null;
+  String get databaseName => _databaseNameForUser(userId);
+}
+
 class DatabaseLifecycle {
-  AppDatabase _database = AppDatabase.open();
+  DatabaseLifecycle({String? initialUserId})
+    : _activeProfile = initialUserId == null
+          ? const DataProfile.guest()
+          : DataProfile.user(initialUserId),
+      _database = AppDatabase.open(name: _databaseNameForUser(initialUserId));
+
+  AppDatabase _database;
+  DataProfile _activeProfile;
   var _closed = false;
+
+  DataProfile get activeProfile => _activeProfile;
 
   AppDatabase get database {
     if (_closed) {
@@ -46,8 +73,30 @@ class DatabaseLifecycle {
 
   void reopen() {
     if (!_closed) return;
-    _database = AppDatabase.open();
+    _database = AppDatabase.open(name: _activeProfile.databaseName);
     _closed = false;
+  }
+
+  Future<void> switchProfile(DataProfile profile) async {
+    if (_activeProfile.userId == profile.userId && !_closed) return;
+    if (!_closed) await _database.close();
+    _activeProfile = profile;
+    _database = AppDatabase.open(name: profile.databaseName);
+    _closed = false;
+  }
+
+  Future<void> clearUserProfile(String userId) async {
+    final profile = DataProfile.user(userId);
+    if (_activeProfile.userId == userId) {
+      await _database.clearProfileData();
+      return;
+    }
+    final database = AppDatabase.open(name: profile.databaseName);
+    try {
+      await database.clearProfileData();
+    } finally {
+      await database.close();
+    }
   }
 
   Future<void> dispose() async {
@@ -58,7 +107,7 @@ class DatabaseLifecycle {
 }
 
 final databaseLifecycleProvider = Provider<DatabaseLifecycle>((ref) {
-  final lifecycle = DatabaseLifecycle();
+  final lifecycle = DatabaseLifecycle(initialUserId: _initialProfileUserId);
   ref.onDispose(() => unawaited(lifecycle.dispose()));
   return lifecycle;
 });
@@ -72,6 +121,42 @@ class DatabaseRestoreEpoch extends Notifier<int> {
 
 final databaseRestoreEpochProvider =
     NotifierProvider<DatabaseRestoreEpoch, int>(DatabaseRestoreEpoch.new);
+
+class DataProfileController extends Notifier<DataProfile> {
+  @override
+  DataProfile build() => _initialProfileUserId == null
+      ? const DataProfile.guest()
+      : DataProfile.user(_initialProfileUserId);
+
+  Future<void> switchToGuest() => _switch(const DataProfile.guest());
+
+  Future<void> switchToUser(String userId) => _switch(DataProfile.user(userId));
+
+  Future<void> clearUser(String userId) async {
+    final lifecycle = ref.read(databaseLifecycleProvider);
+    await lifecycle.clearUserProfile(userId);
+    if (state.userId == userId) await switchToGuest();
+  }
+
+  Future<void> _switch(DataProfile profile) async {
+    if (state.userId == profile.userId) return;
+    await ref.read(databaseLifecycleProvider).switchProfile(profile);
+    state = profile;
+    ref.read(databaseRestoreEpochProvider.notifier).bump();
+    ref.read(selectedWorkspaceIdProvider.notifier).select(null);
+    try {
+      await ref.read(reminderCoordinatorProvider).reconcileFromDatabase();
+    } on Object {
+      // The profile is already switched; notification state can be repaired
+      // on the next launch or resume if the OS service is unavailable.
+    }
+  }
+}
+
+final dataProfileControllerProvider =
+    NotifierProvider<DataProfileController, DataProfile>(
+      DataProfileController.new,
+    );
 
 @Riverpod(keepAlive: true)
 AppDatabase appDatabase(Ref ref) {

@@ -5,7 +5,8 @@
 Tomera brings calendars, tasks, notes, contacts, projects, and finances into one thoughtfully designed Flutter app. Work can be separated into color-coded workspaces while still remaining easy to view as a whole.
 
 > [!NOTE]
-> Tomera is currently under active development. Data is stored locally on the device; cloud synchronization is planned for a future release.
+> Tomera is currently under active development. It remains fully local-first;
+> optional Supabase accounts add encrypted-in-transit cloud synchronization.
 
 ## Preview
 
@@ -67,6 +68,33 @@ flutter run
 
 Tomera creates its local database automatically on first launch.
 
+### Optional Supabase accounts
+
+Local-only mode needs no cloud configuration. To enable accounts and sync,
+link the `supabase/` directory to an existing Supabase project, apply its
+migrations, deploy the `delete-account` function, and run Flutter with:
+
+```bash
+supabase link --project-ref YOUR_PROJECT_REF
+supabase db push
+supabase functions deploy delete-account
+```
+
+```bash
+flutter run \
+  --dart-define=SUPABASE_URL=https://PROJECT.supabase.co \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_... \
+  --dart-define=GOOGLE_WEB_CLIENT_ID=CLIENT.apps.googleusercontent.com
+```
+
+Enable email confirmation and Google in Supabase Auth. Add
+`tomera://auth-callback` plus the deployed web `/auth/callback` URL to the
+redirect allowlist. In Google Cloud, register Android package
+`fi.makkonen.tomera` with the release/debug SHA fingerprints and configure the
+web OAuth client in Supabase. Production email confirmation and password reset
+also require a production SMTP provider. Never place a Supabase secret or
+service-role key in the Flutter build.
+
 ## Development
 
 Run static analysis and the automated test suite before submitting changes:
@@ -90,12 +118,12 @@ lib/
 ├── data/       # Drift database, DAOs, and repositories
 ├── features/   # Calendar, tasks, notes, contacts, finance, and more
 ├── l10n/       # Localization resources
-└── sync/       # Reserved for the planned synchronization layer
+├── auth/       # Optional Supabase authentication and account state
+└── sync/       # Drift-to-Supabase synchronization engine
 ```
 
 ## Roadmap
 
-- Cloud authentication and multi-device synchronization
 - Continued platform refinement and broader release support
 - Additional localization coverage
 

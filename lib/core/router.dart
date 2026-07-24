@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../auth/auth_providers.dart';
+import '../features/auth/auth_screens.dart';
 import '../features/calendar/calendar_screen.dart';
 import '../features/calendar/event_edit_screen.dart';
 import '../features/contacts/contact_detail_screen.dart';
@@ -46,8 +48,13 @@ String _withQuery(GoRouterState state, String path) => Uri(
 @Riverpod(keepAlive: true)
 GoRouter router(Ref ref) {
   final redirectRefresh = ValueNotifier(0);
+  var inferredExistingLocalUser = false;
+  var markingExistingLocalUser = false;
   ref.onDispose(redirectRefresh.dispose);
   ref.listen(allWorkspacesProvider, (previous, next) {
+    redirectRefresh.value++;
+  });
+  ref.listen(accountControllerProvider, (previous, next) {
     redirectRefresh.value++;
   });
   return GoRouter(
@@ -57,11 +64,83 @@ GoRouter router(Ref ref) {
     redirect: (context, state) {
       final rows = ref.read(allWorkspacesProvider).value;
       if (rows == null) return null;
-      if (rows.isEmpty && state.uri.path != '/setup') return '/setup';
+      final account = ref.read(accountControllerProvider).value;
+      if (account == null) return null;
+      final path = state.uri.path;
+      final isAuthPath = path == '/welcome' || path.startsWith('/auth');
+      if (account.mergeRequired && path != '/auth/merge') {
+        return '/auth/merge';
+      }
+      if (account.passwordRecovery && path != '/auth/update-password') {
+        return '/auth/update-password';
+      }
+      if (rows.isNotEmpty && !account.accountChoiceComplete) {
+        inferredExistingLocalUser = true;
+        if (!markingExistingLocalUser) {
+          markingExistingLocalUser = true;
+          Future<void>.microtask(() async {
+            try {
+              await ref.read(accountControllerProvider.notifier).chooseLocal();
+            } on Object {
+              // Routing already preserves the existing local workspace; the
+              // preference can be written again on the next launch.
+            } finally {
+              markingExistingLocalUser = false;
+            }
+          });
+        }
+      }
+      final existingLocalUser = rows.isNotEmpty || inferredExistingLocalUser;
+      if (!account.accountChoiceComplete && !existingLocalUser && !isAuthPath) {
+        return '/welcome';
+      }
+      if (account.accountChoiceComplete && path == '/welcome') {
+        return rows.isEmpty ? '/setup' : '/today';
+      }
+      if (rows.isEmpty && !isAuthPath && path != '/setup') return '/setup';
       if (rows.isNotEmpty && state.uri.path == '/setup') return '/today';
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/welcome',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/auth',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => EmailAuthScreen(
+          initialSignUp: state.uri.queryParameters['mode'] == 'signup',
+        ),
+        routes: [
+          GoRoute(
+            path: 'check-email',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const CheckEmailScreen(),
+          ),
+          GoRoute(
+            path: 'forgot-password',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const ForgotPasswordScreen(),
+          ),
+          GoRoute(
+            path: 'update-password',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const UpdatePasswordScreen(),
+          ),
+          GoRoute(
+            path: 'callback',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const AuthCallbackScreen(),
+          ),
+          GoRoute(
+            path: 'merge',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const MergeLocalDataScreen(),
+          ),
+        ],
+      ),
       GoRoute(
         path: '/setup',
         parentNavigatorKey: _rootNavigatorKey,
